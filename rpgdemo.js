@@ -43,16 +43,16 @@ var TILE_HEIGHT = 32;
 
 /* How many map squares to display at a time (in both x and y dimensions) in
  * the screen view */
-var TILES_ON_SCREEN_X = 9;
-var TILES_ON_SCREEN_Y = 7;
+var TILES_ON_SCREEN_X = 13;
+var TILES_ON_SCREEN_Y = 11;
 
 /* The auto-scrolling code will scroll the map to try to keep the player
  * character sprite's position between square 3 and square 7 of the screen
  * view */
-var MIN_SCREEN_SQUARE_X = 3;
-var MAX_SCREEN_SQUARE_X = 5;
-var MIN_SCREEN_SQUARE_Y = 2;
-var MAX_SCREEN_SQUARE_Y = 4;
+var MIN_SCREEN_SQUARE_X = 5;
+var MAX_SCREEN_SQUARE_X = 7;
+var MIN_SCREEN_SQUARE_Y = 4;
+var MAX_SCREEN_SQUARE_Y = 6;
 
 // Class representing a single square on the map:
 function MapSquare(subMap, x, y, passable) {
@@ -489,7 +489,7 @@ function setWorldmap(mapXml) {
     var img = new Image();
     img.src = "images/Char1.png";
     g_player = new Sprite(23, 13, img, worldmap, 0, FACING_DOWN);
-    worldmap.scroll(19, 10);
+    worldmap.scroll(17, 8);
     img.onload = function() {
         g_player.plot();
     };

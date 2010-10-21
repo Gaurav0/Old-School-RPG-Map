@@ -1,5 +1,26 @@
-canvas {
+header {
+	display: block;
 	position: absolute;
 	top: 10px;
 	left: 10px;
+}
+
+canvas {
+	position: absolute;
+	top: 120px;
+	left: 10px;
+}
+
+footer {
+	display: block;
+	position: absolute;
+	top: 540px;
+	left: 10px;
+}
+
+footer small {
+	display: block;
+	margin: 0;
+	font-family: Verdana, Helvetica, sans-serif;
+	font-size: 10px;
 }
