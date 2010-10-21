@@ -1,0 +1,527 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is Old School RPG Map.
+ *
+ * The Initial Developer of the Original Code is Jono Xia.
+ * Portions created by the Initial Developer are Copyright (C) 2007
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Jono Xia <jono@mozilla.com>
+ *   Gaurav Munjal
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+// Tested in Firefox 3.6, Firefox 4b6, Chrome 7, Safari 5/Win, Opera 10.63, and IE9b1.
+
+// How many pixels is one square of the map
+var TILE_WIDTH = 32;
+var TILE_HEIGHT = 32;
+
+/* How many map squares to display at a time (in both x and y dimensions) in
+ * the screen view */
+var TILES_ON_SCREEN_X = 9;
+var TILES_ON_SCREEN_Y = 7;
+
+/* The auto-scrolling code will scroll the map to try to keep the player
+ * character sprite's position between square 3 and square 7 of the screen
+ * view */
+var MIN_SCREEN_SQUARE_X = 3;
+var MAX_SCREEN_SQUARE_X = 5;
+var MIN_SCREEN_SQUARE_Y = 2;
+var MAX_SCREEN_SQUARE_Y = 4;
+
+// Class representing a single square on the map:
+function MapSquare(subMap, x, y, passable) {
+    if (subMap) {
+        this._mapSquareInit(subMap, x, y, passable);
+    }
+}
+MapSquare.prototype = {
+    _mapSquareInit: function(subMap, x, y, passable) {
+        this._subMap = subMap;
+        this._x = x;
+        this._y = y;
+        this._passable = passable;
+    },
+
+    get x() {
+        return this._x;
+    },
+
+    get y() {
+        return this._y;
+    },
+
+    /* Returns true if the player character can move through this square.
+     * We're assuming a square is either passable or not; this method will
+     * need additional arguments if you want to make squares that are
+     * passable by some characters but not by others, etc.*/
+    passable: function() {
+        return this._passable;
+    },
+
+    onEnter: function(player) {
+        // Not implemented - What happens when the player steps on this square?
+    }
+};
+
+/* Consider implementing subclasses of MapSquare to create special squares
+ * like town and dungeon entrances. */
+
+
+/* Class representing an individual self-contained map region - for instance, 
+ * a single dungeon level would be a SubMap; the overworld would be another.*/
+function SubMap(mapXml, tileset) {
+    this._init(mapXml, tileset);
+}
+SubMap.prototype = {
+    /* Initialize a SubMap by passing in a Tiled format loaded xml
+     * and a tileset instance .*/
+    _init: function(mapXml, tileset) {
+        this._layer = $(mapXml).find('map layer').eq(0);
+        this._xLimit = parseInt($(this._layer).attr('width'));
+        this._yLimit = parseInt($(this._layer).attr('height'));
+        this._mapXml = mapXml;
+        this._tileset = tileset;
+        this._mapSquares = [];
+        
+        // Create mapSquares table used to cache passable info.
+        var baseTiles = $(mapXml).find('layer[name="Base"]').find('tile');
+        var impassableTiles = $(mapXml).find('layer[name="Impassable"]').find('tile');
+        for (var y = 0; y < this._yLimit; y++) {
+            var mapSquareRow = [];
+            for (var x = 0; x < this._xLimit; x++) {
+                var idx = y * this._xLimit + x;
+                
+                // passable if base layer has water tile or Impassable layer has any tile
+                var passable = parseInt(baseTiles.eq(idx).attr('gid')) != 87;
+                passable = passable && (parseInt(impassableTiles.eq(idx).attr('gid')) == 0);
+                
+                var square = new MapSquare(this, x, y, passable);
+                mapSquareRow.push(square);
+            }
+            this._mapSquares.push(mapSquareRow);
+        }
+    },
+
+    get xLimit() {
+        return this._xLimit;
+    },
+
+    get yLimit() {
+        return this._yLimit;
+    },
+
+    get tileset() {
+        return this._tileset;
+    },
+
+    /* True if the point x, y (in world coordinates) is within the bounds
+     * of the submap. */
+    pointInBounds: function(x, y) {
+        if (x < 0 || x >= this._xLimit) {
+            return false;
+        }
+        if (y < 0 || y >= this._yLimit) {
+            return false;
+        }
+
+        return true;
+    },
+
+    /* True if the square at position x, y (in world coordinates) is within
+     * the bounds of the submap. */
+    isPassable: function(x, y) {
+        return this._mapSquares[y][x].passable();
+    },
+
+    /* Returns the MapSquare instance at position x, y (in world
+     * coordinates). */
+    getSquareAt: function(x, y) {
+        if (!this.pointInBounds(x, y)) {
+            return null;
+        }
+        return this._mapSquares[y][x];
+    },
+    
+    /* This function renders the current view of the map into this
+     * canvas. */
+    redraw: function(scrollX, scrollY) {
+        
+        var xLimit = this._xLimit;
+        var tileset = this._tileset;
+        
+        $(this._mapXml).find('map layer data').each(function()
+        {
+            var tiles = $(this).find('tile');
+            for (var y = 0; y < TILES_ON_SCREEN_Y; ++y) {
+                for (var x = 0; x < TILES_ON_SCREEN_X; ++x) {
+                    var idx = (y + scrollY) * xLimit + x + scrollX;
+                    var gid = tiles.eq(idx).attr('gid');
+                    if (gid > 0) {
+                        tileset.drawClip(gid, x, y);
+                    }
+                }
+            }
+        });
+    }
+
+};
+
+
+/* Main map manager class.  This class is a container for any number
+ * of sub-maps; it's assumed that the default map is an 'overworld' or
+ * main world map; it's initialized by the two-dimensional mapXml array that
+ * you pass in.  You can also call addSubMap to add additional sub-maps.*/
+function WorldMap(mapXml, tileset) {
+    this._init(mapXml, tileset);
+}
+WorldMap.prototype = {
+    _init: function(mapXml, tileset) {
+        this._subMapList = [];
+        this._currentSubMap = 0;
+        this._scrollX = 0;
+        this._scrollY = 0;
+
+        var mainMap = new SubMap(mapXml, tileset);
+        this._subMapList.push(mainMap); // main map is id = 0
+    },
+
+    getSubMap: function(id) {
+        return this._subMapList[id];
+    },
+
+    getCurrentSubMapId: function() {
+        return this._currentSubMap;
+    },
+
+    get xLimit() {
+        return this._subMapList[this._currentSubMap].xLimit;
+    },
+
+    get yLimit() {
+        return this._subMapList[this._currentSubMap].yLimit;
+    },
+
+    // Returns true if the given point (world coordinates) is
+    // in-bounds for the active sub-map.
+    pointInBounds: function(x, y) {
+        return this._subMapList[this._currentSubMap].pointInBounds(x, y);
+    },
+
+    // Returns true if the given point (world coordinates) is passable
+    // to the player character.
+    isPassable: function(x, y) {
+        return this._subMapList[this._currentSubMap].isPassable(x, y);
+    },
+
+    getSquareAt: function(x, y) {
+        var square = this._subMapList[this._currentSubMap].getSquareAt(x, y);
+        return square;
+    },
+
+    // transforms world coords (in squares) to screen coords (in pixels):
+    transform: function( worldX, worldY ) {
+        var screenX = TILE_WIDTH * (worldX - this._scrollX);
+        var screenY = TILE_HEIGHT * (worldY - this._scrollY);
+        return [screenX, screenY];
+    },
+
+    // Returns true if the given point is currently on-screen
+    isOnScreen: function( worldX, worldY ) {
+        var screenX = worldX - this._scrollX;
+        var screenY = worldY - this._scrollY;
+        return (screenX > -1 && screenX < TILES_ON_SCREEN_X
+                && screenY > -1 && screenY < TILES_ON_SCREEN_Y);
+    },
+
+    // plotAt, but also scrolls screen if this is too close to the edge and it's
+    // possible to scroll.
+    autoScrollToPlayer: function( x, y ) {
+        var screenX = x - this._scrollX;
+        var screenY = y - this._scrollY;
+        var scrollVal = 0;
+        if (screenX < MIN_SCREEN_SQUARE_X) {
+            this.scroll( (screenX - MIN_SCREEN_SQUARE_X), 0 );
+        } else if (screenX > MAX_SCREEN_SQUARE_X) {
+            this.scroll( (screenX - MAX_SCREEN_SQUARE_X), 0 );
+        }
+        if (screenY < MIN_SCREEN_SQUARE_Y) {
+            this.scroll( 0, (screenY - MIN_SCREEN_SQUARE_Y) );
+        } else if (screenY > MAX_SCREEN_SQUARE_Y) {
+            this.scroll( 0, (screenY - MAX_SCREEN_SQUARE_Y ) );
+        }
+    },
+
+    /* Scrolls the current view of the map horizontally by deltaX squares
+     * and vertically by deltaY squares.  Positive number means the view
+     * is moving to the right relative to the underlying world map. */
+    scroll: function( deltaX, deltaY ) {
+        var scrollX = this._scrollX + deltaX;
+        var scrollY = this._scrollY + deltaY;
+        if (scrollX < 0)
+            scrollX = 0;
+        if (scrollX + TILES_ON_SCREEN_X > this.xLimit)
+            scrollX = this.xLimit - TILES_ON_SCREEN_X;
+        if (scrollY < 0)
+            scrollY = 0;
+        if (scrollY + TILES_ON_SCREEN_Y > this.yLimit)
+            scrollY = this.yLimit - TILES_ON_SCREEN_Y;
+
+        if (scrollX != this._scrollX || scrollY != this._scrollY) {
+            this._scrollX = scrollX;
+            this._scrollY = scrollY;
+            //Save time - only redraw if the scroll values actually changed
+            this.redraw();
+        }
+    },
+
+    /* This function renders the current view of the map into this
+     * canvas. */
+    redraw: function() {
+        this._subMapList[this._currentSubMap].redraw(this._scrollX, this._scrollY);
+    },
+
+    /* Creates and adds a new sub-map from the given data, which must
+     * be a 2-dimensional array of integers corresponding to 
+     * TERRAIN_TYPE codes. 
+     * Returns new map id so client code can keep it for reference.*/
+    addSubMap: function(submapXml) {
+        this._subMapList.push(new SubMap(submapXml));
+        return this._subMapList.length - 1;
+    },
+
+    /* Moves sprite to the submap identified by mapId at point x,y
+     * and changes view to match. */
+    goToMap: function(sprite, mapId, x, y) {
+        this._currentSubMap = mapId;
+        sprite.enterNewSubMap(mapId, x, y);
+        this.autoScrollToPlayer(x, y);
+        this.redraw();
+    }
+};
+
+var FACING_UP = 0;
+var FACING_RIGHT = 1;
+var FACING_DOWN = 2;
+var FACING_LEFT = 3;
+
+/* Class representing an object that can move around the map, such
+ * as a player character. Sprite objects are drawn superimposed on
+ * the map using a div with z-index=1 and absolute positioning (these
+ * CSS styles are defined in rpg.html)*/
+function Sprite(id, x, y, img, map, subMapId, dir) {
+    if (id) {
+        this._init(id, x, y, img, map, subMapId, dir);
+    }
+}
+Sprite.prototype = {
+   _init: function(x, y, img, map, subMapId, dir) {
+        this._x = x;
+        this._y = y;
+        this._dir = dir;
+        this._subMap = subMapId;
+        this._img = img;
+        this._worldMap = map;
+    },
+
+    /* Draws the sprite onto the map (unless its position is offscreen,
+     * or on a different map):*/
+    plot: function() {
+        if (this._worldMap.getCurrentSubMapId() != this._subMap) {
+            return;
+        }
+        if (!this._worldMap.isOnScreen(this._x, this._y)) {
+            return;
+        }
+
+        var screenCoords = this._worldMap.transform(this._x, this._y);
+        var x = screenCoords[0];
+        var y = screenCoords[1];
+        
+        // select sprite from sprite image based on direction
+        var sy = TILE_HEIGHT * this._dir;
+        
+        spriteCtx.drawImage(this._img, 0, sy, 24, 32, x + 6, y, 24, 32);
+    },
+
+    // clears sprite canvas of this sprite
+    _clear: function() {        
+        var screenCoords = this._worldMap.transform(this._x, this._y);
+        var x = screenCoords[0];
+        var y = screenCoords[1];
+                
+        spriteCtx.clearRect(x + 6, y, 24, 32);
+    },
+
+    /* Sprite will attempt to move by deltaX in the east-west dimension
+     * and deltaY in the north-south dimension.  Returns true if success
+     * and false if blocked somehow. */
+    move: function( deltaX, deltaY, dir ) {
+        this._dir = dir;
+        
+        var newX = this._x + deltaX;
+        var newY = this._y + deltaY;
+        
+        // Make sure you're not walking off edge of the world and
+        // the square we're trying to enter is passable:
+        if (!this._worldMap.pointInBounds(newX, newY) ||
+                !this._worldMap.isPassable(newX, newY)) {
+            this._clear();
+            this.plot();
+            return false;
+        }
+            
+        this._clear();
+        
+        this._x += deltaX;
+        this._y += deltaY;
+
+        // Any effects of stepping on the new square:
+        this.getSquareUnderfoot().onEnter();
+
+        this._worldMap.autoScrollToPlayer( this._x, this._y );
+        this.plot();
+        return true;
+    },
+
+    enterNewSubMap: function(subMapId, x, y) {
+        this._x = x;
+        this._y = y;
+        this._subMap = subMapId;
+    },
+
+    getSquareUnderfoot: function() {
+        return this._worldMap.getSquareAt(this._x, this._y);
+    }
+};
+
+/* Class representing a tileset image */
+function Tileset(width, height, url, img) {
+    this.init(width, height, url, img);
+}
+Tileset.prototype = {
+    init: function(width, height, url, img) {
+        this._width = width;
+        this._height = height;
+        this._url = url;
+        this._img = img;
+        
+    },
+    
+    /* draws a single layer for a single tile on the map canvas */
+    drawClip: function(gid, scrollX, scrollY) {
+        var gid = parseInt(gid);
+        gid--; //tmx is 1-based, not 0-based.  We need to sub 1 to get to a proper mapping.
+
+        var tw = TILE_WIDTH;
+        var th = TILE_HEIGHT;
+        var perRow = this._width / tw;
+
+        var sx = (gid % perRow) * tw;
+        var sy = Math.floor(gid / perRow) * th;
+        var dx = scrollX * tw;
+        var dy = scrollY * th;
+        
+        // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
+
+        mapCtx.drawImage(this._img, sx, sy, tw, th, dx, dy, tw, th);
+    }
+    
+}
+
+var mapCanvas = document.getElementById("map");
+var mapCtx = mapCanvas.getContext("2d");
+var spriteCanvas = document.getElementById("sprites");
+var spriteCtx = spriteCanvas.getContext("2d");
+
+var g_player = null;
+var worldTileset = null;
+var worldmap = null;
+
+/* Main Game setup code */
+$(document).ready(function() {
+    var url = "images/World3.png";
+    var img = new Image();
+    worldTileset = new Tileset(256, 1152, url, img);
+    img.src = url;
+    img.onload = function() {
+        $.ajax({
+            type: "GET",
+            url: "WorldMap1.tmx.xml",
+            dataType: "xml",
+            success: setWorldmap,
+            error: function(a,b,c) {
+                alert('error:' + b);
+            }
+        });
+    };
+
+});
+
+/* Main Game setup code, continued */
+function setWorldmap(mapXml) {
+    worldmap = new WorldMap(mapXml, worldTileset);
+    var img = new Image();
+    img.src = "images/Char1.png";
+    g_player = new Sprite(23, 13, img, worldmap, 0, FACING_DOWN);
+    worldmap.scroll(19, 10);
+    img.onload = function() {
+        g_player.plot();
+    };
+}
+
+/* Input Handling */
+var DOWN_ARROW = 40;
+var UP_ARROW = 38;
+var LEFT_ARROW = 37;
+var RIGHT_ARROW = 39;
+
+function handleKeyDown(event) {
+    if (g_player) {
+        switch (event.keyCode) {
+            case DOWN_ARROW:
+                g_player.move(0, 1, FACING_DOWN);
+                event.preventDefault();
+                break;
+            case UP_ARROW:
+                g_player.move(0, -1, FACING_UP);
+                event.preventDefault();
+                break;
+            case RIGHT_ARROW:
+                g_player.move(1, 0, FACING_RIGHT);
+                event.preventDefault();
+                break;
+            case LEFT_ARROW:
+                g_player.move(-1, 0, FACING_LEFT);
+                event.preventDefault();
+                break;
+        }
+    }
+}
+
+$(window).keydown(handleKeyDown);
