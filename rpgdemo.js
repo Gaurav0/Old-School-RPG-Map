@@ -137,11 +137,11 @@ SubMap.prototype = {
         }
     },
 
-    get xLimit() {
+    getXLimit: function() {
         return this._xLimit;
     },
 
-    get yLimit() {
+    getYLimit: function() {
         return this._yLimit;
     },
 
@@ -256,12 +256,12 @@ WorldMap.prototype = {
         return this._currentSubMap;
     },
 
-    get xLimit() {
-        return this._subMapList[this._currentSubMap].xLimit;
+    getXLimit: function() {
+        return this._subMapList[this._currentSubMap].getXLimit();
     },
 
-    get yLimit() {
-        return this._subMapList[this._currentSubMap].yLimit;
+    getYLimit: function() {
+        return this._subMapList[this._currentSubMap].getYLimit();
     },
 
     // Returns true if the given point (world coordinates) is
@@ -328,8 +328,8 @@ WorldMap.prototype = {
         // var xLimit = this.xLimit;
         // var yLimit = this.yLimit;
         // Temp workaround:
-        var xLimit = this._subMapList[this._currentSubMap]._xLimit;
-        var yLimit = this._subMapList[this._currentSubMap]._yLimit;
+        var xLimit = this.getXLimit();
+        var yLimit = this.getYLimit();
         
         if (scrollX < 0)
             scrollX = 0;
@@ -359,20 +359,21 @@ WorldMap.prototype = {
         this._subMapList[this._currentSubMap].animate(this._scrollX, this._scrollY, newScrollX, newScrollY);
     },
 
-    /* Creates and adds a new sub-map from the given data, which will
-     * be initialized by the submapXml and submapTileset you pass in.
+    /* Adds a new sub-map from the given to the world map list.
      * Returns new map id so client code can keep it for reference.*/
-    addSubMap: function(submapXml, submapTileset) {
-        this._subMapList.push(new SubMap(submapXml, submapTileset));
+    addSubMap: function(subMap) {
+        this._subMapList.push(subMap);
         return this._subMapList.length - 1;
     },
 
     /* Moves sprite to the submap identified by mapId at point x,y
      * and changes view to match. */
-    goToMap: function(sprite, mapId, x, y, scrollX, scrollY) {
+    goToMap: function(sprite, mapId, x, y, scrollX, scrollY, dir) {
+        sprite.clear();
         this._currentSubMap = mapId;
-        sprite.enterNewSubMap(mapId, x, y);
+        sprite.enterNewSubMap(mapId, x, y, dir);
         this.goTo(scrollX, scrollY);
+        sprite.plot();
     },
     
     goTo: function(scrollX, scrollY) {
@@ -391,8 +392,8 @@ var SPRITE_HEIGHT = 32;
 
 /* Class representing an object that can move around the map, such
  * as a player character. Sprite objects are drawn superimposed on
- * the map using a div with z-index=1 and absolute positioning (these
- * CSS styles are defined in rpg.html)*/
+ * the map using a separate canvas with z-index=1 and absolute
+ * positioning (these CSS styles are defined in rpgdemo.css) */
 function Sprite(id, x, y, img, map, subMapId, dir) {
     if (id) {
         this._init(id, x, y, img, map, subMapId, dir);
@@ -460,9 +461,6 @@ Sprite.prototype = {
             dx += destOffsetX;
         if (destOffsetY != undefined)
             dy += destOffsetY;
-            
-        //if (walking && !destOffsetX && !destOffsetY)
-        //    return;
                 
         spriteCtx.clearRect(dx + 6, dy, SPRITE_WIDTH, SPRITE_HEIGHT);
     },
@@ -498,14 +496,21 @@ Sprite.prototype = {
             this.walkAnimation(deltaX, deltaY);
 
         // Any effects of stepping on the new square:
-        this.getSquareUnderfoot().onEnter();
+        var sprite = this;
+        entered = false;
+        runAfterAnimation(function() {
+            if (!entered)
+                sprite.getSquareUnderfoot().onEnter();
+            entered = true;
+        });
         
         return true;
     },
 
-    enterNewSubMap: function(subMapId, x, y) {
+    enterNewSubMap: function(subMapId, x, y, dir) {
         this._x = x;
         this._y = y;
+        this._dir = dir;
         this._subMap = subMapId;
     },
 
@@ -535,9 +540,21 @@ Sprite.prototype = {
     }
 };
 
+// Polls and runs callback after animation is complete.
+function runAfterAnimation(callback) {
+    if (!animating)
+        callback();
+    else
+        window.setTimeout(function() {
+            runAfterAnimation(callback);
+        }, FPS/1000);
+}
+
 // Are we currently walking?
 var walking = false;
 
+// Have we just entered a new area? (Prevent enter chaining.)
+var entered = false;
 
 function scrollAnimationSub(sprite, animStage) {
     if (animating) {
@@ -630,39 +647,72 @@ var spriteCanvas = document.getElementById("sprites");
 var spriteCtx = spriteCanvas.getContext("2d");
 
 var g_player = null;
-var worldTileset = null;
 var worldmap = null;
+
+// Utility function to load the xml for a tileset
+// Callback function must have mapXml parameter.
+function loadXml(xmlUrl, callback) {
+    $.ajax({
+        type: "GET",
+        url: xmlUrl,
+        dataType: "xml",
+        success: callback,
+        error: function(a,b,c) {
+            alert('error:' + b);
+        }
+    });
+}
+    
 
 /* Main Game setup code */
 $(document).ready(function() {
     var url = "images/World3.png";
     var img = new Image();
-    worldTileset = new Tileset(256, 1152, url, img);
+    var worldTileset = new Tileset(256, 1152, url, img);
     img.src = url;
     img.onload = function() {
-        $.ajax({
-            type: "GET",
-            url: "WorldMap1.tmx.xml",
-            dataType: "xml",
-            success: setWorldmap,
-            error: function(a,b,c) {
-                alert('error:' + b);
-            }
+        loadXml("WorldMap1.tmx.xml", function(mapXml) {
+            worldmap = new WorldMap(mapXml, worldTileset);
+            var img = new Image();
+            g_player = new Sprite(23, 13, img, worldmap, 0, FACING_DOWN);
+            worldmap.goTo(17, 8);
+            img.onload = function() {
+                g_player.plot();
+            };
+            img.src = "images/Char1.png"; // src set must be after onload function set due to bug in IE9b1
+
+            var url2 = "images/InqCastle.png"
+            var img2 = new Image();
+            var tileset2 = new Tileset(256, 2304, url2, img2);
+            img2.src = url2;
+            img2.onload = function() {
+                loadXml("Castle1.tmx.xml", function(mapXml) {
+                    setupCastleMap(mapXml, tileset2);
+                });
+            };
         });
     };
-
 });
 
-/* Main Game setup code, continued */
-function setWorldmap(mapXml) {
-    worldmap = new WorldMap(mapXml, worldTileset);
-    var img = new Image();
-    img.src = "images/Char1.png";
-    g_player = new Sprite(23, 13, img, worldmap, 0, FACING_DOWN);
-    worldmap.goTo(17, 8);
-    img.onload = function() {
-        g_player.plot();
-    };
+/* Castle submap setup code */
+function setupCastleMap(mapXml, tileset) {
+    var map = new SubMap(mapXml, tileset);
+    var mapId = worldmap.addSubMap(map);
+    var xLimit = map.getXLimit();
+    var yLimit = map.getYLimit();
+    for (var x = 0; x < xLimit; ++x) {
+        for (var y = 0; y < yLimit; ++y) {
+            if (x == 0 || y == 0 || x == xLimit - 1 || y == yLimit - 1) {
+                var square = map.getSquareAt(x, y);
+                square.onEnter = function() {
+                    worldmap.goToMap(g_player, 0, 23, 14, 17, 9, FACING_DOWN);
+                }
+            }
+        }
+    }
+    worldmap.getSubMap(0).getSquareAt(23, 14).onEnter = function() {
+        worldmap.goToMap(g_player, mapId, 12, 18, 6, 9, FACING_UP);
+    }
 }
 
 /* Input Handling */
