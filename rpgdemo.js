@@ -19,7 +19,7 @@
  *
  * Contributor(s):
  *   Jono Xia <jono@mozilla.com>
- *   Gaurav Munjal
+ *   Gaurav Munjal <Gaurav0@aol.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Tested in Firefox 3.6, Firefox 4b6, Chrome 7, Safari 5/Win, Opera 10.63, and IE9b1.
+// Tested in Firefox 3.6, Firefox 4b6, Chrome 7, Safari 5/Win, Opera 10.63, IE9b1.
 
 // How many pixels is one square of the map
 var TILE_WIDTH = 32;
@@ -53,6 +53,15 @@ var MIN_SCREEN_SQUARE_X = 5;
 var MAX_SCREEN_SQUARE_X = 7;
 var MIN_SCREEN_SQUARE_Y = 4;
 var MAX_SCREEN_SQUARE_Y = 6;
+
+// Maximum frames per second
+var FPS = 25;
+
+// Scroll factor for animation
+var SCROLL_FACTOR = 4;
+
+// Are we busy with animations?
+var animating = false;
 
 // Class representing a single square on the map:
 function MapSquare(subMap, x, y, passable) {
@@ -170,32 +179,60 @@ SubMap.prototype = {
     
     /* This function renders the current view of the map into this
      * canvas. */
-    redraw: function(scrollX, scrollY) {
+    redraw: function(scrollX, scrollY, offsetX, offsetY) {
         
         var xLimit = this._xLimit;
         var tileset = this._tileset;
+        var startX = (offsetX > 0) ? -1 : 0;
+        var startY = (offsetY > 0) ? -1 : 0;
+        var endX = (offsetX < 0) ? TILES_ON_SCREEN_X + 1 : TILES_ON_SCREEN_X;
+        var endY = (offsetY < 0) ? TILES_ON_SCREEN_Y + 1 : TILES_ON_SCREEN_Y;
         
         $(this._mapXml).find('map layer data').each(function()
         {
             var tiles = $(this).find('tile');
-            for (var y = 0; y < TILES_ON_SCREEN_Y; ++y) {
-                for (var x = 0; x < TILES_ON_SCREEN_X; ++x) {
+            for (var y = startY; y < endY; ++y) {
+                for (var x = startX; x < endX; ++x) {
                     var idx = (y + scrollY) * xLimit + x + scrollX;
                     var gid = tiles.eq(idx).attr('gid');
                     if (gid > 0) {
-                        tileset.drawClip(gid, x, y);
+                        tileset.drawClip(gid, x, y, offsetX, offsetY);
                     }
                 }
             }
         });
+    },
+    
+    /* This function does the scrolling animation */
+    animate: function(fromX, fromY, toX, toY) {
+        animating = true;
+        var deltaX = (toX - fromX) * SCROLL_FACTOR;
+        var deltaY = (toY - fromY) * SCROLL_FACTOR;
+        var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
+        //_submap = this;
+        animateSubmap(this, fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
     }
-
 };
+
+// Recursive part of Submap.animate
+function animateSubmap(submap, fromX, fromY, offsetX, offsetY, deltaX, deltaY, numSteps) {
+    submap.redraw(fromX, fromY, offsetX, offsetY);
+    offsetX -= deltaX;
+    offsetY -= deltaY;
+    if (numSteps > 0)
+        window.setTimeout(function() {
+            animateSubmap(submap, fromX, fromY, offsetX, offsetY, deltaX, deltaY, --numSteps);
+        }, 1000/FPS);
+    else {
+        animating = false;
+        handleBufferedKey();
+    }
+}
 
 
 /* Main map manager class.  This class is a container for any number
  * of sub-maps; it's assumed that the default map is an 'overworld' or
- * main world map; it's initialized by the two-dimensional mapXml array that
+ * main world map; it's initialized by the mapXml and tileset that
  * you pass in.  You can also call addSubMap to add additional sub-maps.*/
 function WorldMap(mapXml, tileset) {
     this._init(mapXml, tileset);
@@ -262,65 +299,85 @@ WorldMap.prototype = {
     // plotAt, but also scrolls screen if this is too close to the edge and it's
     // possible to scroll.
     autoScrollToPlayer: function( x, y ) {
+        var scrolled = false;
         var screenX = x - this._scrollX;
         var screenY = y - this._scrollY;
         var scrollVal = 0;
         if (screenX < MIN_SCREEN_SQUARE_X) {
-            this.scroll( (screenX - MIN_SCREEN_SQUARE_X), 0 );
+            scrolled = this.scroll( (screenX - MIN_SCREEN_SQUARE_X), 0 ) || scrolled;
         } else if (screenX > MAX_SCREEN_SQUARE_X) {
-            this.scroll( (screenX - MAX_SCREEN_SQUARE_X), 0 );
+            scrolled = this.scroll( (screenX - MAX_SCREEN_SQUARE_X), 0 ) || scrolled;
         }
         if (screenY < MIN_SCREEN_SQUARE_Y) {
-            this.scroll( 0, (screenY - MIN_SCREEN_SQUARE_Y) );
+            scrolled = this.scroll( 0, (screenY - MIN_SCREEN_SQUARE_Y) ) || scrolled;
         } else if (screenY > MAX_SCREEN_SQUARE_Y) {
-            this.scroll( 0, (screenY - MAX_SCREEN_SQUARE_Y ) );
+            scrolled = this.scroll( 0, (screenY - MAX_SCREEN_SQUARE_Y) ) || scrolled;
         }
+        return scrolled;
     },
 
     /* Scrolls the current view of the map horizontally by deltaX squares
      * and vertically by deltaY squares.  Positive number means the view
      * is moving to the right relative to the underlying world map. */
     scroll: function( deltaX, deltaY ) {
+        
         var scrollX = this._scrollX + deltaX;
         var scrollY = this._scrollY + deltaY;
+        
+        // These lines not working in IE9b1: Internal Error.
+        // var xLimit = this.xLimit;
+        // var yLimit = this.yLimit;
+        // Temp workaround:
+        var xLimit = this._subMapList[this._currentSubMap]._xLimit;
+        var yLimit = this._subMapList[this._currentSubMap]._yLimit;
+        
         if (scrollX < 0)
             scrollX = 0;
-        if (scrollX + TILES_ON_SCREEN_X > this.xLimit)
-            scrollX = this.xLimit - TILES_ON_SCREEN_X;
+        if (scrollX + TILES_ON_SCREEN_X > xLimit)
+            scrollX = xLimit - TILES_ON_SCREEN_X;
         if (scrollY < 0)
             scrollY = 0;
-        if (scrollY + TILES_ON_SCREEN_Y > this.yLimit)
-            scrollY = this.yLimit - TILES_ON_SCREEN_Y;
+        if (scrollY + TILES_ON_SCREEN_Y > yLimit)
+            scrollY = yLimit - TILES_ON_SCREEN_Y;
 
         if (scrollX != this._scrollX || scrollY != this._scrollY) {
+            this.animate(scrollX, scrollY); 
             this._scrollX = scrollX;
             this._scrollY = scrollY;
-            //Save time - only redraw if the scroll values actually changed
-            this.redraw();
+            return true;
         }
+        return false;
     },
 
     /* This function renders the current view of the map into this
      * canvas. */
     redraw: function() {
-        this._subMapList[this._currentSubMap].redraw(this._scrollX, this._scrollY);
+        this._subMapList[this._currentSubMap].redraw(this._scrollX, this._scrollY, 0, 0);
+    },
+    
+    animate: function(newScrollX, newScrollY) {
+        this._subMapList[this._currentSubMap].animate(this._scrollX, this._scrollY, newScrollX, newScrollY);
     },
 
-    /* Creates and adds a new sub-map from the given data, which must
-     * be a 2-dimensional array of integers corresponding to 
-     * TERRAIN_TYPE codes. 
+    /* Creates and adds a new sub-map from the given data, which will
+     * be initialized by the submapXml and submapTileset you pass in.
      * Returns new map id so client code can keep it for reference.*/
-    addSubMap: function(submapXml) {
-        this._subMapList.push(new SubMap(submapXml));
+    addSubMap: function(submapXml, submapTileset) {
+        this._subMapList.push(new SubMap(submapXml, submapTileset));
         return this._subMapList.length - 1;
     },
 
     /* Moves sprite to the submap identified by mapId at point x,y
      * and changes view to match. */
-    goToMap: function(sprite, mapId, x, y) {
+    goToMap: function(sprite, mapId, x, y, scrollX, scrollY) {
         this._currentSubMap = mapId;
         sprite.enterNewSubMap(mapId, x, y);
-        this.autoScrollToPlayer(x, y);
+        this.goTo(scrollX, scrollY);
+    },
+    
+    goTo: function(scrollX, scrollY) {
+        this._scrollX = scrollX;
+        this._scrollY = scrollY;
         this.redraw();
     }
 };
@@ -329,6 +386,8 @@ var FACING_UP = 0;
 var FACING_RIGHT = 1;
 var FACING_DOWN = 2;
 var FACING_LEFT = 3;
+var SPRITE_WIDTH = 24;
+var SPRITE_HEIGHT = 32;
 
 /* Class representing an object that can move around the map, such
  * as a player character. Sprite objects are drawn superimposed on
@@ -351,31 +410,61 @@ Sprite.prototype = {
 
     /* Draws the sprite onto the map (unless its position is offscreen,
      * or on a different map):*/
-    plot: function() {
+    plot: function(sourceOffsetX, destOffsetX, destOffsetY) {
         if (this._worldMap.getCurrentSubMapId() != this._subMap) {
             return;
         }
         if (!this._worldMap.isOnScreen(this._x, this._y)) {
             return;
         }
+        
+        var sw = SPRITE_WIDTH;
+        var sh = SPRITE_HEIGHT;
 
         var screenCoords = this._worldMap.transform(this._x, this._y);
-        var x = screenCoords[0];
-        var y = screenCoords[1];
+        var dx = screenCoords[0];
+        var dy = screenCoords[1];
         
         // select sprite from sprite image based on direction
-        var sy = TILE_HEIGHT * this._dir;
+        var sy = SPRITE_HEIGHT * this._dir;
         
-        spriteCtx.drawImage(this._img, 0, sy, 24, 32, x + 6, y, 24, 32);
+        // apply sourceOffsetX if available
+        var sx = SPRITE_WIDTH;
+        if (sourceOffsetX != undefined)
+            sx += sourceOffsetX; 
+            
+        // apply destOffsetX and destOffsetY if available
+        if (destOffsetX != undefined)
+            dx += destOffsetX;
+        if (destOffsetY != undefined)
+            dy += destOffsetY;
+        
+        // Quick fix for race condition
+        if (walking && !destOffsetX && !destOffsetY)
+            return;
+        
+        // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
+        
+        // draw the sprite!
+        spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx + 6, dy, sw, sh);
     },
 
     // clears sprite canvas of this sprite
-    _clear: function() {        
+    clear: function(destOffsetX, destOffsetY) {        
         var screenCoords = this._worldMap.transform(this._x, this._y);
-        var x = screenCoords[0];
-        var y = screenCoords[1];
+        var dx = screenCoords[0];
+        var dy = screenCoords[1];
+            
+        // apply destOffsetX and destOffsetY if available
+        if (destOffsetX != undefined)
+            dx += destOffsetX;
+        if (destOffsetY != undefined)
+            dy += destOffsetY;
+            
+        //if (walking && !destOffsetX && !destOffsetY)
+        //    return;
                 
-        spriteCtx.clearRect(x + 6, y, 24, 32);
+        spriteCtx.clearRect(dx + 6, dy, SPRITE_WIDTH, SPRITE_HEIGHT);
     },
 
     /* Sprite will attempt to move by deltaX in the east-west dimension
@@ -391,21 +480,26 @@ Sprite.prototype = {
         // the square we're trying to enter is passable:
         if (!this._worldMap.pointInBounds(newX, newY) ||
                 !this._worldMap.isPassable(newX, newY)) {
-            this._clear();
-            this.plot();
+            if (!animating) {
+                this.clear();
+                this.plot();
+            }
             return false;
         }
             
-        this._clear();
-        
+        this.clear();
         this._x += deltaX;
         this._y += deltaY;
 
+        var scrolling = this._worldMap.autoScrollToPlayer( this._x, this._y );
+        if (scrolling)
+            this.scrollAnimation();
+        else
+            this.walkAnimation(deltaX, deltaY);
+
         // Any effects of stepping on the new square:
         this.getSquareUnderfoot().onEnter();
-
-        this._worldMap.autoScrollToPlayer( this._x, this._y );
-        this.plot();
+        
         return true;
     },
 
@@ -417,8 +511,84 @@ Sprite.prototype = {
 
     getSquareUnderfoot: function() {
         return this._worldMap.getSquareAt(this._x, this._y);
+    },
+    
+    scrollAnimation: function() {
+        if (animating) {
+            scrollAnimationSub(this, 0);
+        }
+    },
+    
+    walkAnimation: function(deltaX, deltaY) {
+        if (animating) {
+            window.setTimeout(function() {
+                walkAnimationPoll(this, deltaX, deltaY);
+            }, FPS / 1000);
+        } else {
+            animating = true;
+            walking = true;
+            var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
+            var destOffsetX = -deltaX * TILE_WIDTH;
+            var destOffsetY = -deltaY * TILE_HEIGHT;
+            walkAnimationSub(this, 0, deltaX, deltaY, destOffsetX, destOffsetY, numSteps);
+        }
     }
 };
+
+// Are we currently walking?
+var walking = false;
+
+
+function scrollAnimationSub(sprite, animStage) {
+    if (animating) {
+        var sourceOffsetX = 0;
+        if (animStage == 1)
+            sourceOffsetX = -SPRITE_WIDTH;
+        else if (animStage == 3)
+            sourceOffsetX = SPRITE_WIDTH;
+        sprite.plot(sourceOffsetX);
+        window.setTimeout(function() {
+            scrollAnimationSub(sprite, (animStage + 1) % 4);
+        }, 1000/FPS);
+    } else {
+        sprite.clear();
+        sprite.plot();
+    }
+}
+
+// Polls until we can start walk animation
+function walkAnimationPoll(sprite, deltaX, deltaY) {
+    if (animating)
+        window.setTimeout(function() {
+            walkAnimationPoll(sprite, deltaX, deltaY);
+        }, FPS / 1000);
+    else
+        sprite.walkAnimation(deltaX, deltaY);
+}
+
+function walkAnimationSub(sprite, animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps) {
+    if (numSteps > 1) {
+        sprite.clear(destOffsetX, destOffsetY);
+        var sourceOffsetX = 0;
+        if (animStage == 1)
+            sourceOffsetX = -SPRITE_WIDTH;
+        else if (animStage == 3)
+            sourceOffsetX = SPRITE_WIDTH;
+        destOffsetX += deltaX * SCROLL_FACTOR;
+        destOffsetY += deltaY * SCROLL_FACTOR;
+        sprite.plot(sourceOffsetX, destOffsetX, destOffsetY);
+        window.setTimeout(function() {
+            walkAnimationSub(sprite, (animStage + 1) % 4, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
+        }, 1000/FPS);
+    } else {
+        animating = false;
+        walking = false;
+        sprite.clear(destOffsetX, destOffsetY);
+        sprite.plot();
+        handleBufferedKey();
+    }
+}
+
 
 /* Class representing a tileset image */
 function Tileset(width, height, url, img) {
@@ -434,7 +604,7 @@ Tileset.prototype = {
     },
     
     /* draws a single layer for a single tile on the map canvas */
-    drawClip: function(gid, scrollX, scrollY) {
+    drawClip: function(gid, scrollX, scrollY, offsetX, offsetY) {
         var gid = parseInt(gid);
         gid--; //tmx is 1-based, not 0-based.  We need to sub 1 to get to a proper mapping.
 
@@ -444,8 +614,8 @@ Tileset.prototype = {
 
         var sx = (gid % perRow) * tw;
         var sy = Math.floor(gid / perRow) * th;
-        var dx = scrollX * tw;
-        var dy = scrollY * th;
+        var dx = scrollX * tw + offsetX;
+        var dy = scrollY * th + offsetY;
         
         // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
 
@@ -489,7 +659,7 @@ function setWorldmap(mapXml) {
     var img = new Image();
     img.src = "images/Char1.png";
     g_player = new Sprite(23, 13, img, worldmap, 0, FACING_DOWN);
-    worldmap.scroll(17, 8);
+    worldmap.goTo(17, 8);
     img.onload = function() {
         g_player.plot();
     };
@@ -500,28 +670,58 @@ var DOWN_ARROW = 40;
 var UP_ARROW = 38;
 var LEFT_ARROW = 37;
 var RIGHT_ARROW = 39;
+var keyBuffer = 0;
 
-function handleKeyDown(event) {
+function handleKeyPress(event) {
     if (g_player) {
+        if (animating)
+            keyBuffer = event.keyCode;
         switch (event.keyCode) {
             case DOWN_ARROW:
-                g_player.move(0, 1, FACING_DOWN);
+                if (!animating)
+                    g_player.move(0, 1, FACING_DOWN);
                 event.preventDefault();
                 break;
             case UP_ARROW:
-                g_player.move(0, -1, FACING_UP);
+                if (!animating)
+                    g_player.move(0, -1, FACING_UP);
                 event.preventDefault();
                 break;
             case RIGHT_ARROW:
-                g_player.move(1, 0, FACING_RIGHT);
+                if (!animating)
+                    g_player.move(1, 0, FACING_RIGHT);
                 event.preventDefault();
                 break;
             case LEFT_ARROW:
-                g_player.move(-1, 0, FACING_LEFT);
+                if (!animating)
+                    g_player.move(-1, 0, FACING_LEFT);
                 event.preventDefault();
                 break;
         }
     }
 }
 
-$(window).keydown(handleKeyDown);
+function handleBufferedKey() {
+    if (keyBuffer) {
+        switch (keyBuffer) {
+            case DOWN_ARROW:
+                g_player.move(0, 1, FACING_DOWN);
+                break;
+            case UP_ARROW:
+                g_player.move(0, -1, FACING_UP);
+                break;
+            case RIGHT_ARROW:
+                g_player.move(1, 0, FACING_RIGHT);
+                break;
+            case LEFT_ARROW:
+                g_player.move(-1, 0, FACING_LEFT);
+                break;
+        }
+    }
+    keyBuffer = 0;
+}
+
+if (window.opera || $.browser.mozilla)
+    $(window).keypress(handleKeyPress);
+else
+    $(window).keydown(handleKeyPress);
