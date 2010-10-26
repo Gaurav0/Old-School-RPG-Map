@@ -116,6 +116,7 @@ SubMap.prototype = {
         this._yLimit = parseInt($(this._layer).attr('height'));
         this._mapXml = mapXml;
         this._tileset = tileset;
+        this._spriteList = [];
         this._mapSquares = [];
         
         // Create mapSquares table used to cache passable info.
@@ -167,6 +168,18 @@ SubMap.prototype = {
     isPassable: function(x, y) {
         return this._mapSquares[y][x].passable();
     },
+    
+    /* True if the square at position x, y (in world coordinates) is occupied
+     * by another character */
+    isOccupied: function(x, y) {
+        var occupied = false;
+        for (var i = 0; i < this._spriteList.length; ++i) {
+            var sprite = this._spriteList[i];
+            if (sprite.isAt(x, y))
+                occupied = true;
+        }
+        return occupied;
+    },
 
     /* Returns the MapSquare instance at position x, y (in world
      * coordinates). */
@@ -206,23 +219,65 @@ SubMap.prototype = {
     /* This function does the scrolling animation */
     animate: function(fromX, fromY, toX, toY) {
         animating = true;
-        var deltaX = (toX - fromX) * SCROLL_FACTOR;
-        var deltaY = (toY - fromY) * SCROLL_FACTOR;
+        var deltaX = toX - fromX;
+        var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
-        //_submap = this;
-        animateSubmap(this, fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
+        var submap = this;
+        window.setTimeout(function() {
+            animateSubmap(submap, fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
+        }, FPS/1000);
+    },
+    
+    /* Add a sprite (NPC) to the submap. */
+    addSprite: function(sprite) {
+        this._spriteList.push(sprite);
+        return this._spriteList.length - 1;
+    },
+    
+    /* What happens when map is entered: all sprites on map are plotted. */
+    onEnter: function() {
+        for (var i = 0; i < this._spriteList.length; ++i) {
+            this._spriteList[i].plot();
+        }
+    },
+    
+    /* What happens when map is exited: all sprites on map are cleared. */
+    onExit: function() {
+        for (var i = 0; i < this._spriteList.length; ++i) {
+            this._spriteList[i].clear();
+        }
     }
 };
 
-// Recursive part of Submap.animate
+// Recursive part of Submap.animate, the scrolling animation.
 function animateSubmap(submap, fromX, fromY, offsetX, offsetY, deltaX, deltaY, numSteps) {
+    
+    // Don't redraw sprites the last time, or the plot will not be cleared.
+    if (numSteps > 0) {
+        for (var i = 0; i < submap._spriteList.length; ++i) {
+            
+            // this._x and this._y already changed, so offset by a tile size
+            submap._spriteList[i].clear(offsetX + deltaX * TILE_WIDTH,
+                                        offsetY + deltaY * TILE_HEIGHT);
+        }
+        
+        // offset map in opposite direction of scroll
+        offsetX -= deltaX * SCROLL_FACTOR;
+        offsetY -= deltaY * SCROLL_FACTOR;
+        for (var i = 0; i < submap._spriteList.length; ++i) {
+            submap._spriteList[i].plot(0, offsetX + deltaX * TILE_WIDTH,
+                                          offsetY + deltaY * TILE_HEIGHT);
+        }
+    }
+    
+    // Redraw submap *after* redrawing sprites to avoid shift illusion
     submap.redraw(fromX, fromY, offsetX, offsetY);
-    offsetX -= deltaX;
-    offsetY -= deltaY;
-    if (numSteps > 0)
+    
+    if (numSteps > 0) {
         window.setTimeout(function() {
             animateSubmap(submap, fromX, fromY, offsetX, offsetY, deltaX, deltaY, --numSteps);
-        }, 1000/FPS);
+        }, 1000 / FPS);
+    }
     else {
         animating = false;
         handleBufferedKey();
@@ -275,6 +330,12 @@ WorldMap.prototype = {
     isPassable: function(x, y) {
         return this._subMapList[this._currentSubMap].isPassable(x, y);
     },
+    
+    // Returns true if the given point (world coordinates) is occupied
+    // by another character.
+    isOccupied: function(x, y) {
+        return this._subMapList[this._currentSubMap].isOccupied(x, y);
+    },
 
     getSquareAt: function(x, y) {
         var square = this._subMapList[this._currentSubMap].getSquareAt(x, y);
@@ -292,8 +353,10 @@ WorldMap.prototype = {
     isOnScreen: function( worldX, worldY ) {
         var screenX = worldX - this._scrollX;
         var screenY = worldY - this._scrollY;
-        return (screenX > -1 && screenX < TILES_ON_SCREEN_X
-                && screenY > -1 && screenY < TILES_ON_SCREEN_Y);
+        
+        // includes one less / one more for benefit of scrolling animation
+        return (screenX >= -1 && screenX <= TILES_ON_SCREEN_X
+                && screenY >= -1 && screenY <= TILES_ON_SCREEN_Y);
     },
 
     // plotAt, but also scrolls screen if this is too close to the edge and it's
@@ -324,10 +387,6 @@ WorldMap.prototype = {
         var scrollX = this._scrollX + deltaX;
         var scrollY = this._scrollY + deltaY;
         
-        // These lines not working in IE9b1: Internal Error.
-        // var xLimit = this.xLimit;
-        // var yLimit = this.yLimit;
-        // Temp workaround:
         var xLimit = this.getXLimit();
         var yLimit = this.getYLimit();
         
@@ -370,10 +429,12 @@ WorldMap.prototype = {
      * and changes view to match. */
     goToMap: function(sprite, mapId, x, y, scrollX, scrollY, dir) {
         sprite.clear();
+        this._subMapList[this._currentSubMap].onExit();
         this._currentSubMap = mapId;
         sprite.enterNewSubMap(mapId, x, y, dir);
         this.goTo(scrollX, scrollY);
         sprite.plot();
+        this._subMapList[mapId].onEnter();
     },
     
     goTo: function(scrollX, scrollY) {
@@ -394,19 +455,21 @@ var SPRITE_HEIGHT = 32;
  * as a player character. Sprite objects are drawn superimposed on
  * the map using a separate canvas with z-index=1 and absolute
  * positioning (these CSS styles are defined in rpgdemo.css) */
-function Sprite(id, x, y, img, map, subMapId, dir) {
-    if (id) {
-        this._init(id, x, y, img, map, subMapId, dir);
-    }
+function Sprite(x, y, img, worldmap, subMapId, dir) {
+    this._init(x, y, img, worldmap, subMapId, dir);
 }
 Sprite.prototype = {
-   _init: function(x, y, img, map, subMapId, dir) {
+   _init: function(x, y, img, worldmap, subMapId, dir) {
         this._x = x;
         this._y = y;
         this._dir = dir;
         this._subMap = subMapId;
         this._img = img;
-        this._worldMap = map;
+        this._worldMap = worldmap;
+    },
+    
+    isAt: function(x, y) {
+        return this._x == x && this._y == y;
     },
 
     /* Draws the sprite onto the map (unless its position is offscreen,
@@ -426,6 +489,10 @@ Sprite.prototype = {
         var dx = screenCoords[0];
         var dy = screenCoords[1];
         
+        // Adjust for difference between tile and sprite sizes
+        dx += (TILE_WIDTH - SPRITE_WIDTH) / 2;
+        dy += (TILE_HEIGHT - SPRITE_HEIGHT) / 2;
+        
         // select sprite from sprite image based on direction
         var sy = SPRITE_HEIGHT * this._dir;
         
@@ -441,13 +508,13 @@ Sprite.prototype = {
             dy += destOffsetY;
         
         // Quick fix for race condition
-        if (walking && !destOffsetX && !destOffsetY)
+        if (walking && destOffsetX === undefined && destOffsetY === undefined)
             return;
         
         // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
         
         // draw the sprite!
-        spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx + 6, dy, sw, sh);
+        spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx, dy, sw, sh);
     },
 
     // clears sprite canvas of this sprite
@@ -455,6 +522,10 @@ Sprite.prototype = {
         var screenCoords = this._worldMap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
+        
+        // Adjust for difference between tile and sprite sizes
+        dx += (TILE_WIDTH - SPRITE_WIDTH) / 2;
+        dy += (TILE_HEIGHT - SPRITE_HEIGHT) / 2;
             
         // apply destOffsetX and destOffsetY if available
         if (destOffsetX != undefined)
@@ -462,7 +533,7 @@ Sprite.prototype = {
         if (destOffsetY != undefined)
             dy += destOffsetY;
                 
-        spriteCtx.clearRect(dx + 6, dy, SPRITE_WIDTH, SPRITE_HEIGHT);
+        spriteCtx.clearRect(dx, dy, SPRITE_WIDTH, SPRITE_HEIGHT);
     },
 
     /* Sprite will attempt to move by deltaX in the east-west dimension
@@ -475,9 +546,10 @@ Sprite.prototype = {
         var newY = this._y + deltaY;
         
         // Make sure you're not walking off edge of the world and
-        // the square we're trying to enter is passable:
+        // the square we're trying to enter is passable and not occupied:
         if (!this._worldMap.pointInBounds(newX, newY) ||
-                !this._worldMap.isPassable(newX, newY)) {
+                !this._worldMap.isPassable(newX, newY) ||
+                this._worldMap.isOccupied(newX, newY)) {
             if (!animating) {
                 this.clear();
                 this.plot();
@@ -489,20 +561,23 @@ Sprite.prototype = {
         this._x += deltaX;
         this._y += deltaY;
 
-        var scrolling = this._worldMap.autoScrollToPlayer( this._x, this._y );
-        if (scrolling)
-            this.scrollAnimation();
-        else
-            this.walkAnimation(deltaX, deltaY);
+        if (this == g_player) {
+            var scrolling = this._worldMap.autoScrollToPlayer( this._x, this._y );
+            if (scrolling)
+                this.scrollAnimation();
+            else
+                this.walkAnimation(deltaX, deltaY);
+                
 
-        // Any effects of stepping on the new square:
-        var sprite = this;
-        entered = false;
-        runAfterAnimation(function() {
-            if (!entered)
-                sprite.getSquareUnderfoot().onEnter();
-            entered = true;
-        });
+            // Any effects of stepping on the new square:
+            var sprite = this;
+            entered = false;
+            runAfterAnimation(function() {
+                if (!entered)
+                    sprite.getSquareUnderfoot().onEnter();
+                entered = true;
+            });
+        }
         
         return true;
     },
@@ -566,7 +641,7 @@ function scrollAnimationSub(sprite, animStage) {
         sprite.plot(sourceOffsetX);
         window.setTimeout(function() {
             scrollAnimationSub(sprite, (animStage + 1) % 4);
-        }, 1000/FPS);
+        }, 1000 / FPS);
     } else {
         sprite.clear();
         sprite.plot();
@@ -596,7 +671,7 @@ function walkAnimationSub(sprite, animStage, deltaX, deltaY, destOffsetX, destOf
         sprite.plot(sourceOffsetX, destOffsetX, destOffsetY);
         window.setTimeout(function() {
             walkAnimationSub(sprite, (animStage + 1) % 4, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
-        }, 1000/FPS);
+        }, 1000 / FPS);
     } else {
         animating = false;
         walking = false;
@@ -706,13 +781,19 @@ function setupCastleMap(mapXml, tileset) {
                 var square = map.getSquareAt(x, y);
                 square.onEnter = function() {
                     worldmap.goToMap(g_player, 0, 23, 14, 17, 9, FACING_DOWN);
-                }
+                };
             }
         }
     }
     worldmap.getSubMap(0).getSquareAt(23, 14).onEnter = function() {
         worldmap.goToMap(g_player, mapId, 12, 18, 6, 9, FACING_UP);
-    }
+    };
+    var img = new Image();
+    var soldier1 = new Sprite(10, 14, img, worldmap, mapId, FACING_DOWN);
+    img.src = "images/Soldier1.png";
+    map.addSprite(soldier1);
+    var soldier2 = new Sprite(14, 14, img, worldmap, mapId, FACING_DOWN);
+    map.addSprite(soldier2);
 }
 
 /* Input Handling */
