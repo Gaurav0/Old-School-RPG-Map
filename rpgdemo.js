@@ -60,6 +60,9 @@ var FPS = 25;
 // Scroll factor for scroll animation
 var SCROLL_FACTOR = 4;
 
+// How often to battle
+var BATTLE_FREQ = 0.3;
+
 // Class representing a single square on the map:
 function MapSquare(subMap, x, y, passable) {
     if (subMap) {
@@ -266,7 +269,7 @@ SubMap.prototype = {
         var submap = this;
         window.setTimeout(function() {
             submap.animateSub(fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
-        }, FPS/1000);
+        }, 1000 / FPS);
     },
     
     // Recursive part of Submap.animate, the scrolling animation.
@@ -302,7 +305,7 @@ SubMap.prototype = {
         }
         else {
             g_worldmap.animating = false;
-            handleBufferedKey();
+            window.setTimeout(handleBufferedKey, 1000 / FPS);
         }
     }
 };
@@ -385,7 +388,7 @@ WorldMap.prototype = {
                 && screenY >= -1 && screenY <= TILES_ON_SCREEN_Y);
     },
 
-    // plotAt, but also scrolls screen if this is too close to the edge and it's
+    // Scrolls screen if this is too close to the edge and it's
     // possible to scroll.
     autoScrollToPlayer: function( x, y ) {
         var scrolled = false;
@@ -484,7 +487,7 @@ WorldMap.prototype = {
             var worldmap = this;
             window.setTimeout(function() {
                 worldmap.runAfterAnimation(callback);
-            }, FPS/1000);
+            }, 1);
         }
     }
 };
@@ -635,6 +638,7 @@ Sprite.prototype = {
      * and deltaY in the north-south dimension.  Returns true if success
      * and false if blocked somehow. */
     move: function( deltaX, deltaY, dir ) {
+        
         this._dir = dir;
         
         var newX = this._x + deltaX;
@@ -703,7 +707,7 @@ Sprite.prototype = {
     
     /* Recursive part of sprite.scrollAnimation */
     scrollAnimationSub: function(animStage) {
-        if (g_worldmap.animating) {
+        if (g_worldmap.animating && !g_inBattle) {
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
@@ -717,7 +721,7 @@ Sprite.prototype = {
             window.setTimeout(function() {
                 sprite.scrollAnimationSub((animStage + 1) % 4);
             }, 1000 / FPS);
-        } else {
+        } else if (!g_inBattle) {
             this.clear();
             this.plot();
         }
@@ -729,8 +733,8 @@ Sprite.prototype = {
             var sprite = this;
             window.setTimeout(function() {
                 sprite.walkAnimationPoll(deltaX, deltaY);
-            }, FPS / 1000);
-        } else {
+            }, 1000 / FPS);
+        } else if (!g_inBattle) {
             g_worldmap.animating = true;
             this._walking = true;
             var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
@@ -746,14 +750,14 @@ Sprite.prototype = {
             var sprite = this;
             window.setTimeout(function() {
                 sprite.walkAnimationPoll(deltaX, deltaY);
-            }, FPS / 1000);
+            }, 1000 / FPS);
         } else
             this.walkAnimation(deltaX, deltaY);
     },
     
     /* Recursive part of sprite.walkAnimation */
     walkAnimationSub: function(animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps) {
-        if (numSteps > 1) {
+        if (numSteps > 1 && !g_inBattle) {
             this.clear(destOffsetX, destOffsetY);
             
             // Determine source offset in sprite image based on animation stage.
@@ -774,9 +778,11 @@ Sprite.prototype = {
         } else {
             g_worldmap.animating = false;
             this._walking = false;
-            this.clear(destOffsetX, destOffsetY); // clear last image drawn
-            this.plot();
-            handleBufferedKey();
+            if (!g_inBattle) {
+                this.clear(destOffsetX, destOffsetY); // clear last image drawn
+                this.plot();
+                window.setTimeout(handleBufferedKey, 1000 / FPS);
+            }
         }
     }
 };
@@ -838,8 +844,9 @@ TextDisplay.prototype = {
     },
     
     displayText: function(txt) {
+        
         textCtx.fillStyle = "rgba(0, 0, 200, 0.25)";
-        textCtx.fillRect(0, 236, 416, 100);
+        textCtx.fillRect(0, 236, textCanvas.width, 100);
         textCtx.fillStyle = "white";
         textCtx.font = "bold 12px monospace";
         textCtx.textBaseline = "top";
@@ -848,9 +855,62 @@ TextDisplay.prototype = {
     },
     
     clearText: function() {
-        textCtx.clearRect(0, 216, 416, 125);
+        textCtx.clearRect(0, 236, textCanvas.width, 100);
         this._textDisplayed = false;
     }
+}
+
+function startBattle()
+{
+    g_inBattle = true;
+    keyBuffer = 0;
+    
+    var screenWidth = mapCanvas.width;
+    var screenHeight = mapCanvas.height;
+    
+    // Change this to background pic later
+    mapCtx.fillStyle = "#0080ff";
+    mapCtx.fillRect(0, 0, screenWidth, screenHeight);
+    
+    spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
+    spriteCtx.drawImage(g_player._img,
+        SPRITE_WIDTH,                      // source x
+        FACING_LEFT * SPRITE_HEIGHT + 1,   // source y
+        SPRITE_WIDTH,                      // source width
+        SPRITE_HEIGHT - 1,                 // source height
+        screenWidth - 2 * TILE_WIDTH,      // dest x
+        2 * TILE_HEIGHT,                   // dest y
+        1.5 * SPRITE_WIDTH,                // dest width
+        1.5 * SPRITE_HEIGHT);              // dest height
+    
+    spriteCtx.drawImage(g_enemies, 4, 109, 34 - 4, 132 - 109,
+        2 * TILE_WIDTH, 3 * TILE_HEIGHT, 34 - 4, 132 - 109);
+        
+    spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
+    spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
+    spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
+    spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+    
+    textCtx.font = "bold 20px monospace";
+    textCtx.fillStyle = "white";
+    textCtx.textBaseline = "top";
+    textCtx.fillText("Attack", 36, screenHeight - 130);
+    textCtx.fillText("Defend", 36, screenHeight - 100);
+    textCtx.fillText("Spell", 36, screenHeight - 70);
+    textCtx.fillText("Item", 36, screenHeight - 40);
+    
+    var txt = "A slime appeared!";
+    textCtx.fillText(txt, 160, screenHeight - 130);
+    
+        
+}
+
+function endBattle() {
+    g_inBattle = false;
+    spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+    g_worldmap.redraw();
+    g_player.plot();
 }
 
 /* Globals */
@@ -865,7 +925,10 @@ var textCtx = textCanvas.getContext("2d");
 
 var g_player = null;
 var g_worldmap = null;
+var g_enemies = null;
+var g_box = null;
 var g_textDisplay = new TextDisplay();
+var g_inBattle = false;
 
 // Utility function to load the xml for a tileset
 // Callback function must have mapXml parameter.
@@ -900,6 +963,16 @@ $(document).ready(function() {
             
             // src set must be after onload function set due to bug in IE9b1
             img.src = "images/Char1.png";
+            
+            for (var x = 0; x < g_worldmap.getXLimit(); ++x)
+                for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
+                    var square = g_worldmap.getSquareAt(x, y);
+                    if (square.passable())
+                        square.onEnter = function() {
+                            if (Math.random() < BATTLE_FREQ)
+                                startBattle();
+                        };
+                }
 
             var url2 = "images/InqCastle.png"
             var img2 = new Image();
@@ -912,6 +985,11 @@ $(document).ready(function() {
             };
         });
     };
+    
+    g_enemies = new Image();
+    g_enemies.src = "images/enemies-t.png";
+    g_box = new Image();
+    g_box.src = "images/box-highres.png";
 });
 
 /* Castle submap setup code */
@@ -964,32 +1042,36 @@ function handleKeyPress(event) {
                 keyBuffer = key;
             switch (key) {
                 case DOWN_ARROW:
-                    if (!g_worldmap.animating)
+                    if (!g_worldmap.animating  && !g_inBattle)
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
                 case UP_ARROW:
-                    if (!g_worldmap.animating)
+                    if (!g_worldmap.animating  && !g_inBattle)
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    if (!g_worldmap.animating)
+                    if (!g_worldmap.animating  && !g_inBattle)
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    if (!g_worldmap.animating)
+                    if (!g_worldmap.animating  && !g_inBattle)
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
                     break;
                 case SPACEBAR:
                 case ENTER:
                     if (!g_worldmap.animating) {
-                        if (g_textDisplay.textDisplayed())
-                            g_textDisplay.clearText();
-                        else
-                            g_worldmap.doAction();
+                        if (!g_inBattle) {
+                            if (g_textDisplay.textDisplayed())
+                                g_textDisplay.clearText();
+                            else
+                                g_worldmap.doAction();
+                        } else {
+                            endBattle();
+                        }
                     }
                     event.preventDefault();
                     break;
@@ -999,7 +1081,9 @@ function handleKeyPress(event) {
 }
 
 function handleBufferedKey() {
-    if (keyBuffer) {
+    if (keyBuffer && !g_inBattle) {
+        var key = keyBuffer;
+        keyBuffer = 0;
         switch (keyBuffer) {
             case DOWN_ARROW:
                 g_player.move(0, 1, FACING_DOWN);
@@ -1022,7 +1106,6 @@ function handleBufferedKey() {
                 break;
         }
     }
-    keyBuffer = 0;
 }
 
 if (window.opera || $.browser.mozilla)
