@@ -883,8 +883,19 @@ function startBattle()
         1.5 * SPRITE_WIDTH,                // dest width
         1.5 * SPRITE_HEIGHT);              // dest height
     
-    spriteCtx.drawImage(g_enemies, 4, 109, 34 - 4, 132 - 109,
-        2 * TILE_WIDTH, 3 * TILE_HEIGHT, 34 - 4, 132 - 109);
+    var len = g_monsterData.monsters.length;
+    var i = Math.floor(Math.random() * len);
+    var monster = g_monsterData.monsters[i];
+    
+    spriteCtx.drawImage(g_enemies,
+        monster.left,
+        monster.top,
+        monster.width,
+        monster.height,
+        2 * TILE_WIDTH,
+        3 * TILE_HEIGHT,
+        monster.width,
+        monster.height);
         
     spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
     spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
@@ -899,10 +910,8 @@ function startBattle()
     textCtx.fillText("Spell", 36, screenHeight - 70);
     textCtx.fillText("Item", 36, screenHeight - 40);
     
-    var txt = "A slime appeared!";
+    var txt = "A " + monster.name + " appeared!";
     textCtx.fillText(txt, 160, screenHeight - 130);
-    
-        
 }
 
 function endBattle() {
@@ -1112,3 +1121,33 @@ if (window.opera || $.browser.mozilla)
     $(window).keypress(handleKeyPress);
 else
     $(window).keydown(handleKeyPress);
+
+var g_monsterData = { "monsters" : [ {
+        "name": "slime",
+        "hp": 3,
+        "attack": 1,
+        "defense": 0,
+        "left": 4,
+        "top": 109,
+        "width": 31,
+        "height": 24
+    }, {
+        "name": "rat",
+        "hp": 5,
+        "attack": 2,
+        "defense": 0,
+        "left": 7,
+        "top": 498,
+        "width": 63,
+        "height": 55
+    }, {
+        "name": "snake",
+        "hp": 6,
+        "attack": 2,
+        "defense": 1,
+        "left": 7,
+        "top": 160,
+        "width": 48,
+        "height": 59
+    }
+]}; 
