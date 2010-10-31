@@ -269,7 +269,7 @@ SubMap.prototype = {
         var submap = this;
         window.setTimeout(function() {
             submap.animateSub(fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
-        }, 1000 / FPS);
+        }, 1);
     },
     
     // Recursive part of Submap.animate, the scrolling animation.
@@ -305,7 +305,7 @@ SubMap.prototype = {
         }
         else {
             g_worldmap.animating = false;
-            window.setTimeout(handleBufferedKey, 1000 / FPS);
+            window.setTimeout(handleBufferedKey, 1);
         }
     }
 };
@@ -781,7 +781,7 @@ Sprite.prototype = {
             if (!g_inBattle) {
                 this.clear(destOffsetX, destOffsetY); // clear last image drawn
                 this.plot();
-                window.setTimeout(handleBufferedKey, 1000 / FPS);
+                window.setTimeout(handleBufferedKey, 1);
             }
         }
     }
