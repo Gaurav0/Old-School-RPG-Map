@@ -54,6 +54,10 @@ var MAX_SCREEN_SQUARE_X = 7;
 var MIN_SCREEN_SQUARE_Y = 4;
 var MAX_SCREEN_SQUARE_Y = 6;
 
+// Width and Height of sprites
+var SPRITE_WIDTH = 32;
+var SPRITE_HEIGHT = 48;
+
 // Maximum frames per second
 var FPS = 25;
 
@@ -98,18 +102,19 @@ MapSquare.prototype = {
 
 /* Class representing an individual self-contained map region - for instance, 
  * a single dungeon level would be a SubMap; the overworld would be another.*/
-function SubMap(mapXml, tileset) {
-    this._init(mapXml, tileset);
+function SubMap(mapXml, tileset, overworld) {
+    this._init(mapXml, tileset, overworld);
 }
 SubMap.prototype = {
     /* Initialize a SubMap by passing in a Tiled format loaded xml
      * and a tileset instance .*/
-    _init: function(mapXml, tileset) {
+    _init: function(mapXml, tileset, overworld) {
         this._layer = $(mapXml).find('map layer').eq(0);
         this._xLimit = parseInt($(this._layer).attr('width'));
         this._yLimit = parseInt($(this._layer).attr('height'));
         this._mapXml = mapXml;
         this._tileset = tileset;
+        this._overworld = overworld;
         this._spriteList = [];
         this._mapSquares = [];
         
@@ -142,6 +147,10 @@ SubMap.prototype = {
 
     get tileset() {
         return this._tileset;
+    },
+    
+    isOverWorld: function() {
+        return this._overworld;
     },
 
     /* True if the point x, y (in world coordinates) is within the bounds
@@ -325,7 +334,7 @@ WorldMap.prototype = {
         this._scrollX = 0;
         this._scrollY = 0;
 
-        var mainMap = new SubMap(mapXml, tileset);
+        var mainMap = new SubMap(mapXml, tileset, true);
         this._subMapList.push(mainMap); // main map is id = 0
 
         // Are we busy with animations?
@@ -346,6 +355,10 @@ WorldMap.prototype = {
 
     getYLimit: function() {
         return this._subMapList[this._currentSubMap].getYLimit();
+    },
+    
+    isOverWorld: function() {
+        return this._subMapList[this._currentSubMap].isOverWorld();
     },
 
     // Returns true if the given point (world coordinates) is
@@ -460,12 +473,14 @@ WorldMap.prototype = {
      * and changes view to match. */
     goToMap: function(sprite, mapId, x, y, scrollX, scrollY, dir) {
         sprite.clear();
-        this._subMapList[this._currentSubMap].onExit();
+        var oldMap = this._subMapList[this._currentSubMap];
+        oldMap.onExit();
         this._currentSubMap = mapId;
         sprite.enterNewSubMap(mapId, x, y, dir);
         this.goTo(scrollX, scrollY);
+        var newMap = this._subMapList[mapId];
+        newMap.onEnter();
         sprite.plot();
-        this._subMapList[mapId].onEnter();
     },
     
     goTo: function(scrollX, scrollY) {
@@ -496,8 +511,6 @@ var FACING_UP = 0;
 var FACING_RIGHT = 1;
 var FACING_DOWN = 2;
 var FACING_LEFT = 3;
-var SPRITE_WIDTH = 24;
-var SPRITE_HEIGHT = 32;
 
 /* Class representing an object that can move around the map, such
  * as a player character. Sprite objects are drawn superimposed on
@@ -582,14 +595,23 @@ Sprite.prototype = {
         
         var sw = SPRITE_WIDTH;
         var sh = SPRITE_HEIGHT;
+        var dsw = SPRITE_WIDTH;
+        var dsh = SPRITE_HEIGHT;
+        
+        // If overworld map, clamp sprite height to tile height
+        var map = g_worldmap.getSubMap(this._subMap);
+        if (map.isOverWorld()) {
+            dsw = Math.ceil(TILE_WIDTH * TILE_HEIGHT / SPRITE_HEIGHT);
+            dsh = TILE_HEIGHT;
+        }
 
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
         
         // Adjust for difference between tile and sprite sizes
-        dx += (TILE_WIDTH - SPRITE_WIDTH) / 2;
-        dy += (TILE_HEIGHT - SPRITE_HEIGHT) / 2;
+        dx += Math.floor((TILE_WIDTH - dsw) / 2); // center for x
+        dy += TILE_HEIGHT - dsh;     // upward for y
         
         // select sprite from sprite image based on direction
         var sy = SPRITE_HEIGHT * this._dir;
@@ -612,7 +634,14 @@ Sprite.prototype = {
         // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
         
         // draw the sprite!
-        spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx, dy, sw, sh);
+        spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx, dy, dsw, dsh);
+        
+        if (this != g_player && !map.isOverWorld() && !g_worldmap.animating) {
+            
+            // if player sprite below current location, replot it.
+            if(g_player.isAt(this._x, this._y + 1));
+                g_player.plot();
+        }
     },
 
     // clears sprite canvas of this sprite
@@ -620,10 +649,19 @@ Sprite.prototype = {
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
+        var dsw = SPRITE_WIDTH;
+        var dsh = SPRITE_HEIGHT;
+        
+        // If overworld map, clamp sprite height to tile height
+        var map = g_worldmap.getSubMap(this._subMap);
+        if (map.isOverWorld()) {
+            dsw = Math.ceil(TILE_WIDTH * TILE_HEIGHT / SPRITE_HEIGHT);
+            dsh = TILE_HEIGHT;
+        }
         
         // Adjust for difference between tile and sprite sizes
-        dx += (TILE_WIDTH - SPRITE_WIDTH) / 2;
-        dy += (TILE_HEIGHT - SPRITE_HEIGHT) / 2;
+        dx += Math.floor((TILE_WIDTH - dsw) / 2); // center for x
+        dy += TILE_HEIGHT - dsh;                  // upward for y
             
         // apply destOffsetX and destOffsetY if available
         if (destOffsetX != undefined)
@@ -631,7 +669,29 @@ Sprite.prototype = {
         if (destOffsetY != undefined)
             dy += destOffsetY;
                 
-        spriteCtx.clearRect(dx, dy, SPRITE_WIDTH, SPRITE_HEIGHT);
+        spriteCtx.clearRect(dx, dy, dsw, dsh);
+        
+        if (!map.isOverWorld() && this == g_player) {
+                    
+            // if sprite above previous location, replot it.
+            var deltaX = 0;
+            if (destOffsetX != undefined) {
+                if (destOffsetX > 0)
+                    deltaX = 1;
+                else if (destOffsetX < 0)
+                    deltaX = -1;
+            }
+            var deltaY = 0;
+            if (destOffsetY != undefined) {
+                if (destOffsetY > 0)
+                    deltaY = 1;
+                else if (destOffsetY < 0)
+                    deltaY = -1;
+            } 
+            var spriteAbove = map.getSpriteAt(this._x + deltaX, this._y + deltaY - 1);
+            if (spriteAbove != null)
+                spriteAbove.plot();
+        }
     },
 
     /* Sprite will attempt to move by deltaX in the east-west dimension
@@ -875,13 +935,13 @@ function startBattle()
     spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
     spriteCtx.drawImage(g_player._img,
         SPRITE_WIDTH,                      // source x
-        FACING_LEFT * SPRITE_HEIGHT + 1,   // source y
+        FACING_LEFT * SPRITE_HEIGHT,       // source y
         SPRITE_WIDTH,                      // source width
-        SPRITE_HEIGHT - 1,                 // source height
+        SPRITE_HEIGHT,                     // source height
         screenWidth - 2 * TILE_WIDTH,      // dest x
         2 * TILE_HEIGHT,                   // dest y
-        1.5 * SPRITE_WIDTH,                // dest width
-        1.5 * SPRITE_HEIGHT);              // dest height
+        SPRITE_WIDTH,                      // dest width
+        SPRITE_HEIGHT);                    // dest height
     
     var len = g_monsterData.monsters.length;
     var i = Math.floor(Math.random() * len);
@@ -971,7 +1031,7 @@ $(document).ready(function() {
             };
             
             // src set must be after onload function set due to bug in IE9b1
-            img.src = "images/Char1.png";
+            img.src = "images/Trevor.png";
             
             for (var x = 0; x < g_worldmap.getXLimit(); ++x)
                 for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
@@ -1003,7 +1063,7 @@ $(document).ready(function() {
 
 /* Castle submap setup code */
 function setupCastleMap(mapXml, tileset) {
-    var map = new SubMap(mapXml, tileset);
+    var map = new SubMap(mapXml, tileset, false);
     var mapId = g_worldmap.addSubMap(map);
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
@@ -1022,7 +1082,7 @@ function setupCastleMap(mapXml, tileset) {
     };
     var img = new Image();
     var soldier1 = new Sprite(10, 14, img, mapId, FACING_DOWN);
-    img.src = "images/Soldier1.png";
+    img.src = "images/Soldier2.png";
     soldier1.action = function() {
         g_textDisplay.displayText("You cannot enter the castle yet.");
     };
