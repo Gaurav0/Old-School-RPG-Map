@@ -68,13 +68,8 @@ var SCROLL_FACTOR = 4;
 var BATTLE_FREQ = 0.3;
 
 // Class representing a single square on the map:
-function MapSquare(subMap, x, y, passable) {
-    if (subMap) {
-        this._mapSquareInit(subMap, x, y, passable);
-    }
-}
-MapSquare.prototype = {
-    _mapSquareInit: function(subMap, x, y, passable) {
+var MapSquare = Class.extend({
+    _init: function(subMap, x, y, passable) {
         this._subMap = subMap;
         this._x = x;
         this._y = y;
@@ -97,15 +92,12 @@ MapSquare.prototype = {
     onEnter: function(player) {
         // What happens when the player steps on this square?
     }
-};
+});
 
 
 /* Class representing an individual self-contained map region - for instance, 
  * a single dungeon level would be a SubMap; the overworld would be another.*/
-function SubMap(mapXml, tileset, overworld) {
-    this._init(mapXml, tileset, overworld);
-}
-SubMap.prototype = {
+var SubMap = Class.extend({
     /* Initialize a SubMap by passing in a Tiled format loaded xml
      * and a tileset instance .*/
     _init: function(mapXml, tileset, overworld) {
@@ -317,17 +309,14 @@ SubMap.prototype = {
             window.setTimeout(handleBufferedKey, 1);
         }
     }
-};
+});
 
 
 /* Main map manager class.  This class is a container for any number
  * of sub-maps; it's assumed that the default map is an 'overworld' or
  * main world map; it's initialized by the mapXml and tileset that
  * you pass in.  You can also call addSubMap to add additional sub-maps.*/
-function WorldMap(mapXml, tileset) {
-    this._init(mapXml, tileset);
-}
-WorldMap.prototype = {
+var WorldMap = Class.extend({
     _init: function(mapXml, tileset) {
         this._subMapList = [];
         this._currentSubMap = 0;
@@ -505,7 +494,7 @@ WorldMap.prototype = {
             }, 1);
         }
     }
-};
+});
 
 var FACING_UP = 0;
 var FACING_RIGHT = 1;
@@ -516,10 +505,7 @@ var FACING_LEFT = 3;
  * as a player character. Sprite objects are drawn superimposed on
  * the map using a separate canvas with z-index=1 and absolute
  * positioning (these CSS styles are defined in rpgdemo.css) */
-function Sprite(x, y, img, subMapId, dir) {
-    this._init(x, y, img, subMapId, dir);
-}
-Sprite.prototype = {
+var Sprite = Class.extend({
    _init: function(x, y, img, subMapId, dir) {
         this._x = x;
         this._y = y;
@@ -767,7 +753,7 @@ Sprite.prototype = {
     
     /* Recursive part of sprite.scrollAnimation */
     scrollAnimationSub: function(animStage) {
-        if (g_worldmap.animating && !g_inBattle) {
+        if (g_worldmap.animating && !g_battle) {
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
@@ -781,7 +767,7 @@ Sprite.prototype = {
             window.setTimeout(function() {
                 sprite.scrollAnimationSub((animStage + 1) % 4);
             }, 1000 / FPS);
-        } else if (!g_inBattle) {
+        } else if (!g_battle) {
             this.clear();
             this.plot();
         }
@@ -794,7 +780,7 @@ Sprite.prototype = {
             window.setTimeout(function() {
                 sprite.walkAnimationPoll(deltaX, deltaY);
             }, 1000 / FPS);
-        } else if (!g_inBattle) {
+        } else if (!g_battle) {
             g_worldmap.animating = true;
             this._walking = true;
             var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
@@ -817,7 +803,7 @@ Sprite.prototype = {
     
     /* Recursive part of sprite.walkAnimation */
     walkAnimationSub: function(animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps) {
-        if (numSteps > 1 && !g_inBattle) {
+        if (numSteps > 1 && !g_battle) {
             this.clear(destOffsetX, destOffsetY);
             
             // Determine source offset in sprite image based on animation stage.
@@ -838,14 +824,103 @@ Sprite.prototype = {
         } else {
             g_worldmap.animating = false;
             this._walking = false;
-            if (!g_inBattle) {
+            if (!g_battle) {
                 this.clear(destOffsetX, destOffsetY); // clear last image drawn
                 this.plot();
                 window.setTimeout(handleBufferedKey, 1);
             }
         }
     }
-};
+});
+
+/* Class representing a main character that can fight in battles,
+ * carry things, move independently, etc. */
+var Player = Sprite.extend({
+    _init: function(x, y, img, subMapId, dir) {
+        this._super(x, y, img, subMapId, dir);
+        this._exp = 0;
+        this._gold = 0;
+        this._level = 1;
+        this._maxHP = 10;
+        this._maxMP = 5;
+        this._hp = 10;
+        this._mp = 5;
+        this._attack = 2;
+        this._defense = 1;
+        this._levels = [ 5, 11, 20, 31, 44, 60, 82, 112, 156, 198,
+            256, 325, 425, 560, 775, 1000, 1300, 1700, 2300, 3100,
+            4400, 6000, 8200, 11200, 15600, 19800, 25600, 32500, 42500, 56000
+        ];
+    },
+    
+    getExp: function() {
+        return this._exp;
+    },
+    
+    getGold: function() {
+        return this._gold;
+    },
+    
+    getMaxHP: function() {
+        return this._maxHP;
+    },
+    
+    getMaxMP: function() {
+        return this._maxMP;
+    },
+    
+    getHP: function() {
+        return this._hp;
+    },
+    
+    getMP: function() {
+        return this._mp;
+    },
+    
+    getAttack: function() {
+        return this._attack;
+    },
+    
+    getDefense: function() {
+        return this._defense;
+    },
+    
+    isDead: function() {
+        return this._hp <= 0;
+    },
+    
+    damage: function(dmg) {
+        this._hp -= dmg;
+    },
+    
+    heal: function(amt) {
+        this._hp += dmg;
+        if (this._hp > this._maxHP)
+            this._hp = this._maxHP;
+    },
+    
+    restore: function() {
+        this._hp = this._maxHP;
+        this._mp = this._maxMP;
+    },
+    
+    earnExp: function(amt) {
+        this._exp += amt;
+        if (this._level < 30 && this._exp >= this._levels[this._level]) {
+            this._level++;
+            this._attack += Math.ceil(this._level / 4);
+            this._defense += Math.ceil(this._level / 5);
+            this._maxHP += this._level;
+            this._maxMP += Math.ceil(this._level / 2);
+            return true;
+        }
+        return false;
+    },
+    
+    earnGold: function(amt) {
+        this._gold += amt;
+    }
+});
 
 
 /* Class representing a tileset image 
@@ -853,11 +928,8 @@ Sprite.prototype = {
  * height: height of the image
  * url: url of the image
  * img: Image object in javascript. */
-function Tileset(width, height, url, img) {
-    this.init(width, height, url, img);
-}
-Tileset.prototype = {
-    init: function(width, height, url, img) {
+var Tileset = Class.extend({
+    _init: function(width, height, url, img) {
         this._width = width;
         this._height = height;
         this._url = url;
@@ -887,14 +959,11 @@ Tileset.prototype = {
         // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
 
         mapCtx.drawImage(this._img, sx, sy, tw, th, dx, dy, tw, th);
-    }
-    
-}
+    }   
+});
 
-function TextDisplay() {
-    this._init();
-}
-TextDisplay.prototype = {
+/* Class representing text display */
+var TextDisplay = Class.extend({
     _init: function() {
         this._textDisplayed = false;
     },
@@ -908,7 +977,7 @@ TextDisplay.prototype = {
         textCtx.fillStyle = "rgba(0, 0, 200, 0.25)";
         textCtx.fillRect(0, 236, textCanvas.width, 100);
         textCtx.fillStyle = "white";
-        textCtx.font = "bold 12px monospace";
+        textCtx.font = "bold 16px monospace";
         textCtx.textBaseline = "top";
         textCtx.fillText(txt, 10, 246);
         this._textDisplayed = true;
@@ -918,69 +987,220 @@ TextDisplay.prototype = {
         textCtx.clearRect(0, 236, textCanvas.width, 100);
         this._textDisplayed = false;
     }
-}
+});
 
-function startBattle()
-{
-    g_inBattle = true;
-    keyBuffer = 0;
-    
-    var screenWidth = mapCanvas.width;
-    var screenHeight = mapCanvas.height;
-    
-    // Change this to background pic later
-    mapCtx.fillStyle = "#0080ff";
-    mapCtx.fillRect(0, 0, screenWidth, screenHeight);
-    
-    spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
-    spriteCtx.drawImage(g_player._img,
-        SPRITE_WIDTH,                      // source x
-        FACING_LEFT * SPRITE_HEIGHT,       // source y
-        SPRITE_WIDTH,                      // source width
-        SPRITE_HEIGHT,                     // source height
-        screenWidth - 2 * TILE_WIDTH,      // dest x
-        2 * TILE_HEIGHT,                   // dest y
-        SPRITE_WIDTH,                      // dest width
-        SPRITE_HEIGHT);                    // dest height
-    
-    var len = g_monsterData.monsters.length;
-    var i = Math.floor(Math.random() * len);
-    var monster = g_monsterData.monsters[i];
-    
-    spriteCtx.drawImage(g_enemies,
-        monster.left,
-        monster.top,
-        monster.width,
-        monster.height,
-        2 * TILE_WIDTH,
-        3 * TILE_HEIGHT,
-        monster.width,
-        monster.height);
+var MENU_ATTACK = 0;
+var MENU_DEFEND = 1;
+var MENU_SPELL = 2;
+var MENU_ITEM = 3;
+
+/* Class representing a battle */
+var Battle = Class.extend({
+    _init: function() {
+        var len = g_monsterData.monsters.length;
+        var i = Math.floor(Math.random() * len);
+        this._monster = g_monsterData.monsters[i];
+        this._monsterHP = this._monster.hp;
+        this._currentItem = MENU_ATTACK;
+        this._over = false;
+        this._line = 0;
+        this._txt = "";
         
-    spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
-    spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
-    spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
-    spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+        var screenHeight = mapCanvas.height;
+        this._lineHeight = [
+            screenHeight - 130, 
+            screenHeight - 100, 
+            screenHeight - 70, 
+            screenHeight - 40
+        ];
+        this._textHeight = [
+            screenHeight - 132, 
+            screenHeight - 110, 
+            screenHeight - 86, 
+            screenHeight - 62,
+            screenHeight - 38
+        ];
+    },
     
-    textCtx.font = "bold 20px monospace";
-    textCtx.fillStyle = "white";
-    textCtx.textBaseline = "top";
-    textCtx.fillText("Attack", 36, screenHeight - 130);
-    textCtx.fillText("Defend", 36, screenHeight - 100);
-    textCtx.fillText("Spell", 36, screenHeight - 70);
-    textCtx.fillText("Item", 36, screenHeight - 40);
-    
-    var txt = "A " + monster.name + " appeared!";
-    textCtx.fillText(txt, 160, screenHeight - 130);
-}
+    draw: function() {
+        var screenWidth = mapCanvas.width;
+        var screenHeight = mapCanvas.height;
 
-function endBattle() {
-    g_inBattle = false;
-    spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-    textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-    g_worldmap.redraw();
-    g_player.plot();
-}
+        // Change this to background pic later
+        mapCtx.fillStyle = "#0080ff";
+        mapCtx.fillRect(0, 0, screenWidth, screenHeight);
+
+        spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
+        spriteCtx.drawImage(g_player._img,
+            SPRITE_WIDTH,                      // source x
+            FACING_LEFT * SPRITE_HEIGHT,       // source y
+            SPRITE_WIDTH,                      // source width
+            SPRITE_HEIGHT,                     // source height
+            screenWidth - 2 * TILE_WIDTH,      // dest x
+            2 * TILE_HEIGHT,                   // dest y
+            SPRITE_WIDTH,                      // dest width
+            SPRITE_HEIGHT);                    // dest height
+
+        var monster = this._monster;
+        spriteCtx.drawImage(g_enemies,
+            monster.left,
+            monster.top,
+            monster.width,
+            monster.height,
+            2 * TILE_WIDTH,
+            3 * TILE_HEIGHT,
+            monster.width,
+            monster.height);
+
+        spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
+        spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
+        spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
+        spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText("Attack", 36, this._lineHeight[0]);
+        textCtx.fillText("Defend", 36, this._lineHeight[1]);
+        textCtx.fillText("Spell", 36, this._lineHeight[2]);
+        textCtx.fillText("Item", 36, this._lineHeight[3]);
+
+        textCtx.font = "bold 16px sans-serif";
+        var txt = "A " + monster.name + " appeared!";
+        textCtx.fillText(txt, 160, this._textHeight[0]);
+        this._line = 1;
+        this._txt = txt;
+        
+        this.drawArrow();
+    },
+    
+    writeMsg: function(msg) {
+        textCtx.font = "bold 16px sans-serif";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        if (this._line <= 4)
+            textCtx.fillText(msg, 160, this._textHeight[this._line]);
+        else {
+            textCtx.clearRect(160,
+                this._textHeight[0],
+                textCanvas.width - 160,
+                textCanvas.height - this._textHeight[0]);
+            var prevText = this._txt.split("\n");
+            for (var i = 0; i < 4; ++i) {
+                var lineText = prevText[prevText.length - 4 + i];
+                textCtx.fillText(lineText, 160, this._textHeight[i]);
+            }
+            textCtx.fillText(msg, 160, this._textHeight[4]);
+        }
+        this._txt += "\n" + msg;
+        this._line++;
+    },
+    
+    end: function() {
+        spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        g_worldmap.redraw();
+        g_player.plot();
+        g_battle = null;
+    },
+    
+    drawArrow: function() {
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._currentItem];        
+        textCtx.fillText(arrowChar, 20, drawHeight);
+    },
+    
+    clearArrow: function() {
+        var drawHeight = this._lineHeight[this._currentItem];
+        textCtx.clearRect(20, drawHeight, 15, 20);
+    },
+    
+    handleInput: function(key) {
+        if (!this._over && !g_player.isDead()) {
+            this.clearArrow();
+            switch(key) {
+                case DOWN_ARROW:
+                    this._currentItem = (this._currentItem + 1) % 4;
+                    break;
+                case UP_ARROW:
+                    this._currentItem = this._currentItem - 1;
+                    if (this._currentItem < 0)
+                        this._currentItem = this._currentItem + 4;
+                    break;
+            }
+            this.drawArrow();
+        }
+    },
+    
+    handleEnter: function() {
+        if (!g_player.isDead()) {
+            if (this._over)
+                this.end();
+            else {
+                var defending = false;
+                switch(this._currentItem) {
+                    case MENU_ATTACK:
+                        this.attack();
+                        break;
+                    case MENU_DEFEND:
+                        this.writeMsg("You defended.");
+                        defending = true;
+                        break;
+                    case MENU_SPELL:
+                        this.writeMsg("You used a spell.");
+                        break;
+                    case MENU_ITEM:
+                        this.writeMsg("You used an item.");
+                        break;
+                }
+                if (!this._over)
+                    this.monsterTurn(defending);
+            }
+        }
+    },
+    
+    attack: function() {
+        var damage = g_player.getAttack() - this._monster.defense;
+        if (damage < 1)
+            damage = 1;
+        var rand = Math.floor(Math.random() * damage / 2);
+        damage -= rand;
+        this.writeMsg("You attacked for " + damage + " damage.");
+        this._monsterHP -= damage;
+        if (this._monsterHP <= 0) {
+            this.writeMsg("The " + this._monster.name + " was killed.");
+            g_player.earnGold(this._monster.gold);
+            var gainedLevel = g_player.earnExp(this._monster.exp);
+            this.writeMsg("You have earned " + this._monster.exp + " exp");
+            this.writeMsg("and " + this._monster.gold + " GP.");
+            if (gainedLevel)
+                this.writeMsg("You gained a level!");
+            this._over = true;
+            this.clearArrow();
+        }
+    },
+    
+    monsterTurn: function(defending) {
+        this.writeMsg("The " + this._monster.name + " attacked for");
+        var damage = this._monster.attack - g_player.getDefense();
+        if (defending)
+            damage = Math.floor(damage / 2.5);
+        if (damage < 1)
+            damage = 1;
+        var rand = Math.floor(Math.random() * damage / 2);
+        damage -= rand;
+        this.writeMsg(damage + " damage.");
+        g_player.damage(damage);
+        if (g_player.isDead()) {
+            this.writeMsg("You died.");
+            this._over = true;
+            this.clearArrow();
+        }
+    }
+});
 
 /* Globals */
 
@@ -997,7 +1217,7 @@ var g_worldmap = null;
 var g_enemies = null;
 var g_box = null;
 var g_textDisplay = new TextDisplay();
-var g_inBattle = false;
+var g_battle = null;
 
 // Utility function to load the xml for a tileset
 // Callback function must have mapXml parameter.
@@ -1024,7 +1244,7 @@ $(document).ready(function() {
         loadXml("WorldMap1.tmx.xml", function(mapXml) {
             g_worldmap = new WorldMap(mapXml, worldTileset);
             var img = new Image();
-            g_player = new Sprite(23, 13, img, 0, FACING_DOWN);
+            g_player = new Player(23, 13, img, 0, FACING_DOWN);
             g_worldmap.goTo(17, 8);
             img.onload = function() {
                 g_player.plot();
@@ -1038,8 +1258,11 @@ $(document).ready(function() {
                     var square = g_worldmap.getSquareAt(x, y);
                     if (square.passable())
                         square.onEnter = function() {
-                            if (Math.random() < BATTLE_FREQ)
-                                startBattle();
+                            if (Math.random() < BATTLE_FREQ) {
+                                keyBuffer = 0;
+                                g_battle = new Battle();
+                                g_battle.draw();
+                            }
                         };
                 }
 
@@ -1079,6 +1302,7 @@ function setupCastleMap(mapXml, tileset) {
     }
     g_worldmap.getSubMap(0).getSquareAt(23, 14).onEnter = function() {
         g_worldmap.goToMap(g_player, mapId, 12, 18, 6, 9, FACING_UP);
+        g_player.restore();
     };
     var img = new Image();
     var soldier1 = new Sprite(10, 14, img, mapId, FACING_DOWN);
@@ -1111,36 +1335,43 @@ function handleKeyPress(event) {
                 keyBuffer = key;
             switch (key) {
                 case DOWN_ARROW:
-                    if (!g_worldmap.animating  && !g_inBattle)
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
                 case UP_ARROW:
-                    if (!g_worldmap.animating  && !g_inBattle)
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    if (!g_worldmap.animating  && !g_inBattle)
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    if (!g_worldmap.animating  && !g_inBattle)
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
                     break;
                 case SPACEBAR:
                 case ENTER:
-                    if (!g_worldmap.animating) {
-                        if (!g_inBattle) {
-                            if (g_textDisplay.textDisplayed())
-                                g_textDisplay.clearText();
-                            else
-                                g_worldmap.doAction();
-                        } else {
-                            endBattle();
-                        }
+                    if (g_battle) {
+                        g_battle.handleEnter();
+                    }
+                    else if (!g_worldmap.animating) {
+                        if (g_textDisplay.textDisplayed())
+                            g_textDisplay.clearText();
+                        else
+                            g_worldmap.doAction();
                     }
                     event.preventDefault();
                     break;
@@ -1150,7 +1381,7 @@ function handleKeyPress(event) {
 }
 
 function handleBufferedKey() {
-    if (keyBuffer && !g_inBattle) {
+    if (keyBuffer && !g_battle) {
         var key = keyBuffer;
         keyBuffer = 0;
         switch (keyBuffer) {
@@ -1187,6 +1418,8 @@ var g_monsterData = { "monsters" : [ {
         "hp": 3,
         "attack": 1,
         "defense": 0,
+        "exp": 1,
+        "gold": 1,
         "left": 4,
         "top": 109,
         "width": 31,
@@ -1196,6 +1429,8 @@ var g_monsterData = { "monsters" : [ {
         "hp": 5,
         "attack": 2,
         "defense": 0,
+        "exp": 2,
+        "gold": 1,
         "left": 7,
         "top": 498,
         "width": 63,
@@ -1205,6 +1440,8 @@ var g_monsterData = { "monsters" : [ {
         "hp": 6,
         "attack": 2,
         "defense": 1,
+        "exp": 2,
+        "gold": 2,
         "left": 7,
         "top": 160,
         "width": 48,
