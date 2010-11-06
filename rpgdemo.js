@@ -1036,6 +1036,7 @@ var Battle = Class.extend({
 
         spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
         this.drawPlayer();
+        this.drawHealthBar();
         this.drawMonster();
 
         // Draw boxes
@@ -1100,6 +1101,32 @@ var Battle = Class.extend({
             3 * TILE_HEIGHT,
             monster.width,
             monster.height);
+    },
+    
+    drawHealthBar: function() {
+        var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
+        var y = 2 * TILE_HEIGHT + 0.5;
+        var w = 10;
+        var h = SPRITE_HEIGHT;
+        var pct = g_player.getHP() / g_player.getMaxHP();
+        var yh = y + Math.round((1 - pct) * h);
+        var hh = h - (yh - y);
+        
+        // alert("y:" + y + " yh:" + yh + " h:" + h + " hh:" + hh);
+        
+        spriteCtx.fillStyle = "red";
+        spriteCtx.fillRect(x, yh, w, hh);
+        spriteCtx.strokeStyle = "black";
+        spriteCtx.strokeRect(x, y, w, h);
+    },
+    
+    clearHealthBar: function() {
+        var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
+        var y = 2 * TILE_HEIGHT + 0.5;
+        var w = 10;
+        var h = SPRITE_HEIGHT;
+        
+        spriteCtx.clearRect(x, y, w, h);
     },
     
     drawMenu: function() {
@@ -1228,6 +1255,8 @@ var Battle = Class.extend({
                 }
                 if (!this._over && !monsterAttacked)
                     this.monsterTurn(defending);
+                this.clearHealthBar();
+                this.drawHealthBar();
             }
         }
     },
