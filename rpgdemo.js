@@ -993,6 +993,9 @@ var MENU_ATTACK = 0;
 var MENU_DEFEND = 1;
 var MENU_SPELL = 2;
 var MENU_ITEM = 3;
+var MENU_RUN = 4;
+var ATTACK_MENU = 0;
+var RUN_MENU = 1;
 
 /* Class representing a battle */
 var Battle = Class.extend({
@@ -1002,6 +1005,7 @@ var Battle = Class.extend({
         this._monster = g_monsterData.monsters[i];
         this._monsterHP = this._monster.hp;
         this._currentItem = MENU_ATTACK;
+        this._currentMenu = ATTACK_MENU;
         this._over = false;
         this._line = 0;
         this._txt = "";
@@ -1031,16 +1035,51 @@ var Battle = Class.extend({
         mapCtx.fillRect(0, 0, screenWidth, screenHeight);
 
         spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
-        spriteCtx.drawImage(g_player._img,
-            SPRITE_WIDTH,                      // source x
-            FACING_LEFT * SPRITE_HEIGHT,       // source y
-            SPRITE_WIDTH,                      // source width
-            SPRITE_HEIGHT,                     // source height
-            screenWidth - 2 * TILE_WIDTH,      // dest x
-            2 * TILE_HEIGHT,                   // dest y
-            SPRITE_WIDTH,                      // dest width
-            SPRITE_HEIGHT);                    // dest height
+        this.drawPlayer();
+        this.drawMonster();
 
+        // Draw boxes
+        spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
+        spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
+        spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
+        spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+
+        this._currentMenu = ATTACK_MENU;
+        this.drawMenu();
+        this._currentItem = MENU_ATTACK;
+        this.drawArrow();
+
+        textCtx.font = "bold 16px sans-serif";
+        var txt = "A " + this._monster.name + " appeared!";
+        textCtx.fillText(txt, 160, this._textHeight[0]);
+        this._line = 1;
+        this._txt = txt;
+    },
+    
+    drawPlayer: function() {
+        
+        spriteCtx.drawImage(g_player._img,
+            SPRITE_WIDTH,                        // source x
+            FACING_LEFT * SPRITE_HEIGHT,         // source y
+            SPRITE_WIDTH,                        // source width
+            SPRITE_HEIGHT,                       // source height
+            spriteCanvas.width - 3 * TILE_WIDTH, // dest x
+            2 * TILE_HEIGHT,                     // dest y
+            SPRITE_WIDTH,                        // dest width
+            SPRITE_HEIGHT);                      // dest height
+    },
+    
+    clearPlayer: function() {
+        
+        spriteCtx.clearRect(
+            spriteCanvas.width - 3 * TILE_WIDTH, // x
+            2 * TILE_HEIGHT,                     // y
+            SPRITE_WIDTH,                        // width
+            SPRITE_HEIGHT);                      // height
+    },
+    
+    drawMonster: function() {
+        
         var monster = this._monster;
         spriteCtx.drawImage(g_enemies,
             monster.left,
@@ -1051,27 +1090,38 @@ var Battle = Class.extend({
             3 * TILE_HEIGHT,
             monster.width,
             monster.height);
-
-        spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
-        spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
-        spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
-        spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
-
+    },
+    
+    clearMonster: function() {
+        
+        var monster = this._monster;
+        spriteCtx.clearRect(
+            2 * TILE_WIDTH,
+            3 * TILE_HEIGHT,
+            monster.width,
+            monster.height);
+    },
+    
+    drawMenu: function() {
+        
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText("Attack", 36, this._lineHeight[0]);
-        textCtx.fillText("Defend", 36, this._lineHeight[1]);
-        textCtx.fillText("Spell", 36, this._lineHeight[2]);
-        textCtx.fillText("Item", 36, this._lineHeight[3]);
-
-        textCtx.font = "bold 16px sans-serif";
-        var txt = "A " + monster.name + " appeared!";
-        textCtx.fillText(txt, 160, this._textHeight[0]);
-        this._line = 1;
-        this._txt = txt;
-        
-        this.drawArrow();
+        if (this._currentMenu == ATTACK_MENU) {
+            textCtx.fillText("Attack", 36, this._lineHeight[0]);
+            textCtx.fillText("Defend", 36, this._lineHeight[1]);
+            textCtx.fillText("Spell", 36, this._lineHeight[2]);
+            textCtx.fillText("Item", 36, this._lineHeight[3]);
+        } else {
+            textCtx.fillText("Run", 36, this._lineHeight[0]);
+        }
+    },
+    
+    clearMenu: function() {
+        textCtx.clearRect(36,
+            this._lineHeight[0],
+            150 - 36, 
+            textCanvas.height - this._lineHeight[0]);
     },
     
     writeMsg: function(msg) {
@@ -1109,12 +1159,12 @@ var Battle = Class.extend({
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        var drawHeight = this._lineHeight[this._currentItem];        
+        var drawHeight = this._lineHeight[this._currentItem % 4];        
         textCtx.fillText(arrowChar, 20, drawHeight);
     },
     
     clearArrow: function() {
-        var drawHeight = this._lineHeight[this._currentItem];
+        var drawHeight = this._lineHeight[this._currentItem % 4];
         textCtx.clearRect(20, drawHeight, 15, 20);
     },
     
@@ -1123,12 +1173,27 @@ var Battle = Class.extend({
             this.clearArrow();
             switch(key) {
                 case DOWN_ARROW:
-                    this._currentItem = (this._currentItem + 1) % 4;
+                    if (this._currentMenu == ATTACK_MENU)
+                        this._currentItem = (this._currentItem + 1) % 4;
                     break;
                 case UP_ARROW:
-                    this._currentItem = this._currentItem - 1;
-                    if (this._currentItem < 0)
-                        this._currentItem = this._currentItem + 4;
+                    if (this._currentMenu == ATTACK_MENU) {
+                        this._currentItem = this._currentItem - 1;
+                        if (this._currentItem < 0)
+                            this._currentItem = this._currentItem + 4;
+                    }
+                    break;
+                case LEFT_ARROW:
+                case RIGHT_ARROW:
+                    this.clearArrow();
+                    this._currentMenu = (this._currentMenu + 1) % 2;
+                    this.clearMenu();
+                    this.drawMenu();
+                    if (this._currentMenu == RUN_MENU)
+                        this._currentItem = MENU_RUN;
+                    else
+                        this._currentItem = MENU_ATTACK;
+                    this.drawArrow();
                     break;
             }
             this.drawArrow();
@@ -1141,6 +1206,7 @@ var Battle = Class.extend({
                 this.end();
             else {
                 var defending = false;
+                var monsterAttacked = false;
                 switch(this._currentItem) {
                     case MENU_ATTACK:
                         this.attack();
@@ -1155,8 +1221,12 @@ var Battle = Class.extend({
                     case MENU_ITEM:
                         this.writeMsg("You used an item.");
                         break;
+                    case MENU_RUN:
+                        this.run();
+                        monsterAttacked = true;
+                        break;
                 }
-                if (!this._over)
+                if (!this._over && !monsterAttacked)
                     this.monsterTurn(defending);
             }
         }
@@ -1171,6 +1241,7 @@ var Battle = Class.extend({
         this.writeMsg("You attacked for " + damage + " damage.");
         this._monsterHP -= damage;
         if (this._monsterHP <= 0) {
+            this.clearMonster();
             this.writeMsg("The " + this._monster.name + " was killed.");
             g_player.earnGold(this._monster.gold);
             var gainedLevel = g_player.earnExp(this._monster.exp);
@@ -1198,7 +1269,26 @@ var Battle = Class.extend({
             this.writeMsg("You died.");
             this._over = true;
             this.clearArrow();
+            this.clearPlayer();
         }
+    },
+    
+    run: function() {
+        if (Math.random() >= 0.1) {
+            this.writeMsg("You start to run.");
+            this.monsterTurn(false);
+            if (g_player.isDead() || this._over)
+                return false;
+            if (Math.random() < 0.25) {
+                this.writeMsg("You were unable to run away.")
+                return false;
+            }
+        }
+        
+        this.writeMsg("You ran away.")
+        this._over = true;
+        this.clearArrow();
+        this.clearPlayer();
     }
 });
 
