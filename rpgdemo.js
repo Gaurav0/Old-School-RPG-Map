@@ -833,8 +833,7 @@ var Sprite = Class.extend({
     }
 });
 
-/* Class representing a main character that can fight in battles,
- * carry things, move independently, etc. */
+/* Class representing a main character that can fight in battles. */
 var Player = Sprite.extend({
     _init: function(x, y, img, subMapId, dir) {
         this._super(x, y, img, subMapId, dir);
@@ -922,6 +921,70 @@ var Player = Sprite.extend({
     }
 });
 
+/* Class representing an enemy in battles */
+var Monster = Class.extend({
+    _init: function(monster) {
+        this._monster = monster;
+        this._hp = monster.hp;
+        this._loc = 0;
+    },
+    
+    getHP: function() {
+        return this._hp;
+    },
+    
+    damage: function(amt) {
+        this._hp -= amt;
+    },
+    
+    isDead: function() {
+        return this._hp <= 0;
+    },
+    
+    getLoc: function() {
+        return this._loc;
+    },
+    
+    setLoc: function(loc) {
+        this._loc = loc;
+    },
+    
+    getName: function() {
+        return this._monster.name;
+    },
+    
+    getAttack: function() {
+        return this._monster.attack;
+    },
+    
+    getDefense: function() {
+        return this._monster.defense;
+    },
+    
+    getExp: function() {
+        return this._monster.exp;
+    },
+    
+    getGold: function() {
+        return this._monster.gold;
+    },
+    
+    getLeft: function() {
+        return this._monster.left;
+    },
+    
+    getTop: function() {
+        return this._monster.top;
+    },
+    
+    getWidth: function() {
+        return this._monster.width;
+    },
+    
+    getHeight: function() {
+        return this._monster.height;
+    },
+});
 
 /* Class representing a tileset image 
  * width: width of the image
@@ -1000,10 +1063,18 @@ var RUN_MENU = 1;
 /* Class representing a battle */
 var Battle = Class.extend({
     _init: function() {
-        var len = g_monsterData.monsters.length;
+        var len = g_encounterData.encounters.length;
         var i = Math.floor(Math.random() * len);
-        this._monster = g_monsterData.monsters[i];
-        this._monsterHP = this._monster.hp;
+        this._encounter = g_encounterData.encounters[i];
+        this._monsterList = [];
+        for (var j = 0; j < this._encounter.monsters.length; ++j) {
+            var monsterId = this._encounter.monsters[j];
+            for (var k = 0; k < g_monsterData.monsters.length; ++k)
+                if (g_monsterData.monsters[k].id == monsterId) {
+                    var monster = new Monster(g_monsterData.monsters[k]);
+                    this._monsterList.push(monster);
+                }
+        }
         this._currentItem = MENU_ATTACK;
         this._currentMenu = ATTACK_MENU;
         this._over = false;
@@ -1024,6 +1095,12 @@ var Battle = Class.extend({
             screenHeight - 62,
             screenHeight - 38
         ];
+        
+        this._totalExp = 0;
+        this._totalGold = 0;
+        this._selecting = false;
+        this._selection = 0;
+        this._onSelect = null;
     },
     
     draw: function() {
@@ -1037,7 +1114,7 @@ var Battle = Class.extend({
         spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
         this.drawPlayer();
         this.drawHealthBar();
-        this.drawMonster();
+        this.drawMonsters();
 
         // Draw boxes
         spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
@@ -1051,7 +1128,7 @@ var Battle = Class.extend({
         this.drawArrow();
 
         textCtx.font = "bold 16px sans-serif";
-        var txt = "A " + this._monster.name + " appeared!";
+        var txt = this._encounter.name + " appeared!";
         textCtx.fillText(txt, 160, this._textHeight[0]);
         this._line = 1;
         this._txt = txt;
@@ -1079,28 +1156,34 @@ var Battle = Class.extend({
             SPRITE_HEIGHT);                      // height
     },
     
-    drawMonster: function() {
+    drawMonsters: function() {
         
-        var monster = this._monster;
-        spriteCtx.drawImage(g_enemies,
-            monster.left,
-            monster.top,
-            monster.width,
-            monster.height,
-            2 * TILE_WIDTH,
-            3 * TILE_HEIGHT,
-            monster.width,
-            monster.height);
+        var destLeft = 2 * TILE_WIDTH;
+        for (var i = 0; i < this._monsterList.length; ++i) {
+            var monster = this._monsterList[i];
+            spriteCtx.drawImage(g_enemies,
+                monster.getLeft(),
+                monster.getTop(),
+                monster.getWidth(),
+                monster.getHeight(),
+                destLeft,
+                3 * TILE_HEIGHT,
+                monster.getWidth(),
+                monster.getHeight());
+            
+            monster.setLoc(destLeft);
+            destLeft += monster.getWidth() + 15;
+        }
     },
     
-    clearMonster: function() {
+    clearMonster: function(id) {
         
-        var monster = this._monster;
+        var monster = this._monsterList[id];
         spriteCtx.clearRect(
-            2 * TILE_WIDTH,
+            monster.getLoc(),
             3 * TILE_HEIGHT,
-            monster.width,
-            monster.height);
+            monster.getWidth(),
+            monster.getHeight());
     },
     
     drawHealthBar: function() {
@@ -1195,87 +1278,162 @@ var Battle = Class.extend({
         textCtx.clearRect(20, drawHeight, 15, 20);
     },
     
+    drawSelection: function() {
+        var monster = this._monsterList[this._selection];
+        var loc = monster.getLoc();
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, loc - 10, 3 * TILE_HEIGHT);
+    },
+    
+    clearSelection: function() {
+        var monster = this._monsterList[this._selection];
+        var loc = monster.getLoc();
+        textCtx.clearRect(loc - 10, 3 * TILE_HEIGHT, 15, 20);
+    },
+    
     handleInput: function(key) {
-        if (!this._over && !g_player.isDead()) {
-            this.clearArrow();
+        if (this._selecting) {
+            this.clearSelection();
             switch(key) {
+                case RIGHT_ARROW:
                 case DOWN_ARROW:
-                    if (this._currentMenu == ATTACK_MENU)
-                        this._currentItem = (this._currentItem + 1) % 4;
-                    break;
-                case UP_ARROW:
-                    if (this._currentMenu == ATTACK_MENU) {
-                        this._currentItem = this._currentItem - 1;
-                        if (this._currentItem < 0)
-                            this._currentItem = this._currentItem + 4;
-                    }
+                    do {
+                        this._selection++;
+                        if (this._selection >= this._monsterList.length)
+                            this._selection = 0;
+                    } while (this._monsterList[this._selection].isDead());
                     break;
                 case LEFT_ARROW:
-                case RIGHT_ARROW:
-                    this.clearArrow();
-                    this._currentMenu = (this._currentMenu + 1) % 2;
-                    this.clearMenu();
-                    this.drawMenu();
-                    if (this._currentMenu == RUN_MENU)
-                        this._currentItem = MENU_RUN;
-                    else
-                        this._currentItem = MENU_ATTACK;
-                    this.drawArrow();
+                case UP_ARROW:
+                    do {
+                        this._selection--;
+                        if (this._selection < 0)
+                            this._selection = this._monsterList.length - 1;
+                    } while (this._monsterList[this._selection].isDead());
                     break;
             }
-            this.drawArrow();
+            this.drawSelection();
+        } else {
+            if (!this._over && !g_player.isDead()) {
+                this.clearArrow();
+                switch(key) {
+                    case DOWN_ARROW:
+                        if (this._currentMenu == ATTACK_MENU)
+                            this._currentItem = (this._currentItem + 1) % 4;
+                        break;
+                    case UP_ARROW:
+                        if (this._currentMenu == ATTACK_MENU) {
+                            this._currentItem = this._currentItem - 1;
+                            if (this._currentItem < 0)
+                                this._currentItem = this._currentItem + 4;
+                        }
+                        break;
+                    case LEFT_ARROW:
+                    case RIGHT_ARROW:
+                        this._currentMenu = (this._currentMenu + 1) % 2;
+                        this.clearMenu();
+                        this.drawMenu();
+                        if (this._currentMenu == RUN_MENU)
+                            this._currentItem = MENU_RUN;
+                        else
+                            this._currentItem = MENU_ATTACK;
+                        break;
+                }
+                this.drawArrow();
+            }
         }
     },
     
     handleEnter: function() {
-        if (!g_player.isDead()) {
-            if (this._over)
-                this.end();
-            else {
-                var defending = false;
-                var monsterAttacked = false;
-                switch(this._currentItem) {
-                    case MENU_ATTACK:
-                        this.attack();
-                        break;
-                    case MENU_DEFEND:
-                        this.writeMsg("You defended.");
-                        defending = true;
-                        break;
-                    case MENU_SPELL:
-                        this.writeMsg("You used a spell.");
-                        break;
-                    case MENU_ITEM:
-                        this.writeMsg("You used an item.");
-                        break;
-                    case MENU_RUN:
-                        this.run();
-                        monsterAttacked = true;
-                        break;
+        if (this._selecting)  {
+            this.clearSelection();
+            this._selecting = false;
+            this._onSelect(this._selection);
+        } else {
+            if (!g_player.isDead()) {
+                if (this._over)
+                    this.end();
+                else {
+                    var defending = false;
+                    var monsterWillAttack = true;
+                    switch(this._currentItem) {
+                        case MENU_ATTACK:
+                            if (this._monsterList.length == 1)
+                                this.attack(0);
+                            else {
+                                this._selecting = true;
+                                for (var i = 0; i < this._monsterList.length; ++i)
+                                    if (!this._monsterList[i].isDead()) {
+                                        this._selection = i;
+                                        break;
+                                    }
+                                var battle = this;
+                                this._onSelect = function(id) {
+                                    battle.attack(id);
+                                    battle.finishTurn();
+                                };
+                                monsterWillAttack = false;
+                                this.drawSelection();
+                            }
+                            break;
+                        case MENU_DEFEND:
+                            this.writeMsg("You defended.");
+                            defending = true;
+                            break;
+                        case MENU_SPELL:
+                            this.writeMsg("You used a spell.");
+                            break;
+                        case MENU_ITEM:
+                            this.writeMsg("You used an item.");
+                            break;
+                        case MENU_RUN:
+                            this.run();
+                            monsterWillAttack = false;
+                            break;
+                    }
+                    if (!this._over && monsterWillAttack)
+                        this.monsterTurn(defending);
+                    this.clearHealthBar();
+                    this.drawHealthBar();
                 }
-                if (!this._over && !monsterAttacked)
-                    this.monsterTurn(defending);
-                this.clearHealthBar();
-                this.drawHealthBar();
             }
         }
     },
     
-    attack: function() {
-        var damage = g_player.getAttack() - this._monster.defense;
+    finishTurn: function() {
+        if (!this._over)
+            this.monsterTurn(false);
+        this.clearHealthBar();
+        this.drawHealthBar();
+    },
+    
+    attack: function(id) {
+        var monster = this._monsterList[id];
+        var damage = g_player.getAttack() - monster.getDefense();
         if (damage < 1)
             damage = 1;
         var rand = Math.floor(Math.random() * damage / 2);
         damage -= rand;
         this.writeMsg("You attacked for " + damage + " damage.");
-        this._monsterHP -= damage;
-        if (this._monsterHP <= 0) {
-            this.clearMonster();
-            this.writeMsg("The " + this._monster.name + " was killed.");
-            g_player.earnGold(this._monster.gold);
-            var gainedLevel = g_player.earnExp(this._monster.exp);
-            this.writeMsg("You have earned " + this._monster.exp + " exp");
-            this.writeMsg("and " + this._monster.gold + " GP.");
+        monster.damage(damage);
+        if (monster.isDead()) {
+            this.clearMonster(id);
+            this.writeMsg("The " + monster.getName() + " was killed.");
+            this._totalExp += monster.getExp();
+            this._totalGold += monster.getGold();
+            
+            for (var i = 0; i < this._monsterList.length; ++i)
+                if (!this._monsterList[i].isDead())
+                    return;
+                    
+            g_player.earnGold(this._totalGold);
+            var gainedLevel = g_player.earnExp(this._totalExp);
+            this.writeMsg("You have earned " + this._totalExp + " exp");
+            this.writeMsg("and " + this._totalGold + " GP.");
             if (gainedLevel)
                 this.writeMsg("You gained a level!");
             this._over = true;
@@ -1284,21 +1442,27 @@ var Battle = Class.extend({
     },
     
     monsterTurn: function(defending) {
-        this.writeMsg("The " + this._monster.name + " attacked for");
-        var damage = this._monster.attack - g_player.getDefense();
-        if (defending)
-            damage = Math.floor(damage / 2.5);
-        if (damage < 1)
-            damage = 1;
-        var rand = Math.floor(Math.random() * damage / 2);
-        damage -= rand;
-        this.writeMsg(damage + " damage.");
-        g_player.damage(damage);
-        if (g_player.isDead()) {
-            this.writeMsg("You died.");
-            this._over = true;
-            this.clearArrow();
-            this.clearPlayer();
+        for (var i = 0; i < this._monsterList.length; ++i) {
+            var monster = this._monsterList[i];
+            if (!monster.isDead()) {
+                this.writeMsg("The " + monster.getName() + " attacked for");
+                var damage = monster.getAttack() - g_player.getDefense();
+                if (defending)
+                    damage = Math.floor(damage / 2.5);
+                if (damage < 1)
+                    damage = 1;
+                var rand = Math.floor(Math.random() * damage / 2);
+                damage -= rand;
+                this.writeMsg(damage + " damage.");
+                g_player.damage(damage);
+                if (g_player.isDead()) {
+                    this.writeMsg("You died.");
+                    this._over = true;
+                    this.clearArrow();
+                    this.clearPlayer();
+                    return;
+                }
+            }
         }
     },
     
@@ -1309,7 +1473,7 @@ var Battle = Class.extend({
             if (g_player.isDead() || this._over)
                 return false;
             if (Math.random() < 0.25) {
-                this.writeMsg("You were unable to run away.")
+                this.writeMsg("You couldn't run away.")
                 return false;
             }
         }
@@ -1531,8 +1695,36 @@ if (window.opera || $.browser.mozilla)
     $(window).keypress(handleKeyPress);
 else
     $(window).keydown(handleKeyPress);
+    
+var g_encounterData = { "encounters": [ {
+        "name": "A slime",
+        "map": 0,
+        "monsters": [ 0 ]
+    }, {
+        "name": "A rat",
+        "map": 0,
+        "monsters": [ 1 ]
+    }, {
+        "name": "A snake",
+        "map": 0,
+        "monsters": [ 2 ]
+    }, {
+        "name": "2 slimes",
+        "map": 0,
+        "monsters": [ 0, 0 ]
+    }, {
+        "name": "A blue slime",
+        "map": 0,
+        "monsters": [ 3 ]
+    }, {
+        "name": "A rat and a slime",
+        "map": 0,
+        "monsters": [ 1, 0 ]
+    }
+]};
 
-var g_monsterData = { "monsters" : [ {
+var g_monsterData = { "monsters": [ {
+        "id": 0,
         "name": "slime",
         "hp": 3,
         "attack": 1,
@@ -1544,6 +1736,7 @@ var g_monsterData = { "monsters" : [ {
         "width": 31,
         "height": 24
     }, {
+        "id": 1,
         "name": "rat",
         "hp": 5,
         "attack": 2,
@@ -1555,6 +1748,7 @@ var g_monsterData = { "monsters" : [ {
         "width": 63,
         "height": 55
     }, {
+        "id": 2,
         "name": "snake",
         "hp": 6,
         "attack": 2,
@@ -1565,5 +1759,17 @@ var g_monsterData = { "monsters" : [ {
         "top": 160,
         "width": 48,
         "height": 59
+    }, {
+        "id": 3,
+        "name": "blue slime",
+        "hp": 4,
+        "attack": 1,
+        "defense": 5,
+        "exp": 2,
+        "gold": 1,
+        "left":78,
+        "top": 109,
+        "width": 31,
+        "height": 24
     }
 ]}; 
