@@ -69,11 +69,12 @@ var BATTLE_FREQ = 0.3;
 
 // Class representing a single square on the map:
 var MapSquare = Class.extend({
-    _init: function(subMap, x, y, passable) {
+    _init: function(subMap, x, y, passable, zone) {
         this._subMap = subMap;
         this._x = x;
         this._y = y;
         this._passable = passable;
+        this._zone = zone;
     },
 
     get x() {
@@ -87,6 +88,10 @@ var MapSquare = Class.extend({
     /* Returns true if the player character can move through this square. */
     passable: function() {
         return this._passable;
+    },
+    
+    getZone: function() {
+        return this._zone;
     },
 
     onEnter: function(player) {
@@ -113,6 +118,9 @@ var SubMap = Class.extend({
         // Create mapSquares table used to cache passable info.
         var baseTiles = $(mapXml).find('layer[name="Base"]').find('tile');
         var impassableTiles = $(mapXml).find('layer[name="Impassable"]').find('tile');
+        var zoneTiles = $(mapXml).find('layer[name="Zones"]');
+        if (zoneTiles.length > 0)
+            zoneTiles = zoneTiles.find('tile');
         for (var y = 0; y < this._yLimit; y++) {
             var mapSquareRow = [];
             for (var x = 0; x < this._xLimit; x++) {
@@ -122,7 +130,14 @@ var SubMap = Class.extend({
                 var passable = parseInt(baseTiles.eq(idx).attr('gid')) != 87;
                 passable = passable && (parseInt(impassableTiles.eq(idx).attr('gid')) == 0);
                 
-                var square = new MapSquare(this, x, y, passable);
+                var zone = 0;
+                if (zoneTiles.length > 0) {
+                    zone = parseInt(zoneTiles.eq(idx).attr('gid'));
+                    if (zone > 0)
+                        zone -= 288;
+                }
+                
+                var square = new MapSquare(this, x, y, passable, zone);
                 mapSquareRow.push(square);
             }
             this._mapSquares.push(mapSquareRow);
@@ -241,20 +256,23 @@ var SubMap = Class.extend({
         var endX = (offsetX < 0) ? TILES_ON_SCREEN_X + 1 : TILES_ON_SCREEN_X;
         var endY = (offsetY < 0) ? TILES_ON_SCREEN_Y + 1 : TILES_ON_SCREEN_Y;
         
-        $(this._mapXml).find('map layer data').each(function()
+        $(this._mapXml).find('map layer').each(function()
         {
-            var tiles = $(this).find('tile');
-            for (var y = startY; y < endY; ++y) {
-                for (var x = startX; x < endX; ++x) {
-                    
-                    // index of tile we want
-                    var idx = (y + scrollY) * xLimit + x + scrollX;
-                    
-                    // id in tileset to draw
-                    var gid = tiles.eq(idx).attr('gid');
-                    
-                    if (gid > 0) {
-                        tileset.drawClip(gid, x, y, offsetX, offsetY);
+            var visible = $(this).attr('visible');
+            if (visible != "0") {
+                var tiles = $(this).find('tile');
+                for (var y = startY; y < endY; ++y) {
+                    for (var x = startX; x < endX; ++x) {
+
+                        // index of tile we want
+                        var idx = (y + scrollY) * xLimit + x + scrollX;
+
+                        // id in tileset to draw
+                        var gid = tiles.eq(idx).attr('gid');
+
+                        if (gid > 0) {
+                            tileset.drawClip(gid, x, y, offsetX, offsetY);
+                        }
                     }
                 }
             }
@@ -518,6 +536,14 @@ var Sprite = Class.extend({
 
         // Have we just entered a new area? (Prevent enter chaining.)
         this._entered = false;
+    },
+    
+    getX: function() {
+        return this._x;
+    },
+    
+    getY: function() {
+        return this._y;
     },
     
     getDir: function() {
@@ -1063,9 +1089,14 @@ var RUN_MENU = 1;
 /* Class representing a battle */
 var Battle = Class.extend({
     _init: function() {
-        var len = g_encounterData.encounters.length;
+        var square = g_worldmap.getSquareAt(g_player.getX(), g_player.getY());
+        var zone = square.getZone();
+        if (zone > 2)
+            zone = 2;
+        var zoneXml = g_encounterData.zones[zone - 1];
+        var len = zoneXml.encounters.length;
         var i = Math.floor(Math.random() * len);
-        this._encounter = g_encounterData.encounters[i];
+        this._encounter = zoneXml.encounters[i];
         this._monsterList = [];
         for (var j = 0; j < this._encounter.monsters.length; ++j) {
             var monsterId = this._encounter.monsters[j];
@@ -1539,7 +1570,7 @@ $(document).ready(function() {
             for (var x = 0; x < g_worldmap.getXLimit(); ++x)
                 for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
                     var square = g_worldmap.getSquareAt(x, y);
-                    if (square.passable())
+                    if (square.passable()) {
                         square.onEnter = function() {
                             if (Math.random() < BATTLE_FREQ) {
                                 keyBuffer = 0;
@@ -1547,6 +1578,7 @@ $(document).ready(function() {
                                 g_battle.draw();
                             }
                         };
+                    }
                 }
 
             var url2 = "images/InqCastle.png"
@@ -1696,31 +1728,49 @@ if (window.opera || $.browser.mozilla)
 else
     $(window).keydown(handleKeyPress);
     
-var g_encounterData = { "encounters": [ {
-        "name": "A slime",
-        "map": 0,
-        "monsters": [ 0 ]
+var g_encounterData = { "zones": [ {
+        "zone": 1,
+        "encounters": [ {
+            "name": "A slime",
+            "monsters": [ 0 ]
+        }, {
+            "name": "A rat",
+            "monsters": [ 1 ]
+        }, {
+            "name": "A snake",
+            "monsters": [ 2 ]
+        }, {
+            "name": "2 slimes",
+            "monsters": [ 0, 0 ]
+        }, {
+            "name": "A blue slime",
+            "monsters": [ 3 ]
+        }, {
+            "name": "A rat and a slime",
+            "monsters": [ 1, 0 ]
+        }]
     }, {
-        "name": "A rat",
-        "map": 0,
-        "monsters": [ 1 ]
-    }, {
-        "name": "A snake",
-        "map": 0,
-        "monsters": [ 2 ]
-    }, {
-        "name": "2 slimes",
-        "map": 0,
-        "monsters": [ 0, 0 ]
-    }, {
-        "name": "A blue slime",
-        "map": 0,
-        "monsters": [ 3 ]
-    }, {
-        "name": "A rat and a slime",
-        "map": 0,
-        "monsters": [ 1, 0 ]
-    }
+        "zone": 2,
+        "encounters": [ {
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "2 snakes",
+            "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }    
 ]};
 
 var g_monsterData = { "monsters": [ {
@@ -1771,5 +1821,41 @@ var g_monsterData = { "monsters": [ {
         "top": 109,
         "width": 31,
         "height": 24
+    }, {
+        "id": 4,
+        "name": "cocatrice",
+        "hp": 9,
+        "attack": 4,
+        "defense": 4,
+        "exp": 3,
+        "gold": 3,
+        "left": 14,
+        "top": 329,
+        "width": 47,
+        "height": 67
+    }, {
+        "id": 5,
+        "name": "red slime",
+        "hp": 5,
+        "attack": 3,
+        "defense": 99,
+        "exp": 3,
+        "gold": 1,
+        "left":41,
+        "top": 109,
+        "width": 31,
+        "height": 24
+    }, {
+        "id": 6,
+        "name": "white rat",
+        "hp": 11,
+        "attack": 5,
+        "defense": 5,
+        "exp": 4,
+        "gold": 3,
+        "left": 145,
+        "top": 498,
+        "width": 63,
+        "height": 55
     }
 ]}; 
