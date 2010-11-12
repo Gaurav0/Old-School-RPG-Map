@@ -490,6 +490,7 @@ var WorldMap = Class.extend({
         sprite.plot();
     },
     
+    // Moves map on screen to provided coordinates
     goTo: function(scrollX, scrollY) {
         this._scrollX = scrollX;
         this._scrollY = scrollY;
@@ -617,13 +618,14 @@ var Sprite = Class.extend({
             dsh = TILE_HEIGHT;
         }
 
+        // get coordinates on screen to draw at
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
         
         // Adjust for difference between tile and sprite sizes
         dx += Math.floor((TILE_WIDTH - dsw) / 2); // center for x
-        dy += TILE_HEIGHT - dsh;     // upward for y
+        dy += TILE_HEIGHT - dsh;                  // upward for y
         
         // select sprite from sprite image based on direction
         var sy = SPRITE_HEIGHT * this._dir;
@@ -933,10 +935,13 @@ var Player = Sprite.extend({
         this._exp += amt;
         if (this._level < 30 && this._exp >= this._levels[this._level]) {
             this._level++;
+            
+            // Stat changes upon earning new level here
             this._attack += Math.ceil(this._level / 4);
             this._defense += Math.ceil(this._level / 5);
             this._maxHP += this._level;
             this._maxMP += Math.ceil(this._level / 2);
+            
             return true;
         }
         return false;
@@ -1089,6 +1094,8 @@ var RUN_MENU = 1;
 /* Class representing a battle */
 var Battle = Class.extend({
     _init: function() {
+        
+        // Determine zone of monsters
         var square = g_worldmap.getSquareAt(g_player.getX(), g_player.getY());
         var zone = square.getZone();
         if (zone > 2)
@@ -1097,6 +1104,8 @@ var Battle = Class.extend({
         var len = zoneXml.encounters.length;
         var i = Math.floor(Math.random() * len);
         this._encounter = zoneXml.encounters[i];
+        
+        // Create monster list
         this._monsterList = [];
         for (var j = 0; j < this._encounter.monsters.length; ++j) {
             var monsterId = this._encounter.monsters[j];
@@ -1106,6 +1115,8 @@ var Battle = Class.extend({
                     this._monsterList.push(monster);
                 }
         }
+        
+        // Initialize properties
         this._currentItem = MENU_ATTACK;
         this._currentMenu = ATTACK_MENU;
         this._over = false;
@@ -1134,6 +1145,7 @@ var Battle = Class.extend({
         this._onSelect = null;
     },
     
+    /* Draws battle screen */
     draw: function() {
         var screenWidth = mapCanvas.width;
         var screenHeight = mapCanvas.height;
@@ -1165,6 +1177,7 @@ var Battle = Class.extend({
         this._txt = txt;
     },
     
+    /* Draws player on battle screen */
     drawPlayer: function() {
         
         spriteCtx.drawImage(g_player._img,
@@ -1178,6 +1191,7 @@ var Battle = Class.extend({
             SPRITE_HEIGHT);                      // dest height
     },
     
+    /* Erases player on battle screen */
     clearPlayer: function() {
         
         spriteCtx.clearRect(
@@ -1187,6 +1201,7 @@ var Battle = Class.extend({
             SPRITE_HEIGHT);                      // height
     },
     
+    /* Draws enemies on battle screen */
     drawMonsters: function() {
         
         var destLeft = 2 * TILE_WIDTH;
@@ -1207,6 +1222,7 @@ var Battle = Class.extend({
         }
     },
     
+    /* Erases enemy on battle screen */
     clearMonster: function(id) {
         
         var monster = this._monsterList[id];
@@ -1217,6 +1233,7 @@ var Battle = Class.extend({
             monster.getHeight());
     },
     
+    /* Draws health bar on battle screen */
     drawHealthBar: function() {
         var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
         var y = 2 * TILE_HEIGHT + 0.5;
@@ -1234,6 +1251,7 @@ var Battle = Class.extend({
         spriteCtx.strokeRect(x, y, w, h);
     },
     
+    /* Erases Health Bar on battle screen */
     clearHealthBar: function() {
         var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
         var y = 2 * TILE_HEIGHT + 0.5;
@@ -1243,6 +1261,7 @@ var Battle = Class.extend({
         spriteCtx.clearRect(x, y, w, h);
     },
     
+    /* Draws the battle menu on bottom left of battle screen */
     drawMenu: function() {
         
         textCtx.font = "bold 20px monospace";
@@ -1258,6 +1277,7 @@ var Battle = Class.extend({
         }
     },
     
+    /* Erases the battle menu on bottom left of battle screen */
     clearMenu: function() {
         textCtx.clearRect(36,
             this._lineHeight[0],
@@ -1265,6 +1285,7 @@ var Battle = Class.extend({
             textCanvas.height - this._lineHeight[0]);
     },
     
+    /* Writes a message line on bottom right box of battle screen */
     writeMsg: function(msg) {
         textCtx.font = "bold 16px sans-serif";
         textCtx.fillStyle = "white";
@@ -1287,6 +1308,7 @@ var Battle = Class.extend({
         this._line++;
     },
     
+    /* End of the battle */
     end: function() {
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
@@ -1295,6 +1317,7 @@ var Battle = Class.extend({
         g_battle = null;
     },
     
+    /* Draws an arrow next to the current menu item in battle menu */
     drawArrow: function() {
         var arrowChar = "\u25ba";
         textCtx.font = "bold 20px monospace";
@@ -1304,11 +1327,13 @@ var Battle = Class.extend({
         textCtx.fillText(arrowChar, 20, drawHeight);
     },
     
+    /* Erases the arrow next to the current menu item in battle menu */
     clearArrow: function() {
         var drawHeight = this._lineHeight[this._currentItem % 4];
         textCtx.clearRect(20, drawHeight, 15, 20);
     },
     
+    /* Draws an arrow next to currently selected enemy */
     drawSelection: function() {
         var monster = this._monsterList[this._selection];
         var loc = monster.getLoc();
@@ -1320,12 +1345,14 @@ var Battle = Class.extend({
         textCtx.fillText(arrowChar, loc - 10, 3 * TILE_HEIGHT);
     },
     
+    /* Erases the arrow next to currently selected enemy */
     clearSelection: function() {
         var monster = this._monsterList[this._selection];
         var loc = monster.getLoc();
         textCtx.clearRect(loc - 10, 3 * TILE_HEIGHT, 15, 20);
     },
     
+    /* Handles input while battling for up, down, left, and right arrow keys */
     handleInput: function(key) {
         if (this._selecting) {
             this.clearSelection();
@@ -1379,8 +1406,11 @@ var Battle = Class.extend({
         }
     },
     
+    /* Handles input of enter key or spacebar while battling */
     handleEnter: function() {
         if (this._selecting)  {
+            
+            // Selection has been made, do it!
             this.clearSelection();
             this._selecting = false;
             this._onSelect(this._selection);
@@ -1396,6 +1426,8 @@ var Battle = Class.extend({
                             if (this._monsterList.length == 1)
                                 this.attack(0);
                             else {
+                                
+                                // There is more than one monster, enter selecting mode.
                                 this._selecting = true;
                                 for (var i = 0; i < this._monsterList.length; ++i)
                                     if (!this._monsterList[i].isDead()) {
@@ -1416,9 +1448,13 @@ var Battle = Class.extend({
                             defending = true;
                             break;
                         case MENU_SPELL:
+                        
+                            // TODO
                             this.writeMsg("You used a spell.");
                             break;
                         case MENU_ITEM:
+                        
+                            // TODO
                             this.writeMsg("You used an item.");
                             break;
                         case MENU_RUN:
@@ -1426,8 +1462,12 @@ var Battle = Class.extend({
                             monsterWillAttack = false;
                             break;
                     }
+                    
+                    // Monster's turn
                     if (!this._over && monsterWillAttack)
                         this.monsterTurn(defending);
+                        
+                    // Update Health Bar
                     this.clearHealthBar();
                     this.drawHealthBar();
                 }
@@ -1435,6 +1475,7 @@ var Battle = Class.extend({
         }
     },
     
+    /* Finish turn after selecting monster and performing action */
     finishTurn: function() {
         if (!this._over)
             this.monsterTurn(false);
@@ -1442,7 +1483,10 @@ var Battle = Class.extend({
         this.drawHealthBar();
     },
     
+    /* Player attacks monster with id provided */
     attack: function(id) {
+        
+        // Basic battle system; determine damage from attack and defense
         var monster = this._monsterList[id];
         var damage = g_player.getAttack() - monster.getDefense();
         if (damage < 1)
@@ -1451,16 +1495,20 @@ var Battle = Class.extend({
         damage -= rand;
         this.writeMsg("You attacked for " + damage + " damage.");
         monster.damage(damage);
+        
+        // If monster is dead, earn exp & gold associated.
         if (monster.isDead()) {
             this.clearMonster(id);
             this.writeMsg("The " + monster.getName() + " was killed.");
             this._totalExp += monster.getExp();
             this._totalGold += monster.getGold();
             
+            // If all monsters are dead...
             for (var i = 0; i < this._monsterList.length; ++i)
                 if (!this._monsterList[i].isDead())
                     return;
-                    
+            
+            // End battle and award exp & gold to player.
             g_player.earnGold(this._totalGold);
             var gainedLevel = g_player.earnExp(this._totalExp);
             this.writeMsg("You have earned " + this._totalExp + " exp");
@@ -1472,11 +1520,14 @@ var Battle = Class.extend({
         }
     },
     
+    /* Monsters attack the player */
     monsterTurn: function(defending) {
         for (var i = 0; i < this._monsterList.length; ++i) {
             var monster = this._monsterList[i];
             if (!monster.isDead()) {
                 this.writeMsg("The " + monster.getName() + " attacked for");
+                
+                // Basic battle system; determine damage from attack and defense
                 var damage = monster.getAttack() - g_player.getDefense();
                 if (defending)
                     damage = Math.floor(damage / 2.5);
@@ -1486,6 +1537,8 @@ var Battle = Class.extend({
                 damage -= rand;
                 this.writeMsg(damage + " damage.");
                 g_player.damage(damage);
+                
+                // If player is dead, end game!
                 if (g_player.isDead()) {
                     this.writeMsg("You died.");
                     this._over = true;
@@ -1497,6 +1550,7 @@ var Battle = Class.extend({
         }
     },
     
+    /* Player will attempt to run */
     run: function() {
         if (Math.random() >= 0.1) {
             this.writeMsg("You start to run.");
@@ -1567,6 +1621,7 @@ $(document).ready(function() {
             // src set must be after onload function set due to bug in IE9b1
             img.src = "images/Trevor.png";
             
+            // Setup random encounters
             for (var x = 0; x < g_worldmap.getXLimit(); ++x)
                 for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
                     var square = g_worldmap.getSquareAt(x, y);
@@ -1581,13 +1636,23 @@ $(document).ready(function() {
                     }
                 }
 
-            var url2 = "images/InqCastle.png"
+            var url2 = "images/InqCastle.png";
             var img2 = new Image();
             var tileset2 = new Tileset(256, 2304, url2, img2);
             img2.src = url2;
             img2.onload = function() {
                 loadXml("Castle1.tmx.xml", function(mapXml) {
                     setupCastleMap(mapXml, tileset2);
+                });
+            };
+            
+            var url3 = "images/Elfwood Forest.png";
+            var img3 = new Image();
+            var tileset3 = new Tileset(256, 576, url3, img3);
+            img3.src = url3;
+            img3.onload = function() {
+                loadXml("Forest1.tmx.xml", function(mapXml) {
+                    setupForestMap(mapXml, tileset3);
                 });
             };
         });
@@ -1631,6 +1696,27 @@ function setupCastleMap(mapXml, tileset) {
         g_textDisplay.displayText("The interior is under construction.");
     };
     map.addSprite(soldier2);
+}
+
+/* Forest submap setup code */
+function setupForestMap(mapXml, tileset) {
+    var map = new SubMap(mapXml, tileset, false);
+    var mapId = g_worldmap.addSubMap(map);
+    var xLimit = map.getXLimit();
+    var yLimit = map.getYLimit();
+    for (var x = 0; x < xLimit; ++x) {
+        for (var y = 0; y < yLimit; ++y) {
+            if (x == 0 || y == 0 || x == xLimit - 1 || y == yLimit - 1) {
+                var square = map.getSquareAt(x, y);
+                square.onEnter = function() {
+                    g_worldmap.goToMap(g_player, 0, 13, 9, 7, 4, FACING_DOWN);
+                };
+            }
+        }
+    }
+    g_worldmap.getSubMap(0).getSquareAt(13, 9).onEnter = function() {
+        g_worldmap.goToMap(g_player, mapId, 9, 28, 3, 19, FACING_UP);
+    };
 }
 
 /* Input Handling */
