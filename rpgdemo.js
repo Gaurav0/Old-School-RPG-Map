@@ -238,7 +238,6 @@ var SubMap = Class.extend({
         var y = coords[1];
         var sprite = this.getSpriteAt(x, y);
         if (sprite != null) {
-            sprite.faceOpposite(g_player.getDir());
             sprite.action();
         }
     },
@@ -308,8 +307,8 @@ var SubMap = Class.extend({
             offsetY -= deltaY * SCROLL_FACTOR;
             
             for (var i = 0; i < this._spriteList.length; ++i) {
-                this._spriteList[i].plot(0, offsetX + deltaX * TILE_WIDTH,
-                                            offsetY + deltaY * TILE_HEIGHT);
+                this._spriteList[i].plot(0, 0, offsetX + deltaX * TILE_WIDTH,
+                                               offsetY + deltaY * TILE_HEIGHT);
             }
         }
         
@@ -515,28 +514,19 @@ var WorldMap = Class.extend({
     }
 });
 
-var FACING_UP = 0;
-var FACING_RIGHT = 1;
-var FACING_DOWN = 2;
-var FACING_LEFT = 3;
-
 /* Class representing an object that can move around the map, such
- * as a player character. Sprite objects are drawn superimposed on
+ * as a player character, or have multiple views and events, such as a
+ * treasure chest. Sprite objects are drawn superimposed on
  * the map using a separate canvas with z-index=1 and absolute
  * positioning (these CSS styles are defined in rpgdemo.css) */
 var Sprite = Class.extend({
-   _init: function(x, y, img, subMapId, dir) {
+    _init: function(x, y, width, height, img, subMapId) {
         this._x = x;
         this._y = y;
-        this._dir = dir;
+        this._width = width;
+        this._height = height;
         this._subMap = subMapId;
         this._img = img;
-
-        // Are we currently walking?
-        this._walking = false;
-
-        // Have we just entered a new area? (Prevent enter chaining.)
-        this._entered = false;
     },
     
     getX: function() {
@@ -547,70 +537,25 @@ var Sprite = Class.extend({
         return this._y;
     },
     
-    getDir: function() {
-        return this._dir;
-    },
-    
     isAt: function(x, y) {
         return this._x == x && this._y == y;
     },
     
-    /* Get coordinates the sprite is facing */
-    getFacingCoords: function() {
-        var x = this._x;
-        var y = this._y
-        switch(this._dir) {
-            case FACING_UP:
-                y--;
-                break;
-            case FACING_DOWN:
-                y++;
-                break;
-            case FACING_LEFT:
-                x--;
-                break;
-            case FACING_RIGHT:
-                x++;
-                break;
-        }
-        return [ x, y ];
-    },
-    
-    /* Faces the direction *opposite* the one passed in */
-    faceOpposite: function(dir) {
-        switch(dir) {
-            case FACING_UP:
-                this._dir = FACING_DOWN;
-                break;
-            case FACING_DOWN:
-                this._dir = FACING_UP;
-                break;
-            case FACING_LEFT:
-                this._dir = FACING_RIGHT;
-                break;
-            case FACING_RIGHT:
-                this._dir = FACING_LEFT;
-                break;
-        }
-        this.clear();
-        this.plot();
-    },
-
     /* Draws the sprite onto the map (unless its position is offscreen,
      * or on a different map):*/
-    plot: function(sourceOffsetX, destOffsetX, destOffsetY) {
+    plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
         if (g_worldmap.getCurrentSubMapId() != this._subMap) {
             return;
         }
         if (!g_worldmap.isOnScreen(this._x, this._y)) {
             return;
         }
-        
-        var sw = SPRITE_WIDTH;
-        var sh = SPRITE_HEIGHT;
-        var dsw = SPRITE_WIDTH;
-        var dsh = SPRITE_HEIGHT;
-        
+
+        var sw = this._width;
+        var sh = this._height;
+        var dsw = this._width;
+        var dsh = this._height;
+
         // If overworld map, clamp sprite height to tile height
         var map = g_worldmap.getSubMap(this._subMap);
         if (map.isOverWorld()) {
@@ -622,36 +567,36 @@ var Sprite = Class.extend({
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
-        
+
         // Adjust for difference between tile and sprite sizes
         dx += Math.floor((TILE_WIDTH - dsw) / 2); // center for x
         dy += TILE_HEIGHT - dsh;                  // upward for y
-        
-        // select sprite from sprite image based on direction
-        var sy = SPRITE_HEIGHT * this._dir;
-        
-        // apply sourceOffsetX if available
-        var sx = SPRITE_WIDTH;
+
+        // apply sourceOffsetX and sourceOffsetY if available
+        var sx = 0;
         if (sourceOffsetX != undefined)
-            sx += sourceOffsetX; 
-            
+            sx += sourceOffsetX;
+        var sy = 0;
+        if (sourceOffsetY != undefined)
+            sy += sourceOffsetY;
+
         // apply destOffsetX and destOffsetY if available
         if (destOffsetX != undefined)
             dx += destOffsetX;
         if (destOffsetY != undefined)
             dy += destOffsetY;
-        
+
         // Quick fix for race condition
-        if (this._walking && destOffsetX === undefined && destOffsetY === undefined)
-            return;
-        
+        // if (this._walking && destOffsetX === undefined && destOffsetY === undefined)
+        //     return;
+
         // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
-        
+
         // draw the sprite!
         spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx, dy, dsw, dsh);
-        
+
         if (this != g_player && !map.isOverWorld() && !g_worldmap.animating) {
-            
+
             // if player sprite below current location, replot it.
             if(g_player.isAt(this._x, this._y + 1));
                 g_player.plot();
@@ -707,6 +652,125 @@ var Sprite = Class.extend({
                 spriteAbove.plot();
         }
     },
+    
+    action: function() {
+        // What happens when this sprite is acted on?
+    },
+});
+
+/* Class representing a treasure chest */
+var Chest = Sprite.extend({
+    _init: function(x, y, subMapId) {
+        this._super(x, y, TILE_WIDTH, TILE_HEIGHT, g_chest, subMapId);
+        
+        this._open = false;
+    },
+    
+    isOpen: function() {
+        return this._open;
+    },
+    
+    open: function() {
+        this.clear();
+        this._open = true;
+        this.plot();
+    },
+    
+    plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
+        
+        var newSourceOffsetX = 0;
+        if (this._open)
+            newSourceOffsetX = TILE_WIDTH;
+            
+        this._super(newSourceOffsetX, 0, destOffsetX, destOffsetY);
+    }
+});
+
+// Directions of a character
+var FACING_UP = 0;
+var FACING_RIGHT = 1;
+var FACING_DOWN = 2;
+var FACING_LEFT = 3;
+
+/* Class representing either a player character or NPC
+ * Characters can either stay still or move about the map. */
+var Character = Sprite.extend({
+   _init: function(x, y, img, subMapId, dir) {
+        this._super(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, img, subMapId);
+        
+        this._dir = dir;
+
+        // Are we currently walking?
+        this._walking = false;
+
+        // Have we just entered a new area? (Prevent enter chaining.)
+        this._entered = false;
+    },
+    
+    getDir: function() {
+        return this._dir;
+    },
+    
+    /* Get coordinates the sprite is facing */
+    getFacingCoords: function() {
+        var x = this._x;
+        var y = this._y
+        switch(this._dir) {
+            case FACING_UP:
+                y--;
+                break;
+            case FACING_DOWN:
+                y++;
+                break;
+            case FACING_LEFT:
+                x--;
+                break;
+            case FACING_RIGHT:
+                x++;
+                break;
+        }
+        return [ x, y ];
+    },
+    
+    /* Faces the direction *opposite* the one player is facing */
+    facePlayer: function() {
+        switch(g_player.getDir()) {
+            case FACING_UP:
+                this._dir = FACING_DOWN;
+                break;
+            case FACING_DOWN:
+                this._dir = FACING_UP;
+                break;
+            case FACING_LEFT:
+                this._dir = FACING_RIGHT;
+                break;
+            case FACING_RIGHT:
+                this._dir = FACING_LEFT;
+                break;
+        }
+        this.clear();
+        this.plot();
+    },
+
+    /* Draws the sprite onto the map (unless its position is offscreen,
+     * or on a different map):*/
+    plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
+
+        // Quick fix for race condition
+        if (this._walking && destOffsetX === undefined && destOffsetY === undefined)
+            return;
+        
+        // select sprite from sprite image based on direction
+        var newSourceOffsetY = SPRITE_HEIGHT * this._dir;
+        
+        // apply sourceOffsetX if available
+        var newSourceOffsetX = SPRITE_WIDTH;
+        if (sourceOffsetX != undefined)
+            newSourceOffsetX += sourceOffsetX; 
+        
+        // calls inherited version of plot
+        this._super(newSourceOffsetX, newSourceOffsetY, destOffsetX, destOffsetY);
+    },
 
     /* Sprite will attempt to move by deltaX in the east-west dimension
      * and deltaY in the north-south dimension.  Returns true if success
@@ -740,8 +804,7 @@ var Sprite = Class.extend({
                 this.scrollAnimation();
             else
                 this.walkAnimation(deltaX, deltaY);
-                
-
+               
             // Any effects of stepping on the new square:
             this._entered = false;
             var sprite = this;
@@ -766,10 +829,6 @@ var Sprite = Class.extend({
     // Returns the map square the sprite is standing on.
     getSquareUnderfoot: function() {
         return g_worldmap.getSquareAt(this._x, this._y);
-    },
-    
-    action: function() {
-        // What happens when this sprite is acted on?
     },
     
     /* Show sprite as walking as background scrolls */
@@ -843,7 +902,7 @@ var Sprite = Class.extend({
     
             destOffsetX += deltaX * SCROLL_FACTOR;
             destOffsetY += deltaY * SCROLL_FACTOR;
-            this.plot(sourceOffsetX, destOffsetX, destOffsetY);
+            this.plot(sourceOffsetX, 0, destOffsetX, destOffsetY);
             
             var sprite = this;
             window.setTimeout(function() {
@@ -862,7 +921,7 @@ var Sprite = Class.extend({
 });
 
 /* Class representing a main character that can fight in battles. */
-var Player = Sprite.extend({
+var Player = Character.extend({
     _init: function(x, y, img, subMapId, dir) {
         this._super(x, y, img, subMapId, dir);
         this._exp = 0;
@@ -1586,6 +1645,7 @@ var g_enemies = null;
 var g_box = null;
 var g_textDisplay = new TextDisplay();
 var g_battle = null;
+var g_chest = null;
 
 // Utility function to load the xml for a tileset
 // Callback function must have mapXml parameter.
@@ -1600,7 +1660,6 @@ function loadXml(xmlUrl, callback) {
         }
     });
 }
-    
 
 /* Main Game setup code */
 $(document).ready(function() {
@@ -1685,14 +1744,16 @@ function setupCastleMap(mapXml, tileset) {
         g_player.restore();
     };
     var img = new Image();
-    var soldier1 = new Sprite(10, 14, img, mapId, FACING_DOWN);
+    var soldier1 = new Character(10, 14, img, mapId, FACING_DOWN);
     img.src = "images/Soldier2.png";
     soldier1.action = function() {
+        this.facePlayer();
         g_textDisplay.displayText("You cannot enter the castle yet.");
     };
     map.addSprite(soldier1);
-    var soldier2 = new Sprite(14, 14, img, mapId, FACING_DOWN);
+    var soldier2 = new Character(14, 14, img, mapId, FACING_DOWN);
     soldier2.action = function() {
+        this.facePlayer();
         g_textDisplay.displayText("The interior is under construction.");
     };
     map.addSprite(soldier2);
@@ -1717,6 +1778,17 @@ function setupForestMap(mapXml, tileset) {
     g_worldmap.getSubMap(0).getSquareAt(13, 9).onEnter = function() {
         g_worldmap.goToMap(g_player, mapId, 9, 28, 3, 19, FACING_UP);
     };
+    
+    g_chest = new Image();
+    g_chest.src = "images/Chest1.png";
+    var chest1 = new Chest(3, 27, mapId);
+    chest1.action = function() {
+        if (!this.isOpen()) {
+            this.open();
+            g_textDisplay.displayText("You found a potion.");
+        }
+    };
+    map.addSprite(chest1);
 }
 
 /* Input Handling */
