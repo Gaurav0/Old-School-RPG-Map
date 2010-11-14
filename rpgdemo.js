@@ -683,6 +683,14 @@ var Chest = Sprite.extend({
             newSourceOffsetX = TILE_WIDTH;
             
         this._super(newSourceOffsetX, 0, destOffsetX, destOffsetY);
+    },
+    
+    onOpenFindItem: function(msg, itemId, amt) {
+        if (!this.isOpen()) {
+            this.open();
+            g_player.addToInventory(itemId, amt);
+            g_textDisplay.displayText(msg);
+        }
     }
 });
 
@@ -922,8 +930,9 @@ var Character = Sprite.extend({
 
 /* Class representing a main character that can fight in battles. */
 var Player = Character.extend({
-    _init: function(x, y, img, subMapId, dir) {
+    _init: function(x, y, img, subMapId, dir, name) {
         this._super(x, y, img, subMapId, dir);
+        this._name = name;
         this._exp = 0;
         this._gold = 0;
         this._level = 1;
@@ -937,6 +946,11 @@ var Player = Character.extend({
             256, 325, 425, 560, 775, 1000, 1300, 1700, 2300, 3100,
             4400, 6000, 8200, 11200, 15600, 19800, 25600, 32500, 42500, 56000
         ];
+        this._inventory = [];
+    },
+    
+    getName: function() {
+        return this._name;
     },
     
     getExp: function() {
@@ -980,7 +994,7 @@ var Player = Character.extend({
     },
     
     heal: function(amt) {
-        this._hp += dmg;
+        this._hp += amt;
         if (this._hp > this._maxHP)
             this._hp = this._maxHP;
     },
@@ -1008,6 +1022,32 @@ var Player = Character.extend({
     
     earnGold: function(amt) {
         this._gold += amt;
+    },
+    
+    addToInventory: function(item, amt) {
+        if (amt == undefined)
+            amt = 1;
+        if (this._inventory[item])
+            this._inventory[item] += amt;
+        else
+            this._inventory[item] = amt;
+    },
+    
+    numInInventory: function(item) {
+        return parseInt(this._inventory[item]);
+    },
+    
+    removeFromInventory: function(item, amt) {
+        if (amt == undefined)
+            amt = 1;
+        this._inventory[item] -= amt;
+    },
+    
+    /* calls a function for each item in the inventory
+     * callback function takes itemId and amt parameters */
+    forEachItemInInventory: function(callback) {
+        for (var i in this._inventory)
+            callback(i, this._inventory[i]);
     }
 });
 
@@ -1176,7 +1216,7 @@ var Battle = Class.extend({
         }
         
         // Initialize properties
-        this._currentItem = MENU_ATTACK;
+        this._currentAction = MENU_ATTACK;
         this._currentMenu = ATTACK_MENU;
         this._over = false;
         this._line = 0;
@@ -1199,9 +1239,13 @@ var Battle = Class.extend({
         
         this._totalExp = 0;
         this._totalGold = 0;
-        this._selecting = false;
-        this._selection = 0;
-        this._onSelect = null;
+        this._selectingMonster = false;
+        this._selectingItem = false;
+        this._monsterSelection = 0;
+        this._itemSelection = 0;
+        this._onMonsterSelect = null;
+        this._itemId = [];
+        this._numItems = 0;
     },
     
     /* Draws battle screen */
@@ -1226,7 +1270,7 @@ var Battle = Class.extend({
 
         this._currentMenu = ATTACK_MENU;
         this.drawMenu();
-        this._currentItem = MENU_ATTACK;
+        this._currentAction = MENU_ATTACK;
         this.drawArrow();
 
         textCtx.font = "bold 16px sans-serif";
@@ -1349,14 +1393,14 @@ var Battle = Class.extend({
         textCtx.font = "bold 16px sans-serif";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        if (this._line <= 4)
+        
+        this.clearText();
+        var prevText = this._txt.split("\n");
+        if (this._line <= 4) {
+            for (var i = 0; i < this._line; ++i)
+                textCtx.fillText(prevText[i], 160, this._textHeight[i]);
             textCtx.fillText(msg, 160, this._textHeight[this._line]);
-        else {
-            textCtx.clearRect(160,
-                this._textHeight[0],
-                textCanvas.width - 160,
-                textCanvas.height - this._textHeight[0]);
-            var prevText = this._txt.split("\n");
+        } else {
             for (var i = 0; i < 4; ++i) {
                 var lineText = prevText[prevText.length - 4 + i];
                 textCtx.fillText(lineText, 160, this._textHeight[i]);
@@ -1365,6 +1409,14 @@ var Battle = Class.extend({
         }
         this._txt += "\n" + msg;
         this._line++;
+    },
+    
+    /* Clears text in bottom right box of battle screen */
+    clearText: function() {
+        textCtx.clearRect(160,
+            this._textHeight[0],
+            textCanvas.width - 160,
+            textCanvas.height - this._textHeight[0]);
     },
     
     /* End of the battle */
@@ -1382,19 +1434,19 @@ var Battle = Class.extend({
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        var drawHeight = this._lineHeight[this._currentItem % 4];        
+        var drawHeight = this._lineHeight[this._currentAction % 4];        
         textCtx.fillText(arrowChar, 20, drawHeight);
     },
     
     /* Erases the arrow next to the current menu item in battle menu */
     clearArrow: function() {
-        var drawHeight = this._lineHeight[this._currentItem % 4];
-        textCtx.clearRect(20, drawHeight, 15, 20);
+        var drawHeight = this._lineHeight[this._currentAction % 4];
+        textCtx.clearRect(19, drawHeight, 16, 20);
     },
     
     /* Draws an arrow next to currently selected enemy */
-    drawSelection: function() {
-        var monster = this._monsterList[this._selection];
+    drawMonsterSelection: function() {
+        var monster = this._monsterList[this._monsterSelection];
         var loc = monster.getLoc();
         
         var arrowChar = "\u25ba";
@@ -1405,48 +1457,101 @@ var Battle = Class.extend({
     },
     
     /* Erases the arrow next to currently selected enemy */
-    clearSelection: function() {
-        var monster = this._monsterList[this._selection];
+    clearMonsterSelection: function() {
+        var monster = this._monsterList[this._monsterSelection];
         var loc = monster.getLoc();
-        textCtx.clearRect(loc - 10, 3 * TILE_HEIGHT, 15, 20);
+        textCtx.clearRect(loc - 11, 3 * TILE_HEIGHT, 16, 20);
+    },
+    
+    /* Display items in inventory for selection during battle */
+    displayItems: function() {
+        textCtx.font = "bold 16px sans-serif";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        var numItems = 0;
+        var battle = this;
+        g_player.forEachItemInInventory(function(itemId, amt) {
+            if (amt > 0) {
+                var itemName = g_itemData.items[itemId].name;
+                var amt2 = (amt < 10) ? " " + amt : amt;
+                if (numItems <= 5)
+                    textCtx.fillText(itemName + ":" + amt2, 180, battle._textHeight[numItems]);
+                battle._itemId[numItems] = itemId;
+                numItems++;
+            }
+        });
+        
+        this._numItems = numItems;
+    },
+    
+    /* Draws an arrow next to currently selected item */
+    drawItemSelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 16px sans-serif";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 160, this._textHeight[this._itemSelection]);
+    },
+    
+    /* Erases the arrow next to currently selected item */
+    clearItemSelection: function() {
+        textCtx.clearRect(159, this._textHeight[this._itemSelection], 16, 15);
     },
     
     /* Handles input while battling for up, down, left, and right arrow keys */
     handleInput: function(key) {
-        if (this._selecting) {
-            this.clearSelection();
+        if (this._selectingMonster) {
+            this.clearMonsterSelection();
             switch(key) {
                 case RIGHT_ARROW:
                 case DOWN_ARROW:
                     do {
-                        this._selection++;
-                        if (this._selection >= this._monsterList.length)
-                            this._selection = 0;
-                    } while (this._monsterList[this._selection].isDead());
+                        this._monsterSelection++;
+                        if (this._monsterSelection >= this._monsterList.length)
+                            this._monsterSelection = 0;
+                    } while (this._monsterList[this._monsterSelection].isDead());
                     break;
                 case LEFT_ARROW:
                 case UP_ARROW:
                     do {
-                        this._selection--;
-                        if (this._selection < 0)
-                            this._selection = this._monsterList.length - 1;
-                    } while (this._monsterList[this._selection].isDead());
+                        this._monsterSelection--;
+                        if (this._monsterSelection < 0)
+                            this._monsterSelection = this._monsterList.length - 1;
+                    } while (this._monsterList[this._monsterSelection].isDead());
                     break;
             }
-            this.drawSelection();
+            this.drawMonsterSelection();
+        } else if (this._selectingItem) {
+            this.clearItemSelection();
+            switch(key) {
+                case RIGHT_ARROW:
+                case DOWN_ARROW:
+                    this._itemSelection++;
+                    if (this._itemSelection >= this._numItems)
+                        this._itemSelection = 0;
+                case LEFT_ARROW:
+                case UP_ARROW:
+                    this._itemSelection--;
+                    if (this._itemSelection < 0)
+                        this._itemSelection = this._numItems - 1;
+                    break;
+            }
+            this.drawItemSelection();
         } else {
             if (!this._over && !g_player.isDead()) {
                 this.clearArrow();
                 switch(key) {
                     case DOWN_ARROW:
                         if (this._currentMenu == ATTACK_MENU)
-                            this._currentItem = (this._currentItem + 1) % 4;
+                            this._currentAction = (this._currentAction + 1) % 4;
                         break;
                     case UP_ARROW:
                         if (this._currentMenu == ATTACK_MENU) {
-                            this._currentItem = this._currentItem - 1;
-                            if (this._currentItem < 0)
-                                this._currentItem = this._currentItem + 4;
+                            this._currentAction = this._currentAction - 1;
+                            if (this._currentAction < 0)
+                                this._currentAction = this._currentAction + 4;
                         }
                         break;
                     case LEFT_ARROW:
@@ -1455,9 +1560,9 @@ var Battle = Class.extend({
                         this.clearMenu();
                         this.drawMenu();
                         if (this._currentMenu == RUN_MENU)
-                            this._currentItem = MENU_RUN;
+                            this._currentAction = MENU_RUN;
                         else
-                            this._currentItem = MENU_ATTACK;
+                            this._currentAction = MENU_ATTACK;
                         break;
                 }
                 this.drawArrow();
@@ -1467,12 +1572,12 @@ var Battle = Class.extend({
     
     /* Handles input of enter key or spacebar while battling */
     handleEnter: function() {
-        if (this._selecting)  {
+        if (this._selectingMonster)  {
             
-            // Selection has been made, do it!
-            this.clearSelection();
-            this._selecting = false;
-            this._onSelect(this._selection);
+            // Monster selection has been made, do it!
+            this.clearMonsterSelection();
+            this._selectingMonster = false;
+            this._onMonsterSelect(this._monsterSelection);
         } else {
             if (!g_player.isDead()) {
                 if (this._over)
@@ -1480,46 +1585,57 @@ var Battle = Class.extend({
                 else {
                     var defending = false;
                     var monsterWillAttack = true;
-                    switch(this._currentItem) {
-                        case MENU_ATTACK:
-                            if (this._monsterList.length == 1)
-                                this.attack(0);
-                            else {
-                                
-                                // There is more than one monster, enter selecting mode.
-                                this._selecting = true;
-                                for (var i = 0; i < this._monsterList.length; ++i)
-                                    if (!this._monsterList[i].isDead()) {
-                                        this._selection = i;
-                                        break;
-                                    }
-                                var battle = this;
-                                this._onSelect = function(id) {
-                                    battle.attack(id);
-                                    battle.finishTurn();
-                                };
+                    if (this._selectingItem) {
+
+                        // Item selection has been made, use it!
+                        this.clearItemSelection();
+                        this._selectingItem = false;
+                        monsterWillAttack = this.useItem();
+                    } else {    
+            
+                        switch(this._currentAction) {
+                            case MENU_ATTACK:
+                                if (this._monsterList.length == 1)
+                                    this.attack(0);
+                                else {
+
+                                    // There is more than one monster, enter selecting mode.
+                                    this._selectingMonster = true;
+                                    for (var i = 0; i < this._monsterList.length; ++i)
+                                        if (!this._monsterList[i].isDead()) {
+                                            this._monsterSelection = i;
+                                            break;
+                                        }
+                                    var battle = this;
+                                    this._onMonsterSelect = function(id) {
+                                        battle.attack(id);
+                                        battle.finishTurn();
+                                    };
+                                    monsterWillAttack = false;
+                                    this.drawMonsterSelection();
+                                }
+                                break;
+                            case MENU_DEFEND:
+                                this.writeMsg("You defended.");
+                                defending = true;
+                                break;
+                            case MENU_SPELL:
+
+                                // TODO
+                                this.writeMsg("You used a spell.");
+                                break;
+                            case MENU_ITEM:
+                                this._selectingItem = true;
+                                this.clearText();
+                                this.displayItems();
+                                this.drawItemSelection();
                                 monsterWillAttack = false;
-                                this.drawSelection();
-                            }
-                            break;
-                        case MENU_DEFEND:
-                            this.writeMsg("You defended.");
-                            defending = true;
-                            break;
-                        case MENU_SPELL:
-                        
-                            // TODO
-                            this.writeMsg("You used a spell.");
-                            break;
-                        case MENU_ITEM:
-                        
-                            // TODO
-                            this.writeMsg("You used an item.");
-                            break;
-                        case MENU_RUN:
-                            this.run();
-                            monsterWillAttack = false;
-                            break;
+                                break;
+                            case MENU_RUN:
+                                this.run();
+                                monsterWillAttack = false;
+                                break;
+                        }
                     }
                     
                     // Monster's turn
@@ -1626,6 +1742,21 @@ var Battle = Class.extend({
         this._over = true;
         this.clearArrow();
         this.clearPlayer();
+    },
+    
+    /* Use the selected item. Returns true if an item was used. */
+    useItem: function() {
+        if (this._itemSelection < this._numItems) {
+            var itemId = this._itemId[this._itemSelection];
+            var item = g_itemData.items[itemId];
+            if (item.type == ITEMTYPE_HEAL) {
+                var txt = item.use(g_player);
+                this.writeMsg(txt);
+            }
+            g_player.removeFromInventory(itemId);
+            return true;
+        }
+        return false;
     }
 });
 
@@ -1671,7 +1802,7 @@ $(document).ready(function() {
         loadXml("WorldMap1.tmx.xml", function(mapXml) {
             g_worldmap = new WorldMap(mapXml, worldTileset);
             var img = new Image();
-            g_player = new Player(23, 13, img, 0, FACING_DOWN);
+            g_player = new Player(23, 13, img, 0, FACING_DOWN, "You");
             g_worldmap.goTo(17, 8);
             img.onload = function() {
                 g_player.plot();
@@ -1783,10 +1914,7 @@ function setupForestMap(mapXml, tileset) {
     g_chest.src = "images/Chest1.png";
     var chest1 = new Chest(3, 27, mapId);
     chest1.action = function() {
-        if (!this.isOpen()) {
-            this.open();
-            g_textDisplay.displayText("You found a potion.");
-        }
+        this.onOpenFindItem("You found a potion.", ITEM_POTION);
     };
     map.addSprite(chest1);
 }
@@ -1886,7 +2014,8 @@ if (window.opera || $.browser.mozilla)
 else
     $(window).keydown(handleKeyPress);
     
-var g_encounterData = { "zones": [ {
+var g_encounterData = { 
+    "zones": [ {
         "zone": 1,
         "encounters": [ {
             "name": "A slime",
@@ -1931,7 +2060,8 @@ var g_encounterData = { "zones": [ {
     }    
 ]};
 
-var g_monsterData = { "monsters": [ {
+var g_monsterData = { 
+    "monsters": [ {
         "id": 0,
         "name": "slime",
         "hp": 3,
@@ -2016,4 +2146,22 @@ var g_monsterData = { "monsters": [ {
         "width": 63,
         "height": 55
     }
-]}; 
+]};
+
+
+var ITEMTYPE_HEAL = 1;
+
+var ITEM_POTION = 0;
+
+var g_itemData = {
+    items: [ {
+        "id": 0,
+        "name": "Potion",
+        "type": ITEMTYPE_HEAL,
+        "use": function(target) {
+            var amt = 20 + Math.floor(Math.random() * 10);
+            target.heal(amt);
+            return target.getName() + " healed for " + amt + " points.";
+        },
+    }
+]};
