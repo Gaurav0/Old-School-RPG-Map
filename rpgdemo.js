@@ -1932,7 +1932,7 @@ function setupForestMap(mapXml, tileset) {
     };
     
     g_chest = new Image();
-    g_chest.src = "images/Chest1.png";
+    g_chest.src = "images/Chest2.png";
     var chest1 = new Chest(3, 27, mapId);
     chest1.action = function() {
         this.onOpenFindItem("You found a potion.", ITEM_POTION);
