@@ -1390,25 +1390,31 @@ var Battle = Class.extend({
     
     /* Writes a message line on bottom right box of battle screen */
     writeMsg: function(msg) {
+        this.drawText();
+        var line = this._line <= 4 ? this._line : 4;
+        textCtx.fillText(msg, 160, this._textHeight[line]);
+        this._txt += "\n" + msg;
+        this._line++;
+    },
+    
+    /* Draws the previously written text */
+    drawText: function() {
+        
         textCtx.font = "bold 16px sans-serif";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        
+
         this.clearText();
         var prevText = this._txt.split("\n");
         if (this._line <= 4) {
             for (var i = 0; i < this._line; ++i)
                 textCtx.fillText(prevText[i], 160, this._textHeight[i]);
-            textCtx.fillText(msg, 160, this._textHeight[this._line]);
         } else {
             for (var i = 0; i < 4; ++i) {
                 var lineText = prevText[prevText.length - 4 + i];
                 textCtx.fillText(lineText, 160, this._textHeight[i]);
             }
-            textCtx.fillText(msg, 160, this._textHeight[4]);
         }
-        this._txt += "\n" + msg;
-        this._line++;
     },
     
     /* Clears text in bottom right box of battle screen */
@@ -1590,7 +1596,11 @@ var Battle = Class.extend({
                         // Item selection has been made, use it!
                         this.clearItemSelection();
                         this._selectingItem = false;
-                        monsterWillAttack = this.useItem();
+                        var wasUsed = this.useItem();
+                        if (!wasUsed) {
+                            monsterWillAttack = false;
+                            this.drawText();
+                        }
                     } else {    
             
                         switch(this._currentAction) {
@@ -1647,6 +1657,17 @@ var Battle = Class.extend({
                     this.drawHealthBar();
                 }
             }
+        }
+    },
+    
+    handleEsc: function() {
+        if (this._selectingMonster) {
+            this.clearMonsterSelection();
+            this._selectingMonster = false;
+        } else if (this._selectingItem) {
+            this.clearItemSelection();
+            this._selectingItem = false;
+            this.drawText();
         }
     },
     
@@ -1926,6 +1947,7 @@ var LEFT_ARROW = 37;
 var RIGHT_ARROW = 39;
 var SPACEBAR = 32;
 var ENTER = 13;
+var ESC = 27;
 var keyBuffer = 0;
 
 function handleKeyPress(event) {
@@ -1965,15 +1987,19 @@ function handleKeyPress(event) {
                     break;
                 case SPACEBAR:
                 case ENTER:
-                    if (g_battle) {
+                    if (g_battle)
                         g_battle.handleEnter();
-                    }
                     else if (!g_worldmap.animating) {
                         if (g_textDisplay.textDisplayed())
                             g_textDisplay.clearText();
                         else
                             g_worldmap.doAction();
                     }
+                    event.preventDefault();
+                    break;
+                case ESC:
+                    if (g_battle)
+                        g_battle.handleEsc();
                     event.preventDefault();
                     break;
             }
