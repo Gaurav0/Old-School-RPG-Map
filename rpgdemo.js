@@ -90,6 +90,7 @@ var MapSquare = Class.extend({
         return this._passable;
     },
     
+    /* Gets the zone on the map to determine which monsters to encounter */
     getZone: function() {
         return this._zone;
     },
@@ -115,7 +116,7 @@ var SubMap = Class.extend({
         this._spriteList = [];
         this._mapSquares = [];
         
-        // Create mapSquares table used to cache passable info.
+        // Create mapSquares table used to cache passable / zone info.
         var baseTiles = $(mapXml).find('layer[name="Base"]').find('tile');
         var impassableTiles = $(mapXml).find('layer[name="Impassable"]').find('tile');
         var zoneTiles = $(mapXml).find('layer[name="Zones"]');
@@ -130,6 +131,7 @@ var SubMap = Class.extend({
                 var passable = parseInt(baseTiles.eq(idx).attr('gid')) != 87;
                 passable = passable && (parseInt(impassableTiles.eq(idx).attr('gid')) == 0);
                 
+                // zone tiles
                 var zone = 0;
                 if (zoneTiles.length > 0) {
                     zone = parseInt(zoneTiles.eq(idx).attr('gid'));
@@ -1537,6 +1539,7 @@ var Battle = Class.extend({
                     this._itemSelection++;
                     if (this._itemSelection >= this._numItems)
                         this._itemSelection = 0;
+                    break;
                 case LEFT_ARROW:
                 case UP_ARROW:
                     this._itemSelection--;
@@ -1679,6 +1682,37 @@ var Battle = Class.extend({
         this.drawHealthBar();
     },
     
+    /* Utility function to call a function for each monster currently alive
+     * callback function takes a monster and id. */
+    forEachMonster: function(callback) {
+        for (var i = 0; i < this._monsterList.length; ++i)
+            if (!this._monsterList[i].isDead())
+                callback(this._monsterList[i], i);
+    },
+    
+    // Earn gold & exp associated with killing a monster
+    earnReward: function(monster, id) {
+        this.clearMonster(id);
+        this.writeMsg("The " + monster.getName() + " was killed.");
+        this._totalExp += monster.getExp();
+        this._totalGold += monster.getGold();
+
+        // If all monsters are dead...
+        for (var i = 0; i < this._monsterList.length; ++i)
+            if (!this._monsterList[i].isDead())
+                return;
+
+        // End battle and award exp & gold to player.
+        g_player.earnGold(this._totalGold);
+        var gainedLevel = g_player.earnExp(this._totalExp);
+        this.writeMsg("You have earned " + this._totalExp + " exp");
+        this.writeMsg("and " + this._totalGold + " GP.");
+        if (gainedLevel)
+            this.writeMsg("You gained a level!");
+        this._over = true;
+        this.clearArrow();
+    },
+    
     /* Player attacks monster with id provided */
     attack: function(id) {
         
@@ -1694,25 +1728,7 @@ var Battle = Class.extend({
         
         // If monster is dead, earn exp & gold associated.
         if (monster.isDead()) {
-            this.clearMonster(id);
-            this.writeMsg("The " + monster.getName() + " was killed.");
-            this._totalExp += monster.getExp();
-            this._totalGold += monster.getGold();
-            
-            // If all monsters are dead...
-            for (var i = 0; i < this._monsterList.length; ++i)
-                if (!this._monsterList[i].isDead())
-                    return;
-            
-            // End battle and award exp & gold to player.
-            g_player.earnGold(this._totalGold);
-            var gainedLevel = g_player.earnExp(this._totalExp);
-            this.writeMsg("You have earned " + this._totalExp + " exp");
-            this.writeMsg("and " + this._totalGold + " GP.");
-            if (gainedLevel)
-                this.writeMsg("You gained a level!");
-            this._over = true;
-            this.clearArrow();
+            this.earnReward(monster, id);
         }
     },
     
@@ -1770,9 +1786,13 @@ var Battle = Class.extend({
         if (this._itemSelection < this._numItems) {
             var itemId = this._itemId[this._itemSelection];
             var item = g_itemData.items[itemId];
-            if (item.type == ITEMTYPE_HEAL) {
-                var txt = item.use(g_player);
-                this.writeMsg(txt);
+            switch(item.type) {
+                case ITEMTYPE_HEAL_ONE:
+                    item.use(g_player);
+                    break;
+                case ITEMTYPE_ATTACK_ALL:
+                    item.use();
+                    break;
             }
             g_player.removeFromInventory(itemId);
             return true;
@@ -1935,9 +1955,14 @@ function setupForestMap(mapXml, tileset) {
     g_chest.src = "images/Chest2.png";
     var chest1 = new Chest(3, 27, mapId);
     chest1.action = function() {
-        this.onOpenFindItem("You found a potion.", ITEM_POTION);
+        this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
     };
     map.addSprite(chest1);
+    var chest2 = new Chest(17, 11, mapId);
+    chest2.action = function() {
+        this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
+    };
+    map.addSprite(chest2);
 }
 
 /* Input Handling */
@@ -2175,19 +2200,40 @@ var g_monsterData = {
 ]};
 
 
-var ITEMTYPE_HEAL = 1;
+var ITEMTYPE_HEAL_ONE = 1;
+// var ITEMTYPE_HEAL_ALL = 2;
+// var ITEMTYPE_ATTACK_ONE = 3;
+var ITEMTYPE_ATTACK_ALL = 4;
 
 var ITEM_POTION = 0;
+var ITEM_BOMB = 1;
 
 var g_itemData = {
     items: [ {
         "id": 0,
         "name": "Potion",
-        "type": ITEMTYPE_HEAL,
+        "type": ITEMTYPE_HEAL_ONE,
         "use": function(target) {
             var amt = 20 + Math.floor(Math.random() * 10);
             target.heal(amt);
-            return target.getName() + " healed for " + amt + " points.";
-        },
+            g_battle.writeMsg(target.getName() + " healed for " + amt + " points.");
+        }
+    }, {
+        "id": 1,
+        "name": "Bomb",
+        "type": ITEMTYPE_ATTACK_ALL,
+        "use": function() {
+            g_battle.forEachMonster(function(monster, id) {
+                var amt = 20 + Math.floor(Math.random() * 10);
+                amt -= monster.getDefense();
+                if (amt < 1)
+                    amt = 1;
+                monster.damage(amt);
+                g_battle.writeMsg("The " + monster.getName() + " was hit for ");
+                g_battle.writeMsg(amt + " damage.");
+                if (monster.isDead())
+                    g_battle.earnReward(monster, id);
+            });
+        }
     }
 ]};
