@@ -221,15 +221,23 @@ var SubMap = Class.extend({
         return null;
     },
     
-    /* What happens when map is entered: all sprites on map are plotted. */
     onEnter: function() {
+        // What happens when map is entered?
+    },
+    
+    onExit: function() {
+        // What happens when map is exited?
+    },
+    
+    /* Draws all the sprites on the map */
+    drawSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
             this._spriteList[i].plot();
         }
     },
     
-    /* What happens when map is exited: all sprites on map are cleared. */
-    onExit: function() {
+    /* Clear all the sprites on the map */
+    clearSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
             this._spriteList[i].clear();
         }
@@ -486,10 +494,12 @@ var WorldMap = Class.extend({
         sprite.clear();
         var oldMap = this._subMapList[this._currentSubMap];
         oldMap.onExit();
+        oldMap.clearSprites();
         this._currentSubMap = mapId;
         sprite.enterNewSubMap(mapId, x, y, dir);
         this.goTo(scrollX, scrollY);
         var newMap = this._subMapList[mapId];
+        newMap.drawSprites();
         newMap.onEnter();
         sprite.plot();
     },
@@ -504,6 +514,16 @@ var WorldMap = Class.extend({
     // Run when action key is hit
     doAction: function() {
         this._subMapList[this._currentSubMap].doAction();
+    },
+    
+    // Draw all the sprites
+    drawSprites: function() {
+        this._subMapList[this._currentSubMap].drawSprites();
+    },
+    
+    // Clear all the sprites
+    clearSprites: function() {
+        this._subMapList[this._currentSubMap].clearSprites();
     },
     
     // Polls and runs callback after animation is complete.
@@ -941,15 +961,15 @@ var Player = Character.extend({
         this._exp = 0;
         this._gold = 0;
         this._level = 1;
-        this._maxHP = 10;
-        this._maxMP = 5;
-        this._hp = 10;
-        this._mp = 5;
-        this._attack = 2;
-        this._defense = 1;
-        this._levels = [ 5, 11, 20, 31, 44, 60, 82, 112, 156, 198,
-            256, 325, 425, 560, 775, 1000, 1300, 1700, 2300, 3100,
-            4400, 6000, 8200, 11200, 15600, 19800, 25600, 32500, 42500, 56000
+        this._maxHP = 100;
+        this._maxMP = 10;
+        this._hp = 100;
+        this._mp = 10;
+        this._attack = 20;
+        this._defense = 5;
+        this._levels = [ 50, 110, 200, 350, 600, 1000, 1500, 2250, 3375, 5000,
+            7500, 11250, 16875, 25000, 37500, 56250, 84375, 126500, 189750, 284625,
+            426900, 640350, 960525, 1440750, 2161125, 3241650, 4862475, 7293700, 10940550, 16410825
         ];
         this._inventory = [];
     },
@@ -1015,10 +1035,10 @@ var Player = Character.extend({
             this._level++;
             
             // Stat changes upon earning new level here
-            this._attack += Math.ceil(this._level / 4);
-            this._defense += Math.ceil(this._level / 5);
-            this._maxHP += this._level;
-            this._maxMP += Math.ceil(this._level / 2);
+            this._attack += 4;
+            this._defense += 2;
+            this._maxHP += 10 * this._level;
+            this._maxMP += 5;
             
             return true;
         }
@@ -1239,21 +1259,28 @@ var Battle = Class.extend({
     /* Setup random encounter */
     setupRandomEncounter: function(zone) {
         
-        // Choose an encounter randomly
-        var zoneXml = g_encounterData.zones[zone - 1];
-        var len = zoneXml.encounters.length;
-        var i = Math.floor(Math.random() * len);
-        this._encounter = zoneXml.encounters[i];
+        // Get encounter data associated with zone
+        var zoneXml = null;
+        for (var i = 0; i < g_encounterData.zones.length; ++i)
+            if (g_encounterData.zones[i].zone == zone)
+                zoneXml = g_encounterData.zones[i];
+        if (zoneXml != null) {
+            
+            // Choose an encounter randomly
+            var len = zoneXml.encounters.length;
+            var r = Math.floor(Math.random() * len);
+            this._encounter = zoneXml.encounters[r];
 
-        // Create monster list
-        this._monsterList = [];
-        for (var j = 0; j < this._encounter.monsters.length; ++j) {
-            var monsterId = this._encounter.monsters[j];
-            for (var k = 0; k < g_monsterData.monsters.length; ++k)
-                if (g_monsterData.monsters[k].id == monsterId) {
-                    var monster = new Monster(g_monsterData.monsters[k]);
-                    this._monsterList.push(monster);
-                }
+            // Create monster list
+            this._monsterList = [];
+            for (var j = 0; j < this._encounter.monsters.length; ++j) {
+                var monsterId = this._encounter.monsters[j];
+                for (var k = 0; k < g_monsterData.monsters.length; ++k)
+                    if (g_monsterData.monsters[k].id == monsterId) {
+                        var monster = new Monster(g_monsterData.monsters[k]);
+                        this._monsterList.push(monster);
+                    }
+            }
         }
     },
     
@@ -1452,6 +1479,7 @@ var Battle = Class.extend({
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         g_worldmap.redraw();
+        g_worldmap.drawSprites();
         g_player.plot();
         g_battle = null;
     },
@@ -1902,8 +1930,6 @@ $(document).ready(function() {
                                 keyBuffer = 0;
                                 g_battle = new Battle();
                                 var zone = this.getZone();
-                                if (zone > 2)
-                                    zone = 2;
                                 g_battle.setupRandomEncounter(zone);
                                 g_battle.draw();
                             }
@@ -1943,6 +1969,8 @@ $(document).ready(function() {
 function setupCastleMap(mapXml, tileset) {
     var map = new SubMap(mapXml, tileset, false);
     var mapId = g_worldmap.addSubMap(map);
+    
+    // Exit at edges of map
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
     for (var x = 0; x < xLimit; ++x) {
@@ -1955,10 +1983,14 @@ function setupCastleMap(mapXml, tileset) {
             }
         }
     }
+    
+    // Entrance from worldmap
     g_worldmap.getSubMap(0).getSquareAt(23, 14).onEnter = function() {
         g_worldmap.goToMap(g_player, mapId, 12, 18, 6, 9, FACING_UP);
         g_player.restore();
     };
+    
+    // Soldier NPCs
     var img = new Image();
     var soldier1 = new Character(10, 14, img, mapId, FACING_DOWN);
     img.src = "images/Soldier2.png";
@@ -1981,6 +2013,24 @@ function setupForestMap(mapXml, tileset) {
     var mapId = g_worldmap.addSubMap(map);
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
+    
+    // Setup random encounters
+    for (var x = 0; x < xLimit; ++x)
+        for (var y = 0; y < yLimit; ++y) {
+            var square = map.getSquareAt(x, y);
+            if (square.passable()) {
+                square.onEnter = function() {
+                    if (Math.random() < BATTLE_FREQ) {
+                        keyBuffer = 0;
+                        g_battle = new Battle();
+                        g_battle.setupRandomEncounter("forest");
+                        g_battle.draw();
+                    }
+                };
+            }
+        }
+    
+    // Exit at edges of map
     for (var x = 0; x < xLimit; ++x) {
         for (var y = 0; y < yLimit; ++y) {
             if (x == 0 || y == 0 || x == xLimit - 1 || y == yLimit - 1) {
@@ -1991,10 +2041,13 @@ function setupForestMap(mapXml, tileset) {
             }
         }
     }
+    
+    // Entrance from worldmap
     g_worldmap.getSubMap(0).getSquareAt(13, 9).onEnter = function() {
         g_worldmap.goToMap(g_player, mapId, 9, 28, 3, 19, FACING_UP);
     };
     
+    // Treasure chests
     g_chest = new Image();
     g_chest.src = "images/Chest2.png";
     var chest1 = new Chest(3, 27, mapId);
@@ -2124,7 +2177,7 @@ var g_itemData = {
         "name": "Potion",
         "type": ITEMTYPE_HEAL_ONE,
         "use": function(target) {
-            var amt = 20 + Math.floor(Math.random() * 10);
+            var amt = 100 + Math.floor(Math.random() * 100);
             target.heal(amt);
             g_battle.writeMsg(target.getName() + " healed for " + amt + " points.");
         }
@@ -2134,7 +2187,7 @@ var g_itemData = {
         "type": ITEMTYPE_ATTACK_ALL,
         "use": function() {
             g_battle.forEachMonster(function(monster, id) {
-                var amt = 20 + Math.floor(Math.random() * 10);
+                var amt = 50 + Math.floor(Math.random() * 100);
                 amt -= monster.getDefense();
                 if (amt < 1)
                     amt = 1;
@@ -2151,7 +2204,7 @@ var g_itemData = {
 // Monsters
 var g_encounterData = { 
     "zones": [ {
-        "zone": 1,
+        "zone": "1",
         "encounters": [ {
             "name": "A slime",
             "monsters": [ 0 ]
@@ -2172,7 +2225,7 @@ var g_encounterData = {
             "monsters": [ 1, 0 ]
         }]
     }, {
-        "zone": 2,
+        "zone": "2",
         "encounters": [ {
             "name": "3 rats",
             "monsters": [ 1, 1, 1 ]
@@ -2192,18 +2245,123 @@ var g_encounterData = {
             "name": "A white rat",
             "monsters": [ 6 ]
         }]
-    }    
+    }, {
+        "zone": "3",
+        "encounters": [ {
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "2 snakes",
+            "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }, {
+        "zone": "4",
+        "encounters": [ {
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "2 snakes",
+            "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }, {
+        "zone": "5",
+        "encounters": [ {
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "2 snakes",
+            "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }, {
+        "zone": "6",
+        "encounters": [ {
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "2 snakes",
+            "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }, {
+        "zone": "forest",
+        "encounters": [ {
+            "name": "2 rats",
+            "monsters": [ 1, 1 ]
+        }, {
+            "name": "2 blue slimes",
+            "monsters": [ 3, 3 ]
+        }, {
+            "name": "A snake",
+            "monsters": [ 2 ]
+        }, {
+            "name": "3 slimes",
+            "monsters": [ 0, 0, 0 ]
+        }, {
+            "name": "A snake and a rat",
+            "monsters": [ 2, 1 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }]
+    }
 ]};
 
 var g_monsterData = { 
     "monsters": [ {
         "id": 0,
         "name": "slime",
-        "hp": 3,
-        "attack": 1,
+        "hp": 15,
+        "attack": 8,
         "defense": 0,
-        "exp": 1,
-        "gold": 1,
+        "exp": 5,
+        "gold": 5,
         "left": 4,
         "top": 109,
         "width": 31,
@@ -2211,11 +2369,11 @@ var g_monsterData = {
     }, {
         "id": 1,
         "name": "rat",
-        "hp": 5,
-        "attack": 2,
-        "defense": 0,
-        "exp": 2,
-        "gold": 1,
+        "hp": 25,
+        "attack": 15,
+        "defense": 2,
+        "exp": 10,
+        "gold": 5,
         "left": 7,
         "top": 498,
         "width": 63,
@@ -2223,11 +2381,11 @@ var g_monsterData = {
     }, {
         "id": 2,
         "name": "snake",
-        "hp": 6,
-        "attack": 2,
-        "defense": 1,
-        "exp": 2,
-        "gold": 2,
+        "hp": 30,
+        "attack": 20,
+        "defense": 6,
+        "exp": 15,
+        "gold": 10,
         "left": 7,
         "top": 160,
         "width": 48,
@@ -2235,11 +2393,11 @@ var g_monsterData = {
     }, {
         "id": 3,
         "name": "blue slime",
-        "hp": 4,
-        "attack": 1,
-        "defense": 5,
-        "exp": 2,
-        "gold": 1,
+        "hp": 20,
+        "attack": 12,
+        "defense": 12,
+        "exp": 20,
+        "gold": 10,
         "left":78,
         "top": 109,
         "width": 31,
@@ -2247,11 +2405,11 @@ var g_monsterData = {
     }, {
         "id": 4,
         "name": "cocatrice",
-        "hp": 9,
-        "attack": 4,
-        "defense": 4,
-        "exp": 3,
-        "gold": 3,
+        "hp": 45,
+        "attack": 32,
+        "defense": 16,
+        "exp": 30,
+        "gold": 30,
         "left": 14,
         "top": 329,
         "width": 47,
@@ -2259,11 +2417,11 @@ var g_monsterData = {
     }, {
         "id": 5,
         "name": "red slime",
-        "hp": 5,
-        "attack": 3,
-        "defense": 99,
-        "exp": 3,
-        "gold": 1,
+        "hp": 25,
+        "attack": 25,
+        "defense": 25,
+        "exp": 30,
+        "gold": 10,
         "left":41,
         "top": 109,
         "width": 31,
@@ -2271,11 +2429,11 @@ var g_monsterData = {
     }, {
         "id": 6,
         "name": "white rat",
-        "hp": 11,
-        "attack": 5,
-        "defense": 5,
-        "exp": 4,
-        "gold": 3,
+        "hp": 55,
+        "attack": 38,
+        "defense": 20,
+        "exp": 40,
+        "gold": 30,
         "left": 145,
         "top": 498,
         "width": 63,
