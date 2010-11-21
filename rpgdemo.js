@@ -716,6 +716,17 @@ var Chest = Sprite.extend({
             g_player.addToInventory(itemId, amt);
             g_textDisplay.displayText(msg);
         }
+    },
+    
+    onOpenLearnSpell: function(spellId) {
+        if (!this.isOpen()) {
+            this.open();
+            g_player.learnSpell(spellId);
+            var msg = "You found a spell book.\n";
+            var spellName = g_spellData.spells[spellId].name;
+            msg += "You learned " + spellName + ".";
+            g_textDisplay.displayText(msg);
+        }
     }
 });
 
@@ -961,17 +972,18 @@ var Player = Character.extend({
         this._exp = 0;
         this._gold = 0;
         this._level = 1;
-        this._maxHP = 100;
-        this._maxMP = 10;
-        this._hp = 100;
-        this._mp = 10;
-        this._attack = 20;
-        this._defense = 5;
-        this._levels = [ 50, 110, 200, 350, 600, 1000, 1500, 2250, 3375, 5000,
+        this._maxHP = 90;
+        this._maxMP = 5;
+        this._hp = 90;
+        this._mp = 5;
+        this._attack = 15;
+        this._defense = 3;
+        this._levels = [ 0, 50, 110, 200, 350, 600, 1000, 1500, 2250, 3375, 5000,
             7500, 11250, 16875, 25000, 37500, 56250, 84375, 126500, 189750, 284625,
             426900, 640350, 960525, 1440750, 2161125, 3241650, 4862475, 7293700, 10940550, 16410825
         ];
         this._inventory = [];
+        this._spells = [];
     },
     
     getName: function() {
@@ -1024,6 +1036,16 @@ var Player = Character.extend({
             this._hp = this._maxHP;
     },
     
+    useMP: function(amt) {
+        this._mp -= amt;
+    },
+    
+    gainMP: function(amt) {
+        this._mp += amt;
+        if (this._mp > this._maxMP)
+            this._mp = this._maxMP;
+    },
+    
     restore: function() {
         this._hp = this._maxHP;
         this._mp = this._maxMP;
@@ -1035,7 +1057,7 @@ var Player = Character.extend({
             this._level++;
             
             // Stat changes upon earning new level here
-            this._attack += 4;
+            this._attack += 5;
             this._defense += 2;
             this._maxHP += 10 * this._level;
             this._maxMP += 5;
@@ -1073,6 +1095,16 @@ var Player = Character.extend({
     forEachItemInInventory: function(callback) {
         for (var i in this._inventory)
             callback(i, this._inventory[i]);
+    },
+    
+    learnSpell: function(spellId) {
+        this._spells.push(spellId);
+    },
+    
+    /* calls a function for each spell known to the character */
+    forEachSpell: function(callback) {
+        for (var spellId in this._spells)
+            callback(spellId);
     }
 });
 
@@ -1197,7 +1229,11 @@ var TextDisplay = Class.extend({
         textCtx.fillStyle = "white";
         textCtx.font = "bold 16px monospace";
         textCtx.textBaseline = "top";
-        textCtx.fillText(txt, 10, 246);
+        var txtArray = txt.split("\n");
+        var i = 0
+        do
+            textCtx.fillText(txtArray[i], 10, 246 + 22 * i);
+        while (txtArray.length > ++i)
         this._textDisplayed = true;
     },
     
@@ -1246,12 +1282,16 @@ var Battle = Class.extend({
         this._totalExp = 0;
         this._totalGold = 0;
         this._selectingMonster = false;
-        this._selectingItem = false;
         this._monsterSelection = 0;
-        this._itemSelection = 0;
         this._onMonsterSelect = null;
+        this._selectingItem = false;
+        this._itemSelection = 0;
         this._itemId = [];
         this._numItems = 0;
+        this._selectingSpell = false;
+        this._spellSelection = 0;
+        this._spellId = [];
+        this._numSpells = 0;
         this._writing = false;
         this._delay = 0;
     },
@@ -1558,6 +1598,40 @@ var Battle = Class.extend({
         textCtx.clearRect(159, this._textHeight[this._itemSelection], 16, 15);
     },
     
+    /* Display spells known by player character for selection during battle */
+    displaySpells: function() {
+        textCtx.font = "bold 16px sans-serif";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        var numSpells = 0;
+        var battle = this;
+        g_player.forEachSpell(function(spellId) {
+            var spellName = g_spellData.spells[spellId].name;
+            if (numSpells <= 5)
+                textCtx.fillText(spellName, 180, battle._textHeight[numSpells]);
+            battle._spellId[numSpells] = spellId;
+            numSpells++;
+        });
+        
+        this._numSpells = numSpells;
+    },
+    
+    /* Draws an arrow next to currently selected spell */
+    drawSpellSelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 16px sans-serif";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 160, this._textHeight[this._spellSelection]);
+    },
+    
+    /* Erases the arrow next to currently selected spell */
+    clearSpellSelection: function() {
+        textCtx.clearRect(159, this._textHeight[this._spellSelection], 16, 15);
+    },
+    
     /* Handles input while battling for up, down, left, and right arrow keys */
     handleInput: function(key) {
         if (!this._writing) {
@@ -1657,6 +1731,16 @@ var Battle = Class.extend({
                                 monsterWillAttack = false;
                                 this.drawText();
                             }
+                        } else if (this._selectingSpell) {
+                            
+                            // Spell selection has been made, throw it!
+                            this.clearSpellSelection();
+                            this._selectingSpell = false;
+                            var wasUsed = this.useSpell();
+                            if (!wasUsed) {
+                                monsterWillAttack = false;
+                                this.drawText();
+                            }
                         } else {    
 
                             switch(this._currentAction) {
@@ -1686,9 +1770,11 @@ var Battle = Class.extend({
                                     defending = true;
                                     break;
                                 case MENU_SPELL:
-
-                                    // TODO
-                                    this.writeMsg("You used a spell.");
+                                    this._selectingSpell = true;
+                                    this.clearText();
+                                    this.displaySpells();
+                                    this.drawSpellSelection();
+                                    monsterWillAttack = false;
                                     break;
                                 case MENU_ITEM:
                                     this._selectingItem = true;
@@ -1866,6 +1952,30 @@ var Battle = Class.extend({
             return true;
         }
         return false;
+    },
+    
+    /* Use the selected spell. Returns true if a spell was used. */
+    useSpell: function() {
+        if (this._spellSelection < this._numSpells) {
+            var spellId = this._spellId[this._spellSelection];
+            var spell = g_spellData.spells[spellId];
+            if (g_player.getMP() >= spell.mpCost) {
+                switch(spell.type) {
+                    case SPELLTYPE_HEAL_ONE:
+                        spell.use(g_player);
+                        break;
+                    case SPELLTYPE_ATTACK_ALL:
+                        spell.use();
+                        break;
+                }
+                g_player.useMP(spell.mpCost);
+                return true;
+            } else {
+                this.writeMsg("You do not have enough MP");
+                this.writeMsg("to cast " + spell.name + ".");
+            }
+        }
+        return false;
     }
 });
 
@@ -1899,6 +2009,15 @@ function loadXml(xmlUrl, callback) {
             alert('error:' + b);
         }
     });
+}
+
+// Utility function to print a message to user
+// regardless of whether in battle or on map
+function printText(msg) {
+    if (g_battle)
+        g_battle.writeMsg(msg);
+    else
+        g_textDisplay.displayText(msg);
 }
 
 /* Main Game setup code */
@@ -2060,6 +2179,11 @@ function setupForestMap(mapXml, tileset) {
         this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
     };
     map.addSprite(chest2);
+    var chest3 = new Chest(16, 2, mapId);
+    chest3.action = function() {
+        this.onOpenLearnSpell(SPELL_HEAL);
+    };
+    map.addSprite(chest3);
 }
 
 /* Input Handling */
@@ -2162,7 +2286,7 @@ if (window.opera || $.browser.mozilla)
 else
     $(window).keydown(handleKeyPress);
 
-// Items
+/* Items */
 var ITEMTYPE_HEAL_ONE = 1;
 // var ITEMTYPE_HEAL_ALL = 2;
 // var ITEMTYPE_ATTACK_ONE = 3;
@@ -2172,14 +2296,14 @@ var ITEM_POTION = 0;
 var ITEM_BOMB = 1;
 
 var g_itemData = {
-    items: [ {
+    "items": [ {
         "id": 0,
         "name": "Potion",
         "type": ITEMTYPE_HEAL_ONE,
         "use": function(target) {
             var amt = 100 + Math.floor(Math.random() * 100);
             target.heal(amt);
-            g_battle.writeMsg(target.getName() + " healed for " + amt + " points.");
+            printText(target.getName() + " healed for " + amt + " points.");
         }
     }, {
         "id": 1,
@@ -2198,8 +2322,30 @@ var g_itemData = {
                     g_battle.earnReward(monster, id);
             });
         }
-    }
-]};
+    }]
+};
+
+/* Spells */
+var SPELLTYPE_HEAL_ONE = 1;
+// var ITEMTYPE_HEAL_ALL = 2;
+// var ITEMTYPE_ATTACK_ONE = 3;
+// var SPELLTYPE_ATTACK_ALL = 4;
+
+var SPELL_HEAL = 0;
+
+var g_spellData = {
+    "spells": [ {
+        "id": 0,
+        "name": "Heal",
+        "mpCost": 5,
+        "type": SPELLTYPE_HEAL_ONE,
+        "use": function(target) {
+            var amt = 100 + Math.floor(Math.random() * 100);
+            target.heal(amt);
+            printText(target.getName() + " healed for " + amt + " points.");
+        }
+    }]
+};
 
 // Monsters
 var g_encounterData = { 
@@ -2350,15 +2496,15 @@ var g_encounterData = {
             "name": "A cocatrice",
             "monsters": [ 4 ]
         }]
-    }
-]};
+    }]
+};
 
 var g_monsterData = { 
     "monsters": [ {
         "id": 0,
         "name": "slime",
         "hp": 15,
-        "attack": 8,
+        "attack": 10,
         "defense": 0,
         "exp": 5,
         "gold": 5,
@@ -2394,8 +2540,8 @@ var g_monsterData = {
         "id": 3,
         "name": "blue slime",
         "hp": 20,
-        "attack": 12,
-        "defense": 12,
+        "attack": 18,
+        "defense": 15,
         "exp": 20,
         "gold": 10,
         "left":78,
@@ -2438,5 +2584,5 @@ var g_monsterData = {
         "top": 498,
         "width": 63,
         "height": 55
-    }
-]};
+    }]
+};
