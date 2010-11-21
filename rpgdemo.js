@@ -1673,6 +1673,23 @@ var Battle = Class.extend({
                         break;
                 }
                 this.drawItemSelection();
+            } else if (this._selectingSpell) {
+                this.clearSpellSelection();
+                switch(key) {
+                    case RIGHT_ARROW:
+                    case DOWN_ARROW:
+                        this._spellSelection++;
+                        if (this._spellSelection >= this._numSpells)
+                            this._spellSelection = 0;
+                        break;
+                    case LEFT_ARROW:
+                    case UP_ARROW:
+                        this._spellSelection--;
+                        if (this._spellSelection < 0)
+                            this._spellSelection = this._numSpells - 1;
+                        break;
+                }
+                this.drawSpellSelection();
             } else {
                 if (!this._over && !g_player.isDead()) {
                     this.clearArrow();
@@ -1846,7 +1863,10 @@ var Battle = Class.extend({
     
     // Earn gold & exp associated with killing a monster
     earnReward: function(monster, id) {
-        this.clearMonster(id);
+        var battle = this;
+        window.setTimeout(function() {
+            battle.clearMonster(id);
+        }, this._delay);
         this.writeMsg("The " + monster.getName() + " was killed.");
         this._totalExp += monster.getExp();
         this._totalGold += monster.getGold();
@@ -1909,7 +1929,10 @@ var Battle = Class.extend({
                     this.writeMsg("You died.");
                     this._over = true;
                     this.clearArrow();
-                    this.clearPlayer();
+                    var battle = this;
+                    this.runAfterWriting(function() {
+                        battle.clearPlayer();
+                    });
                     return;
                 }
             }
@@ -1932,7 +1955,10 @@ var Battle = Class.extend({
         this.writeMsg("You ran away.")
         this._over = true;
         this.clearArrow();
-        this.clearPlayer();
+        var battle = this;
+        this.runAfterWriting(function() {
+            battle.clearPlayer();
+        });
     },
     
     /* Use the selected item. Returns true if an item was used. */
@@ -2184,6 +2210,11 @@ function setupForestMap(mapXml, tileset) {
         this.onOpenLearnSpell(SPELL_HEAL);
     };
     map.addSprite(chest3);
+    var chest4 = new Chest(3, 7, mapId);
+    chest4.action = function() {
+        this.onOpenLearnSpell(SPELL_BOMB);
+    };
+    map.addSprite(chest4);
 }
 
 /* Input Handling */
@@ -2329,9 +2360,10 @@ var g_itemData = {
 var SPELLTYPE_HEAL_ONE = 1;
 // var ITEMTYPE_HEAL_ALL = 2;
 // var ITEMTYPE_ATTACK_ONE = 3;
-// var SPELLTYPE_ATTACK_ALL = 4;
+var SPELLTYPE_ATTACK_ALL = 4;
 
 var SPELL_HEAL = 0;
+var SPELL_BOMB = 1;
 
 var g_spellData = {
     "spells": [ {
@@ -2343,6 +2375,24 @@ var g_spellData = {
             var amt = 100 + Math.floor(Math.random() * 100);
             target.heal(amt);
             printText(target.getName() + " healed for " + amt + " points.");
+        }
+    }, {
+        "id": 1,
+        "name": "Bomb",
+        "mpCost": 8,
+        "type": SPELLTYPE_ATTACK_ALL,
+        "use": function() {
+            g_battle.forEachMonster(function(monster, id) {
+                var amt = 50 + Math.floor(Math.random() * 100);
+                amt -= monster.getDefense();
+                if (amt < 1)
+                    amt = 1;
+                monster.damage(amt);
+                g_battle.writeMsg("The " + monster.getName() + " was hit for ");
+                g_battle.writeMsg(amt + " damage.");
+                if (monster.isDead())
+                    g_battle.earnReward(monster, id);
+            });
         }
     }]
 };
@@ -2364,8 +2414,8 @@ var g_encounterData = {
             "name": "2 slimes",
             "monsters": [ 0, 0 ]
         }, {
-            "name": "A blue slime",
-            "monsters": [ 3 ]
+            "name": "3 slimes",
+            "monsters": [ 0, 0, 0 ]
         }, {
             "name": "A rat and a slime",
             "monsters": [ 1, 0 ]
@@ -2373,11 +2423,11 @@ var g_encounterData = {
     }, {
         "zone": "2",
         "encounters": [ {
-            "name": "3 rats",
-            "monsters": [ 1, 1, 1 ]
-        }, {
             "name": "2 snakes",
             "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
         }, {
             "name": "3 blue slimes",
             "monsters": [ 3, 3, 3 ]
@@ -2394,11 +2444,11 @@ var g_encounterData = {
     }, {
         "zone": "3",
         "encounters": [ {
-            "name": "3 rats",
-            "monsters": [ 1, 1, 1 ]
-        }, {
             "name": "2 snakes",
             "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
         }, {
             "name": "3 blue slimes",
             "monsters": [ 3, 3, 3 ]
@@ -2415,11 +2465,11 @@ var g_encounterData = {
     }, {
         "zone": "4",
         "encounters": [ {
-            "name": "3 rats",
-            "monsters": [ 1, 1, 1 ]
-        }, {
             "name": "2 snakes",
             "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
         }, {
             "name": "3 blue slimes",
             "monsters": [ 3, 3, 3 ]
@@ -2436,11 +2486,11 @@ var g_encounterData = {
     }, {
         "zone": "5",
         "encounters": [ {
-            "name": "3 rats",
-            "monsters": [ 1, 1, 1 ]
-        }, {
             "name": "2 snakes",
             "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
         }, {
             "name": "3 blue slimes",
             "monsters": [ 3, 3, 3 ]
@@ -2457,11 +2507,11 @@ var g_encounterData = {
     }, {
         "zone": "6",
         "encounters": [ {
-            "name": "3 rats",
-            "monsters": [ 1, 1, 1 ]
-        }, {
             "name": "2 snakes",
             "monsters": [ 2, 2 ]
+        }, {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
         }, {
             "name": "3 blue slimes",
             "monsters": [ 3, 3, 3 ]
@@ -2478,17 +2528,17 @@ var g_encounterData = {
     }, {
         "zone": "forest",
         "encounters": [ {
-            "name": "2 rats",
-            "monsters": [ 1, 1 ]
+            "name": "3 rats",
+            "monsters": [ 1, 1, 1 ]
+        }, {
+            "name": "A blue slime",
+            "monsters": [ 3 ]
         }, {
             "name": "2 blue slimes",
             "monsters": [ 3, 3 ]
         }, {
             "name": "A snake",
             "monsters": [ 2 ]
-        }, {
-            "name": "3 slimes",
-            "monsters": [ 0, 0, 0 ]
         }, {
             "name": "A snake and a rat",
             "monsters": [ 2, 1 ]
@@ -2540,8 +2590,8 @@ var g_monsterData = {
         "id": 3,
         "name": "blue slime",
         "hp": 20,
-        "attack": 18,
-        "defense": 15,
+        "attack": 20,
+        "defense": 20,
         "exp": 20,
         "gold": 10,
         "left":78,
@@ -2564,8 +2614,8 @@ var g_monsterData = {
         "id": 5,
         "name": "red slime",
         "hp": 25,
-        "attack": 25,
-        "defense": 25,
+        "attack": 30,
+        "defense": 35,
         "exp": 30,
         "gold": 10,
         "left":41,
