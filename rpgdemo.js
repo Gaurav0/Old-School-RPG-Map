@@ -1336,6 +1336,7 @@ var Battle = Class.extend({
         spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
         this.drawPlayer();
         this.drawHealthBar();
+        this.drawManaBar();
         this.drawMonsters();
 
         // Draw boxes
@@ -1419,6 +1420,8 @@ var Battle = Class.extend({
         var w = 10;
         var h = SPRITE_HEIGHT;
         var pct = g_player.getHP() / g_player.getMaxHP();
+        if (pct < 0)
+            pct = 0;
         var yh = y + Math.round((1 - pct) * h);
         var hh = h - (yh - y);
         
@@ -1430,9 +1433,39 @@ var Battle = Class.extend({
         spriteCtx.strokeRect(x, y, w, h);
     },
     
+    /* Draws MP bar on battle screen */
+    drawManaBar: function() {
+        var x = spriteCanvas.width - 2 * TILE_WIDTH + 10.5;
+        var y = 2 * TILE_HEIGHT + 0.5;
+        var w = 10;
+        var h = SPRITE_HEIGHT;
+        var pct = g_player.getMP() / g_player.getMaxMP();
+        if (pct < 0)
+            pct = 0;
+        var yh = y + Math.round((1 - pct) * h);
+        var hh = h - (yh - y);
+        
+        // alert("y:" + y + " yh:" + yh + " h:" + h + " hh:" + hh);
+        
+        spriteCtx.fillStyle = "#ccccff";
+        spriteCtx.fillRect(x, yh, w, hh);
+        spriteCtx.strokeStyle = "black";
+        spriteCtx.strokeRect(x, y, w, h);
+    },
+    
     /* Erases Health Bar on battle screen */
     clearHealthBar: function() {
         var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
+        var y = 2 * TILE_HEIGHT + 0.5;
+        var w = 10;
+        var h = SPRITE_HEIGHT;
+        
+        spriteCtx.clearRect(x, y, w, h);
+    },
+    
+    /* Erases MP Bar on battle screen */
+    clearManaBar: function() {
+        var x = spriteCanvas.width - 2 * TILE_WIDTH + 10.5;
         var y = 2 * TILE_HEIGHT + 0.5;
         var w = 10;
         var h = SPRITE_HEIGHT;
@@ -1814,7 +1847,9 @@ var Battle = Class.extend({
                         // Update Health Bar
                         this.runAfterWriting(function() {
                             g_battle.clearHealthBar();
+                            g_battle.clearManaBar();
                             g_battle.drawHealthBar();
+                            g_battle.drawManaBar();
                         });
                     }
                 }
@@ -1839,7 +1874,9 @@ var Battle = Class.extend({
             this.monsterTurn(false);
         this.runAfterWriting(function() {
             g_battle.clearHealthBar();
+            g_battle.clearManaBar();
             g_battle.drawHealthBar();
+            g_battle.drawManaBar();
         });
     },
     
@@ -2423,8 +2460,8 @@ var g_encounterData = {
     }, {
         "zone": "2",
         "encounters": [ {
-            "name": "2 snakes",
-            "monsters": [ 2, 2 ]
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
         }, {
             "name": "3 snakes",
             "monsters": [ 2, 2, 2 ]
@@ -2444,8 +2481,8 @@ var g_encounterData = {
     }, {
         "zone": "3",
         "encounters": [ {
-            "name": "2 snakes",
-            "monsters": [ 2, 2 ]
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
         }, {
             "name": "3 snakes",
             "monsters": [ 2, 2, 2 ]
@@ -2465,8 +2502,8 @@ var g_encounterData = {
     }, {
         "zone": "4",
         "encounters": [ {
-            "name": "2 snakes",
-            "monsters": [ 2, 2 ]
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
         }, {
             "name": "3 snakes",
             "monsters": [ 2, 2, 2 ]
@@ -2486,8 +2523,8 @@ var g_encounterData = {
     }, {
         "zone": "5",
         "encounters": [ {
-            "name": "2 snakes",
-            "monsters": [ 2, 2 ]
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
         }, {
             "name": "3 snakes",
             "monsters": [ 2, 2, 2 ]
@@ -2507,8 +2544,8 @@ var g_encounterData = {
     }, {
         "zone": "6",
         "encounters": [ {
-            "name": "2 snakes",
-            "monsters": [ 2, 2 ]
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
         }, {
             "name": "3 snakes",
             "monsters": [ 2, 2, 2 ]
