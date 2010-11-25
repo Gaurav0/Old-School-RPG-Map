@@ -972,9 +972,9 @@ var Player = Character.extend({
         this._exp = 0;
         this._gold = 0;
         this._level = 1;
-        this._maxHP = 90;
+        this._maxHP = 100;
         this._maxMP = 5;
-        this._hp = 90;
+        this._hp = 100;
         this._mp = 5;
         this._attack = 15;
         this._defense = 3;
@@ -1059,7 +1059,7 @@ var Player = Character.extend({
             // Stat changes upon earning new level here
             this._attack += 5;
             this._defense += 2;
-            this._maxHP += 10 * this._level;
+            this._maxHP += 20;
             this._maxMP += 5;
             
             return true;
@@ -1112,6 +1112,7 @@ var Player = Character.extend({
 var Monster = Class.extend({
     _init: function(monster) {
         this._monster = monster;
+        this._maxHP = monster.hp;
         this._hp = monster.hp;
         this._loc = 0;
     },
@@ -1122,6 +1123,12 @@ var Monster = Class.extend({
     
     damage: function(amt) {
         this._hp -= amt;
+    },
+    
+    heal: function(amt) {
+        this._hp += amt;
+        if (this._hp > this._maxHP)
+            this._hp = this._maxHP;
     },
     
     isDead: function() {
@@ -1171,6 +1178,14 @@ var Monster = Class.extend({
     getHeight: function() {
         return this._monster.height;
     },
+    
+    hasSpecialAttack: function() {
+        return !!this._monster.special;
+    },
+    
+    useSpecialAttack: function() {
+        this._monster.special(this);
+    }
 });
 
 /* Class representing a tileset image 
@@ -1243,6 +1258,21 @@ var TextDisplay = Class.extend({
     }
 });
 
+/* Class representing a game, used to store progress */
+var Game = Class.extend({
+    _init: function() {
+        this._flags = [];
+    },
+    
+    isFlagSet: function(flag) {
+        return !!this._flags[flag];
+    },
+    
+    setFlag: function(flag) {
+        this._flags[flag] = true;
+    }
+});
+
 var MENU_ATTACK = 0;
 var MENU_DEFEND = 1;
 var MENU_SPELL = 2;
@@ -1261,6 +1291,7 @@ var Battle = Class.extend({
         this._currentAction = MENU_ATTACK;
         this._currentMenu = ATTACK_MENU;
         this._over = false;
+        this._win = false;
         this._line = 0;
         this._txt = "";
         
@@ -1321,6 +1352,27 @@ var Battle = Class.extend({
                         this._monsterList.push(monster);
                     }
             }
+        }
+    },
+    
+    /* Setup scripted encounter (for boss monsters, etc.) */
+    setupEncounter: function(name, aryMonsters) {
+        
+        // Create encounter object
+        this._encounter = {
+            "name": name,
+            "monsters": aryMonsters
+        };
+        
+        // Create monster list
+        this._monsterList = [];
+        for (var i = 0; i < aryMonsters.length; ++i) {
+            var monsterId = aryMonsters[i];
+            for (var j = 0; j < g_monsterData.monsters.length; ++j)
+                if (g_monsterData.monsters[j].id == monsterId) {
+                    var monster = new Monster(g_monsterData.monsters[j]);
+                    this._monsterList.push(monster);
+                }
         }
     },
     
@@ -1554,6 +1606,12 @@ var Battle = Class.extend({
         g_worldmap.redraw();
         g_worldmap.drawSprites();
         g_player.plot();
+        
+        // Callback functions for after the battle is over.
+        if (this._win)
+            this.onWin();
+        this.onExit();
+        
         g_battle = null;
     },
     
@@ -1801,11 +1859,7 @@ var Battle = Class.extend({
 
                                         // There is more than one monster, enter selecting mode.
                                         this._selectingMonster = true;
-                                        for (var i = 0; i < this._monsterList.length; ++i)
-                                            if (!this._monsterList[i].isDead()) {
-                                                this._monsterSelection = i;
-                                                break;
-                                            }
+                                        this.selectFirstLiveMonster();
                                         var battle = this;
                                         this._onMonsterSelect = function(id) {
                                             battle.attack(id);
@@ -1857,6 +1911,7 @@ var Battle = Class.extend({
         }
     },
     
+    /* handles input of ESC key while battling. */
     handleEsc: function() {
         if (this._selectingMonster) {
             this.clearMonsterSelection();
@@ -1865,7 +1920,20 @@ var Battle = Class.extend({
             this.clearItemSelection();
             this._selectingItem = false;
             this.drawText();
+        } else if (this._selectingSpell) {
+            this.clearSpellSelection();
+            this._selectingSpell = false;
+            this.drawText();
         }
+    },
+    
+    /* Sets monster selection to the first living monster. */
+    selectFirstLiveMonster: function() {
+        for (var i = 0; i < this._monsterList.length; ++i)
+            if (!this._monsterList[i].isDead()) {
+                this._monsterSelection = i;
+                break;
+            }
     },
     
     /* Finish turn after selecting monster and performing action */
@@ -1921,6 +1989,7 @@ var Battle = Class.extend({
         if (gainedLevel)
             this.writeMsg("You gained a level!");
         this._over = true;
+        this._win = true;
         this.clearArrow();
     },
     
@@ -1948,18 +2017,22 @@ var Battle = Class.extend({
         for (var i = 0; i < this._monsterList.length; ++i) {
             var monster = this._monsterList[i];
             if (!monster.isDead()) {
-                this.writeMsg("The " + monster.getName() + " attacked for");
-                
-                // Basic battle system; determine damage from attack and defense
-                var damage = monster.getAttack() - g_player.getDefense();
-                if (defending)
-                    damage = Math.floor(damage / 2.5);
-                if (damage < 1)
-                    damage = 1;
-                var rand = Math.floor(Math.random() * damage / 2);
-                damage -= rand;
-                this.writeMsg(damage + " damage.");
-                g_player.damage(damage);
+                if (monster.hasSpecialAttack() && Math.random() < 0.5)
+                    monster.useSpecialAttack();
+                else {
+                    this.writeMsg("The " + monster.getName() + " attacked for");
+
+                    // Basic battle system; determine damage from attack and defense
+                    var damage = monster.getAttack() - g_player.getDefense();
+                    if (defending)
+                        damage = Math.floor(damage / 2.5);
+                    if (damage < 1)
+                        damage = 1;
+                    var rand = Math.floor(Math.random() * damage / 2);
+                    damage -= rand;
+                    this.writeMsg(damage + " damage.");
+                    g_player.damage(damage);
+                }
                 
                 // If player is dead, end game!
                 if (g_player.isDead()) {
@@ -2039,6 +2112,14 @@ var Battle = Class.extend({
             }
         }
         return false;
+    },
+    
+    onExit: function() {
+        // What happens after the battle is over and you exit?
+    },
+    
+    onWin: function() {
+        // What happens after the battle is over and you have won?
     }
 });
 
@@ -2052,6 +2133,7 @@ var spriteCtx = spriteCanvas.getContext("2d");
 var textCanvas = document.getElementById("textCanvas");
 var textCtx = textCanvas.getContext("2d");
 
+var g_game = null;
 var g_player = null;
 var g_worldmap = null;
 var g_enemies = null;
@@ -2085,6 +2167,7 @@ function printText(msg) {
 
 /* Main Game setup code */
 $(document).ready(function() {
+    g_game = new Game();
     var url = "images/World3.png"; // url of worlmap's tileset
     var img = new Image();
     var worldTileset = new Tileset(256, 1152, url, img);
@@ -2142,7 +2225,7 @@ $(document).ready(function() {
     };
     
     g_enemies = new Image();
-    g_enemies.src = "images/enemies-t.png";
+    g_enemies.src = "images/enemies-t2.png";
     g_box = new Image();
     g_box.src = "images/box-highres.png";
 });
@@ -2252,6 +2335,26 @@ function setupForestMap(mapXml, tileset) {
         this.onOpenLearnSpell(SPELL_BOMB);
     };
     map.addSprite(chest4);
+    
+    // Boss monster
+    map.getSquareAt(11, 7).onEnter = function() {
+        if (!g_game.isFlagSet("fb")) {
+            keyBuffer = 0;
+            g_battle = new Battle();
+            g_battle.setupEncounter("2 mages", [ 7, 7 ]);
+            g_battle.onWin = function() {
+                g_game.setFlag("fb");
+            };
+            g_battle.draw();
+        } else {
+            if (Math.random() < BATTLE_FREQ) {
+                keyBuffer = 0;
+                g_battle = new Battle();
+                g_battle.setupRandomEncounter("forest");
+                g_battle.draw();
+            }
+        }
+    };
 }
 
 /* Input Handling */
@@ -2671,5 +2774,32 @@ var g_monsterData = {
         "top": 498,
         "width": 63,
         "height": 55
+    }, {
+        "id": 7,
+        "name": "mage",
+        "hp": 100,
+        "attack": 55,
+        "defense": 35,
+        "exp": 60,
+        "gold": 40,
+        "left": 640,
+        "top": 153,
+        "width": 32,
+        "height": 33,
+        "special": function(source) {
+            var lowId = -1;
+            var lowHP = 9999;
+            g_battle.writeMsg("The " + source.getName() + " casts Heal.");
+            g_battle.forEachMonster(function(monster, id) {
+                if (!monster.isDead() && monster.getHP() < lowHP) {
+                    lowHP = monster.getHP();
+                    lowId = id;
+                }
+            });
+            var monster = g_battle._monsterList[lowId];
+            var amt = 100 + Math.floor(Math.random() * 100);
+            monster.heal(amt);
+            g_battle.writeMsg("The " + monster.getName() + " was healed for " + amt + ".");
+        }
     }]
 };
