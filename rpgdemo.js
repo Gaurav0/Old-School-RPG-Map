@@ -100,6 +100,10 @@ var MapSquare = Class.extend({
 
     onEnter: function(player) {
         // What happens when the player steps on this square?
+    },
+    
+    onAction: function(player) {
+        // What happens when the player is on this square and hits action key?
     }
 });
 
@@ -157,7 +161,7 @@ var SubMap = Class.extend({
         return this._yLimit;
     },
 
-    get tileset() {
+    getTileset: function() {
         return this._tileset;
     },
     
@@ -294,6 +298,7 @@ var SubMap = Class.extend({
     /* This function does the scrolling animation */
     animate: function(fromX, fromY, toX, toY) {
         g_worldmap.animating = true;
+        g_worldmap.scrolling = true;
         var deltaX = toX - fromX;
         var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
@@ -308,6 +313,7 @@ var SubMap = Class.extend({
         
         // Don't redraw sprites the last time, or the plot will not be cleared.
         if (numSteps > 0) {
+            
             for (var i = 0; i < this._spriteList.length; ++i) {
                 
                 // this._x and this._y already changed, so offset by a tile size
@@ -323,6 +329,10 @@ var SubMap = Class.extend({
                 this._spriteList[i].plot(0, 0, offsetX + deltaX * TILE_WIDTH,
                                                offsetY + deltaY * TILE_HEIGHT);
             }
+            
+            // Save last offsets for later
+            this._lastOffsetX = offsetX + deltaX * TILE_WIDTH;
+            this._lastOffsetY = offsetY + deltaY * TILE_HEIGHT;
         }
         
         // Redraw submap *after* redrawing sprites to avoid shift illusion
@@ -336,6 +346,9 @@ var SubMap = Class.extend({
         }
         else {
             g_worldmap.animating = false;
+            g_worldmap.scrolling = false;
+            this._lastOffsetX = undefined;
+            this._lastOffsetY = undefined;
             window.setTimeout(handleBufferedKey, 1000 / FPS);
         }
     }
@@ -358,6 +371,9 @@ var WorldMap = Class.extend({
 
         // Are we busy with animations?
         this.animating = false;
+        
+        // Are we scrolling?
+        this.scrolling = false;
     },
 
     getSubMap: function(id) {
@@ -611,20 +627,41 @@ var Sprite = Class.extend({
         if (destOffsetY != undefined)
             dy += destOffsetY;
 
-        // Quick fix for race condition
-        // if (this._walking && destOffsetX === undefined && destOffsetY === undefined)
-        //     return;
-
-        // alert("sx: " + sx + " sy: " + sy + " dx: " + dx + " dy: " + dy);
-
         // draw the sprite!
         spriteCtx.drawImage(this._img, sx, sy, sw, sh, dx, dy, dsw, dsh);
 
-        if (this != g_player && !map.isOverWorld() && !g_worldmap.animating) {
+        if (!map.isOverWorld()) {
+            if (this == g_player) {
+                
+                // if another sprite below the player, replot it
+                var sprite = map.getSpriteAt(this._x, this._y + 1);
+                if (sprite != null) {
+                    if (g_worldmap.scrolling) {
+                        if (map._lastOffsetX != undefined)
+                            sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                    } else
+                        sprite.plot();
+                }
+                
+                // if another sprite below the player's previous location, replot it
+                var sprite = map.getSpriteAt(this._prevX, this._prevY + 1);
+                if (sprite != null) {
+                    if (g_worldmap.scrolling) {
+                        if (map._lastOffsetX != undefined)
+                            sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                        else
+                            sprite.plot(0, 0, (this._x - this._prevX) * TILE_WIDTH,
+                                              (this._y - this._prevY) * TILE_HEIGHT);
+                    } else
+                        sprite.plot();
+                }
+                    
+            } else {
 
-            // if player sprite below current location, replot it.
-            if(g_player.isAt(this._x, this._y + 1));
-                g_player.plot();
+                // if player sprite below current location, replot it.
+                if (g_player.isAt(this._x, this._y + 1))
+                    g_player.plot();
+            }
         }
     },
 
@@ -657,24 +694,13 @@ var Sprite = Class.extend({
         
         if (!map.isOverWorld() && this == g_player) {
                     
-            // if sprite above previous location, replot it.
-            var deltaX = 0;
-            if (destOffsetX != undefined) {
-                if (destOffsetX > 0)
-                    deltaX = 1;
-                else if (destOffsetX < 0)
-                    deltaX = -1;
-            }
-            var deltaY = 0;
-            if (destOffsetY != undefined) {
-                if (destOffsetY > 0)
-                    deltaY = 1;
-                else if (destOffsetY < 0)
-                    deltaY = -1;
-            } 
-            var spriteAbove = map.getSpriteAt(this._x + deltaX, this._y + deltaY - 1);
+            // if sprite above or below previous location, replot it.
+            var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
             if (spriteAbove != null)
                 spriteAbove.plot();
+            var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
+            if (spriteBelow != null)
+                spriteBelow.plot();
         }
     },
     
@@ -839,11 +865,13 @@ var Character = Sprite.extend({
         }
             
         this.clear();
+        this._prevX = this._x;
+        this._prevY = this._y;
         this._x += deltaX;
         this._y += deltaY;
 
         if (this == g_player) {
-            var scrolling = g_worldmap.autoScrollToPlayer( this._x, this._y );
+            var scrolling = g_worldmap.autoScrollToPlayer(this._x, this._y);
             if (scrolling)
                 this.scrollAnimation();
             else
@@ -857,7 +885,7 @@ var Character = Sprite.extend({
                     sprite.getSquareUnderfoot().onEnter();
                 sprite._entered = true;
             });
-        }
+        }      
         
         return true;
     },
@@ -1239,7 +1267,7 @@ var TextDisplay = Class.extend({
     
     displayText: function(txt) {
         
-        textCtx.fillStyle = "rgba(0, 0, 200, 0.25)";
+        textCtx.fillStyle = "rgba(0, 0, 100, 0.75)";
         textCtx.fillRect(0, 236, textCanvas.width, 100);
         textCtx.fillStyle = "white";
         textCtx.font = "bold 16px monospace";
@@ -2165,6 +2193,108 @@ function printText(msg) {
         g_textDisplay.displayText(msg);
 }
 
+/* Input Handling */
+var DOWN_ARROW = 40;
+var UP_ARROW = 38;
+var LEFT_ARROW = 37;
+var RIGHT_ARROW = 39;
+var SPACEBAR = 32;
+var ENTER = 13;
+var ESC = 27;
+var keyBuffer = 0;
+
+function handleKeyPress(event) {
+    if (g_worldmap && g_player) {
+        if (!event.ctrlKey && !event.altKey && !event.metaKey) {
+            var key = event.keyCode ? event.keyCode : event.charCode ? event.charCode : 0;
+            if (g_worldmap.animating)
+                keyBuffer = key;
+            switch (key) {
+                case DOWN_ARROW:
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
+                        g_player.move(0, 1, FACING_DOWN);
+                    event.preventDefault();
+                    break;
+                case UP_ARROW:
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
+                        g_player.move(0, -1, FACING_UP);
+                    event.preventDefault();
+                    break;
+                case RIGHT_ARROW:
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
+                        g_player.move(1, 0, FACING_RIGHT);
+                    event.preventDefault();
+                    break;
+                case LEFT_ARROW:
+                    if (g_battle)
+                        g_battle.handleInput(key);
+                    else if (!g_worldmap.animating)
+                        g_player.move(-1, 0, FACING_LEFT);
+                    event.preventDefault();
+                    break;
+                case SPACEBAR:
+                case ENTER:
+                    if (g_battle)
+                        g_battle.handleEnter();
+                    else if (!g_worldmap.animating) {
+                        if (g_textDisplay.textDisplayed())
+                            g_textDisplay.clearText();
+                        else {
+                            g_worldmap.doAction();
+                            g_player.getSquareUnderfoot().onAction();
+                        }
+                    }
+                    event.preventDefault();
+                    break;
+                case ESC:
+                    if (g_battle)
+                        g_battle.handleEsc();
+                    event.preventDefault();
+                    break;
+            }
+        }
+    }
+}
+
+function handleBufferedKey() {
+    if (keyBuffer && !g_battle && !g_worldmap.animating) {
+        var key = keyBuffer;
+        keyBuffer = 0;
+        switch (key) {
+            case DOWN_ARROW:
+                g_player.move(0, 1, FACING_DOWN);
+                break;
+            case UP_ARROW:
+                g_player.move(0, -1, FACING_UP);
+                break;
+            case RIGHT_ARROW:
+                g_player.move(1, 0, FACING_RIGHT);
+                break;
+            case LEFT_ARROW:
+                g_player.move(-1, 0, FACING_LEFT);
+                break;
+            case SPACEBAR:
+            case ENTER:
+                if (g_textDisplay.textDisplayed())
+                    g_textDisplay.clearText();
+                else
+                    g_worldmap.doAction();
+                break;
+        }
+    }
+}
+
+if (window.opera || $.browser.mozilla)
+    $(window).keypress(handleKeyPress);
+else
+    $(window).keydown(handleKeyPress);
+
 /* Main Game setup code */
 $(document).ready(function() {
     g_game = new Game();
@@ -2261,15 +2391,108 @@ function setupCastleMap(mapXml, tileset) {
     img.src = "images/Soldier2.png";
     soldier1.action = function() {
         this.facePlayer();
-        g_textDisplay.displayText("You cannot enter the castle yet.");
+        g_textDisplay.displayText("You may enter the castle now.");
     };
     map.addSprite(soldier1);
     var soldier2 = new Character(14, 14, img, mapId, FACING_DOWN);
     soldier2.action = function() {
         this.facePlayer();
-        g_textDisplay.displayText("The interior is under construction.");
+        g_textDisplay.displayText("But the interior is still under\nconstruction.");
     };
     map.addSprite(soldier2);
+    
+    // Submap of this submap
+    var url4 = "images/Inq XP MI- Medieval Indoors.png";
+    var img4 = new Image();
+    var tileset4 = new Tileset(256, 8704, url4, img4);
+    img4.src = url4;
+    img4.onload = function() {
+        loadXml("CastleShops.tmx.xml", function(mapXml) {
+            setupCastleShopsMap(mapXml, tileset4, mapId);
+        });
+    };
+}
+
+/* Castle Shops submap setup code */
+function setupCastleShopsMap(mapXml, tileset, parentMapId) {
+    var map = new SubMap(mapXml, tileset, false);
+    var mapId = g_worldmap.addSubMap(map);
+    
+    // Exit at bottom of map
+    var xLimit = map.getXLimit();
+    var yLimit = map.getYLimit();
+    for (var x = 0; x < xLimit; ++x) {
+        for (var y = 0; y < yLimit; ++y) {
+            if (y == yLimit - 1) {
+                var square = map.getSquareAt(x, y);
+                square.onEnter = function() {
+                    g_worldmap.goToMap(g_player, 
+                        parentMapId, 12, 12, 6, 7, FACING_DOWN);
+                };
+            }
+        }
+    }
+    
+    // Entrance from parent Map
+    for (var i = 11; i <= 13; ++i)
+        g_worldmap.getSubMap(parentMapId).getSquareAt(i, 12).onEnter = function() {
+            g_worldmap.goToMap(g_player, mapId, 10, 18, 4, 9, FACING_UP);
+        };
+        
+    // NPCs
+    var img1 = new Image();
+    var npc1 = new Character(1, 8, img1, mapId, FACING_RIGHT);
+    img1.src = "images/Man1.png";
+    npc1.action = function() {
+        g_textDisplay.displayText("Weapon Shop coming soon.");
+    };
+    map.addSprite(npc1);
+    var img2 = new Image();
+    var npc2 = new Character(18, 8, img2, mapId, FACING_LEFT);
+    img2.src = "images/Man2.png";
+    npc2.action = function() {
+        g_textDisplay.displayText("Armor Shop coming soon.");
+    };
+    map.addSprite(npc2);
+    var img3 = new Image();
+    var npc3 = new Character(1, 12, img3, mapId, FACING_RIGHT);
+    img3.src = "images/Woman2.png";
+    npc3.action = function() {
+        g_textDisplay.displayText("Item Shop coming soon.");
+    };
+    map.addSprite(npc3);
+    var img4 = new Image();
+    var npc4 = new Character(10, 12, img4, mapId, FACING_DOWN);
+    img4.src = "images/Woman1.png";
+    npc4.action = function() {
+        this.facePlayer();
+        g_textDisplay.displayText("Welcome to the castle's tavern.");
+    };
+    map.addSprite(npc4);
+    var img5 = new Image();
+    var npc5 = new Character(16, 17, img5, mapId, FACING_LEFT);
+    img5.src = "images/Boy.png";
+    npc5.action = function() {
+        this.facePlayer();
+        var msg = "Whenever I return to the castle,\n";
+        msg += "I feel completely refreshed and\nrestored."
+        g_textDisplay.displayText(msg);
+    };
+    map.addSprite(npc5);
+    
+    // Talk to NPCs 1-3 across counter
+    map.getSquareAt(3, 8).onAction = function() {
+        if (g_player.getDir() == FACING_LEFT)
+            npc1.action();
+    };
+    map.getSquareAt(16, 8).onAction = function() {
+        if (g_player.getDir() == FACING_RIGHT)
+            npc2.action();
+    };
+    map.getSquareAt(3, 12).onAction = function() {
+        if (g_player.getDir() == FACING_LEFT)
+            npc3.action();
+    };
 }
 
 /* Forest submap setup code */
@@ -2295,10 +2518,10 @@ function setupForestMap(mapXml, tileset) {
             }
         }
     
-    // Exit at edges of map
+    // Exit at bottom of map
     for (var x = 0; x < xLimit; ++x) {
         for (var y = 0; y < yLimit; ++y) {
-            if (x == 0 || y == 0 || x == xLimit - 1 || y == yLimit - 1) {
+            if (y == yLimit - 1) {
                 var square = map.getSquareAt(x, y);
                 square.onEnter = function() {
                     g_worldmap.goToMap(g_player, 0, 13, 9, 7, 4, FACING_DOWN);
@@ -2356,106 +2579,6 @@ function setupForestMap(mapXml, tileset) {
         }
     };
 }
-
-/* Input Handling */
-var DOWN_ARROW = 40;
-var UP_ARROW = 38;
-var LEFT_ARROW = 37;
-var RIGHT_ARROW = 39;
-var SPACEBAR = 32;
-var ENTER = 13;
-var ESC = 27;
-var keyBuffer = 0;
-
-function handleKeyPress(event) {
-    if (g_worldmap && g_player) {
-        if (!event.ctrlKey && !event.altKey && !event.metaKey) {
-            var key = event.keyCode ? event.keyCode : event.charCode ? event.charCode : 0;
-            if (g_worldmap.animating)
-                keyBuffer = key;
-            switch (key) {
-                case DOWN_ARROW:
-                    if (g_battle)
-                        g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
-                        g_player.move(0, 1, FACING_DOWN);
-                    event.preventDefault();
-                    break;
-                case UP_ARROW:
-                    if (g_battle)
-                        g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
-                        g_player.move(0, -1, FACING_UP);
-                    event.preventDefault();
-                    break;
-                case RIGHT_ARROW:
-                    if (g_battle)
-                        g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
-                        g_player.move(1, 0, FACING_RIGHT);
-                    event.preventDefault();
-                    break;
-                case LEFT_ARROW:
-                    if (g_battle)
-                        g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
-                        g_player.move(-1, 0, FACING_LEFT);
-                    event.preventDefault();
-                    break;
-                case SPACEBAR:
-                case ENTER:
-                    if (g_battle)
-                        g_battle.handleEnter();
-                    else if (!g_worldmap.animating) {
-                        if (g_textDisplay.textDisplayed())
-                            g_textDisplay.clearText();
-                        else
-                            g_worldmap.doAction();
-                    }
-                    event.preventDefault();
-                    break;
-                case ESC:
-                    if (g_battle)
-                        g_battle.handleEsc();
-                    event.preventDefault();
-                    break;
-            }
-        }
-    }
-}
-
-function handleBufferedKey() {
-    if (keyBuffer && !g_battle && !g_worldmap.animating) {
-        var key = keyBuffer;
-        keyBuffer = 0;
-        switch (key) {
-            case DOWN_ARROW:
-                g_player.move(0, 1, FACING_DOWN);
-                break;
-            case UP_ARROW:
-                g_player.move(0, -1, FACING_UP);
-                break;
-            case RIGHT_ARROW:
-                g_player.move(1, 0, FACING_RIGHT);
-                break;
-            case LEFT_ARROW:
-                g_player.move(-1, 0, FACING_LEFT);
-                break;
-            case SPACEBAR:
-            case ENTER:
-                if (g_textDisplay.textDisplayed())
-                    g_textDisplay.clearText();
-                else
-                    g_worldmap.doAction();
-                break;
-        }
-    }
-}
-
-if (window.opera || $.browser.mozilla)
-    $(window).keypress(handleKeyPress);
-else
-    $(window).keydown(handleKeyPress);
 
 /* Items */
 var ITEMTYPE_HEAL_ONE = 1;
