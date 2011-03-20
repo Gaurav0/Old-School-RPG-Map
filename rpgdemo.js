@@ -35,7 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-// Tested in Firefox 3.6, Firefox 4b6, Chrome 7, Safari 5/Win, Opera 10.63, IE9b1.
+// Tested in Firefox 4, Chrome 10, Safari 5/Win, Opera 10.63, IE9.
 
 // How many pixels is one square of the map
 var TILE_WIDTH = 32;
@@ -1286,6 +1286,249 @@ var TextDisplay = Class.extend({
     }
 });
 
+var MAIN_MENU = 0;
+var ITEM_MENU = 1;
+var SPELL_MENU = 2;
+var EQUIP_MENU = 3;
+var STATUS_MENU = 4;
+var NOT_IMPLEMENTED_MENU = 5;
+
+var MAIN_MENU_ITEM = 0;
+var MAIN_MENU_SPELL = 1;
+var MAIN_MENU_EQUIP = 2;
+var MAIN_MENU_STATUS = 3;
+var MAIN_MENU_SAVE = 4;
+var MAIN_MENU_LOAD = 5;
+
+var NUM_MAIN_MENU_ACTIONS = 6;
+
+/* Class for main menu */
+var MainMenu = Class.extend({
+    _init: function() {
+        this._menuDisplayed = false;
+        this._currentMenu = MAIN_MENU;
+        this._currentAction = MAIN_MENU_ITEM;
+        this._arrow = false;
+        this._lineHeight = [ 20, 48, 76, 104, 132, 160 ];
+        this._itemId = [];
+        this._canUseItem = [];
+        this._itemSelection = 0;
+    },
+    
+    menuDisplayed: function() {
+        return this._menuDisplayed;
+    },
+    
+    displayMenu: function() {
+        // Draw box
+        menuCtx.drawImage(g_box, 0, 0, 75, 200, 0, 0, 75, 200);
+        menuCtx.drawImage(g_box, 125, 0, 75, 200, 75, 0, 75, 200);
+        
+        // Draw Text
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText("Item", 42, this._lineHeight[0]);
+        textCtx.fillText("Spell", 42, this._lineHeight[1]);
+        textCtx.fillText("Equip", 42, this._lineHeight[2]);
+        textCtx.fillText("Status", 42, this._lineHeight[3]);
+        textCtx.fillText("Save", 42, this._lineHeight[4]);
+        textCtx.fillText("Load", 42, this._lineHeight[5]);
+        
+        this.drawArrow();
+        
+        this._menuDisplayed = true;
+    },
+    
+    clearMenu: function() {
+        menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        
+        this._menuDisplayed = false;
+    },
+    
+    displayNotImplementedMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 50, 200, 150, 220, 20, 80);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 170, 220, 220, 80);
+        menuCtx.drawImage(g_box, 150, 0, 50, 200, 390, 220, 20, 80);
+        
+        // Draw Text
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText("Not yet implemented.", 160, 240);
+        
+        this._currentMenu = NOT_IMPLEMENTED_MENU;
+    },
+    
+    clearNotImplementedMenu: function() {
+        menuCtx.clearRect(150, 220, 300, 80);
+        textCtx.clearRect(150, 220, 300, 80);
+        
+        this._currentMenu = MAIN_MENU;
+    },
+    
+    displayItemMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
+        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        
+        // Text properties
+        textCtx.font = "bold 20px monospace";
+        textCtx.textBaseline = "top";
+        
+        // Display items in inventory
+        var numItems = 0;
+        var menu = this;
+        g_player.forEachItemInInventory(function(itemId, amt) {
+            if (amt > 0) {
+                var itemName = g_itemData.items[itemId].name;
+                var itemType = g_itemData.items[itemId].type;
+                var amt2 = (amt < 10) ? " " + amt : amt;
+                if (numItems <= 6)
+                    if (itemType == ITEMTYPE_HEAL_ONE) {
+                        textCtx.fillStyle = "white";
+                        menu._canUseItem[numItems] = true;
+                    } else {
+                        textCtx.fillStyle = "gray";
+                        menu._canUseItem[numItems] = false;
+                    }
+                    textCtx.fillText(itemName + ":" + amt2, 186, menu._lineHeight[numItems]);
+                menu._itemId[numItems] = itemId;
+                numItems++;
+            }
+        });
+        
+        this._numItems = numItems;
+        this._currentMenu = ITEM_MENU;
+        if (numItems > 0) {
+            this._itemSelection = 0;
+            this.drawItemSelection();
+        }
+    },
+    
+    clearItemMenu: function() {
+        menuCtx.clearRect(150, 0, 300, 200);
+        textCtx.clearRect(150, 0, 300, 200);
+        
+        this._currentMenu = MAIN_MENU;
+    },
+    
+    /* Draws an arrow next to the current menu item in main menu */
+    drawArrow: function() {
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._currentAction % NUM_MAIN_MENU_ACTIONS];        
+        textCtx.fillText(arrowChar, 26, drawHeight);
+        this._arrow = true;
+    },
+    
+    /* Erases the arrow next to the current menu item in main menu */
+    clearArrow: function() {
+        var drawHeight = this._lineHeight[this._currentAction % NUM_MAIN_MENU_ACTIONS];
+        textCtx.clearRect(25, drawHeight, 16, 20);
+        this._arrow = false;
+    },
+    
+    /* Draws an arrow next to currently selected item */
+    drawItemSelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 166, this._lineHeight[this._itemSelection]);
+    },
+    
+    /* Erases the arrow next to currently selected item */
+    clearItemSelection: function() {
+        textCtx.clearRect(165, this._lineHeight[this._itemSelection], 21, 20);
+    },
+    
+    /* Handles arrow key input for main menu */
+    handleInput: function(key) {
+        if (this._currentMenu == MAIN_MENU) {
+            this.clearArrow();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._currentAction++;
+                    this._currentAction %= NUM_MAIN_MENU_ACTIONS;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._currentAction--;
+                    if (this._currentAction < 0)
+                        this._currentAction += NUM_MAIN_MENU_ACTIONS;
+                    break;
+            }
+            this.drawArrow();
+        } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
+            this.clearItemSelection();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._itemSelection++;
+                    this._itemSelection %= this._numItems;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._itemSelection--;
+                    if (this._itemSelection < 0)
+                        this._itemSelection += this._numItems;
+                    break;
+            }
+            this.drawItemSelection();
+        }
+    },
+    
+    handleEnter: function() {
+        if (this._currentMenu == MAIN_MENU) {
+            switch (this._currentAction) {
+                case MAIN_MENU_ITEM:
+                    this.clearArrow();
+                    this.displayItemMenu();
+                    break;
+                case MAIN_MENU_SPELL:
+                case MAIN_MENU_EQUIP:
+                case MAIN_MENU_STATUS:
+                case MAIN_MENU_SAVE:
+                case MAIN_MENU_LOAD:
+                    this.clearArrow();
+                    this.displayNotImplementedMenu();
+            }
+        } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
+            if (this._canUseItem[this._itemSelection]) {
+                this.clearItemMenu();
+                this.clearMenu();
+                var itemId = this._itemId[this._itemSelection];
+                var item = g_itemData.items[itemId];
+                item.use(g_player);
+                g_player.removeFromInventory(itemId);
+            }
+        }
+    },
+    
+    handleEsc: function() {
+        switch (this._currentMenu) {
+            case MAIN_MENU:
+                this.clearMenu();
+                break;
+            case ITEM_MENU:
+                this.clearItemMenu();
+                this.drawArrow();
+                break;
+            case NOT_IMPLEMENTED_MENU:
+                this.clearNotImplementedMenu();
+                this.drawArrow();
+        }
+    }
+});
+
 /* Class representing a game, used to store progress */
 var Game = Class.extend({
     _init: function() {
@@ -1301,13 +1544,13 @@ var Game = Class.extend({
     }
 });
 
-var MENU_ATTACK = 0;
-var MENU_DEFEND = 1;
-var MENU_SPELL = 2;
-var MENU_ITEM = 3;
-var MENU_RUN = 4;
-var ATTACK_MENU = 0;
-var RUN_MENU = 1;
+var BATTLE_MENU_ATTACK = 0;
+var BATTLE_MENU_DEFEND = 1;
+var BATTLE_MENU_SPELL = 2;
+var BATTLE_MENU_ITEM = 3;
+var BATTLE_MENU_RUN = 4;
+var BATTLE_ATTACK_MENU = 0;
+var BATTLE_RUN_MENU = 1;
 
 /* Class representing a battle */
 var Battle = Class.extend({
@@ -1316,8 +1559,8 @@ var Battle = Class.extend({
         // Initialize properties
         this._encounter = null;
         this._monsterList = null;
-        this._currentAction = MENU_ATTACK;
-        this._currentMenu = ATTACK_MENU;
+        this._currentAction = BATTLE_MENU_ATTACK;
+        this._currentMenu = BATTLE_ATTACK_MENU;
         this._over = false;
         this._win = false;
         this._line = 0;
@@ -1420,14 +1663,14 @@ var Battle = Class.extend({
         this.drawMonsters();
 
         // Draw boxes
-        spriteCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
-        spriteCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
-        spriteCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
-        spriteCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+        menuCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
+        menuCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
+        menuCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
 
-        this._currentMenu = ATTACK_MENU;
+        this._currentMenu = BATTLE_ATTACK_MENU;
         this.drawMenu();
-        this._currentAction = MENU_ATTACK;
+        this._currentAction = BATTLE_MENU_ATTACK;
         this.drawArrow();
 
         textCtx.font = "bold 16px sans-serif";
@@ -1553,13 +1796,35 @@ var Battle = Class.extend({
         spriteCtx.clearRect(x, y, w, h);
     },
     
+    /* Draws health bar on battle screen */
+    updateHealthBar: function(health) {
+        this.clearHealthBar();
+        
+        var x = spriteCanvas.width - 2 * TILE_WIDTH + 0.5;
+        var y = 2 * TILE_HEIGHT + 0.5;
+        var w = 10;
+        var h = SPRITE_HEIGHT;
+        var pct = health / g_player.getMaxHP();
+        if (pct < 0)
+            pct = 0;
+        var yh = y + Math.round((1 - pct) * h);
+        var hh = h - (yh - y);
+        
+        // alert("y:" + y + " yh:" + yh + " h:" + h + " hh:" + hh);
+        
+        spriteCtx.fillStyle = "red";
+        spriteCtx.fillRect(x, yh, w, hh);
+        spriteCtx.strokeStyle = "black";
+        spriteCtx.strokeRect(x, y, w, h);
+    },
+    
     /* Draws the battle menu on bottom left of battle screen */
     drawMenu: function() {
         
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        if (this._currentMenu == ATTACK_MENU) {
+        if (this._currentMenu == BATTLE_ATTACK_MENU) {
             textCtx.fillText("Attack", 36, this._lineHeight[0]);
             textCtx.fillText("Defend", 36, this._lineHeight[1]);
             textCtx.fillText("Spell", 36, this._lineHeight[2]);
@@ -1629,6 +1894,7 @@ var Battle = Class.extend({
     
     /* End of the battle */
     end: function() {
+        menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         g_worldmap.redraw();
@@ -1814,14 +2080,14 @@ var Battle = Class.extend({
                     this.clearArrow();
                     switch(key) {
                         case DOWN_ARROW:
-                            if (this._currentMenu == ATTACK_MENU)
+                            if (this._currentMenu == BATTLE_ATTACK_MENU)
                                 this._currentAction = (this._currentAction + 1) % 4;
                             break;
                         case UP_ARROW:
-                            if (this._currentMenu == ATTACK_MENU) {
-                                this._currentAction = this._currentAction - 1;
+                            if (this._currentMenu == BATTLE_ATTACK_MENU) {
+                                this._currentAction--;
                                 if (this._currentAction < 0)
-                                    this._currentAction = this._currentAction + 4;
+                                    this._currentAction += 4;
                             }
                             break;
                         case LEFT_ARROW:
@@ -1829,10 +2095,10 @@ var Battle = Class.extend({
                             this._currentMenu = (this._currentMenu + 1) % 2;
                             this.clearMenu();
                             this.drawMenu();
-                            if (this._currentMenu == RUN_MENU)
-                                this._currentAction = MENU_RUN;
+                            if (this._currentMenu == BATTLE_RUN_MENU)
+                                this._currentAction = BATTLE_MENU_RUN;
                             else
-                                this._currentAction = MENU_ATTACK;
+                                this._currentAction = BATTLE_MENU_ATTACK;
                             break;
                     }
                     this.drawArrow();
@@ -1880,7 +2146,7 @@ var Battle = Class.extend({
                         } else {    
 
                             switch(this._currentAction) {
-                                case MENU_ATTACK:
+                                case BATTLE_MENU_ATTACK:
                                     if (this._monsterList.length == 1)
                                         this.attack(0);
                                     else {
@@ -1897,25 +2163,25 @@ var Battle = Class.extend({
                                         this.drawMonsterSelection();
                                     }
                                     break;
-                                case MENU_DEFEND:
+                                case BATTLE_MENU_DEFEND:
                                     this.writeMsg("You defended.");
                                     defending = true;
                                     break;
-                                case MENU_SPELL:
+                                case BATTLE_MENU_SPELL:
                                     this._selectingSpell = true;
                                     this.clearText();
                                     this.displaySpells();
                                     this.drawSpellSelection();
                                     monsterWillAttack = false;
                                     break;
-                                case MENU_ITEM:
+                                case BATTLE_MENU_ITEM:
                                     this._selectingItem = true;
                                     this.clearText();
                                     this.displayItems();
                                     this.drawItemSelection();
                                     monsterWillAttack = false;
                                     break;
-                                case MENU_RUN:
+                                case BATTLE_MENU_RUN:
                                     this.run();
                                     monsterWillAttack = false;
                                     break;
@@ -2048,8 +2314,6 @@ var Battle = Class.extend({
                 if (monster.hasSpecialAttack() && Math.random() < 0.5)
                     monster.useSpecialAttack();
                 else {
-                    this.writeMsg("The " + monster.getName() + " attacked for");
-
                     // Basic battle system; determine damage from attack and defense
                     var damage = monster.getAttack() - g_player.getDefense();
                     if (defending)
@@ -2058,8 +2322,18 @@ var Battle = Class.extend({
                         damage = 1;
                     var rand = Math.floor(Math.random() * damage / 2);
                     damage -= rand;
-                    this.writeMsg(damage + " damage.");
                     g_player.damage(damage);
+                    this.writeMsg("The " + monster.getName() + " attacked for");
+                    this.writeMsg(damage + " damage.");
+                    
+                    // Update health bar as you go.
+                    var battle = this;
+                    var health = g_player.getHP();
+                    window.setTimeout(function(health) {
+                        return function() {
+                            battle.updateHealthBar(health);
+                        };
+                    }(health), this._delay);
                 }
                 
                 // If player is dead, end game!
@@ -2153,11 +2427,13 @@ var Battle = Class.extend({
 
 /* Globals */
 
-// 3 Canvases and counting
-var mapCanvas = document.getElementById("map");
+// 4 Canvases and counting
+var mapCanvas = document.getElementById("mapCanvas");
 var mapCtx = mapCanvas.getContext("2d");
-var spriteCanvas = document.getElementById("sprites");
+var spriteCanvas = document.getElementById("spriteCanvas");
 var spriteCtx = spriteCanvas.getContext("2d");
+var menuCanvas = document.getElementById("menuCanvas");
+var menuCtx = menuCanvas.getContext("2d");
 var textCanvas = document.getElementById("textCanvas");
 var textCtx = textCanvas.getContext("2d");
 
@@ -2167,6 +2443,7 @@ var g_worldmap = null;
 var g_enemies = null;
 var g_box = null;
 var g_textDisplay = new TextDisplay();
+var g_menu = new MainMenu();
 var g_battle = null;
 var g_chest = null;
 
@@ -2211,28 +2488,36 @@ function handleKeyPress(event) {
                 keyBuffer = key;
             switch (key) {
                 case DOWN_ARROW:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleInput(key);
+                    else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
                 case UP_ARROW:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleInput(key);
+                    else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleInput(key);
+                    else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleInput(key);
+                    else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
                         g_player.move(-1, 0, FACING_LEFT);
@@ -2240,7 +2525,9 @@ function handleKeyPress(event) {
                     break;
                 case SPACEBAR:
                 case ENTER:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleEnter();
+                    else if (g_battle)
                         g_battle.handleEnter();
                     else if (!g_worldmap.animating) {
                         if (g_textDisplay.textDisplayed())
@@ -2253,8 +2540,12 @@ function handleKeyPress(event) {
                     event.preventDefault();
                     break;
                 case ESC:
-                    if (g_battle)
+                    if (g_menu.menuDisplayed())
+                        g_menu.handleEsc();
+                    else if (g_battle)
                         g_battle.handleEsc();
+                    else
+                        g_menu.displayMenu();
                     event.preventDefault();
                     break;
             }
@@ -2621,8 +2912,8 @@ var g_itemData = {
 
 /* Spells */
 var SPELLTYPE_HEAL_ONE = 1;
-// var ITEMTYPE_HEAL_ALL = 2;
-// var ITEMTYPE_ATTACK_ONE = 3;
+// var SPELLTYPE_HEAL_ALL = 2;
+// var SPELLTYPE_ATTACK_ONE = 3;
 var SPELLTYPE_ATTACK_ALL = 4;
 
 var SPELL_HEAL = 0;
@@ -2900,9 +3191,9 @@ var g_monsterData = {
     }, {
         "id": 7,
         "name": "mage",
-        "hp": 100,
+        "hp": 80,
         "attack": 55,
-        "defense": 35,
+        "defense": 20,
         "exp": 60,
         "gold": 40,
         "left": 640,
@@ -2920,7 +3211,7 @@ var g_monsterData = {
                 }
             });
             var monster = g_battle._monsterList[lowId];
-            var amt = 100 + Math.floor(Math.random() * 100);
+            var amt = 50 + Math.floor(Math.random() * 50);
             monster.heal(amt);
             g_battle.writeMsg("The " + monster.getName() + " was healed for " + amt + ".");
         }
