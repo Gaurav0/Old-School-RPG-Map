@@ -692,15 +692,22 @@ var Sprite = Class.extend({
                 
         spriteCtx.clearRect(dx, dy, dsw, dsh);
         
-        if (!map.isOverWorld() && this == g_player) {
+        if (!map.isOverWorld()) {
+            if (this == g_player) {
                     
-            // if sprite above or below previous location, replot it.
-            var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
-            if (spriteAbove != null)
-                spriteAbove.plot();
-            var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
-            if (spriteBelow != null)
-                spriteBelow.plot();
+                // if sprite above or below previous location, replot it.
+                var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
+                if (spriteAbove != null)
+                    spriteAbove.plot();
+                var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
+                if (spriteBelow != null)
+                    spriteBelow.plot();
+            } else {
+
+                // if player sprite above current location, replot it.
+                if (g_player.isAt(this._x, this._y - 1))
+                    g_player.plot();
+            }
         }
     },
     
@@ -1022,6 +1029,10 @@ var Player = Character.extend({
         return this._exp;
     },
     
+    getNextExp: function() {
+        return this._levels[this._level];
+    },
+    
     getGold: function() {
         return this._gold;
     },
@@ -1048,6 +1059,10 @@ var Player = Character.extend({
     
     getDefense: function() {
         return this._defense;
+    },
+    
+    getLevel: function() {
+        return this._level;
     },
     
     isDead: function() {
@@ -1081,7 +1096,7 @@ var Player = Character.extend({
     
     earnExp: function(amt) {
         this._exp += amt;
-        if (this._level < 30 && this._exp >= this._levels[this._level]) {
+        if (this._level < 30 && this._exp >= this.getNextExp()) {
             this._level++;
             
             // Stat changes upon earning new level here
@@ -1313,6 +1328,9 @@ var MainMenu = Class.extend({
         this._itemId = [];
         this._canUseItem = [];
         this._itemSelection = 0;
+        this._spellId = [];
+        this._canUseSpell = [];
+        this._spellSelection = 0;
     },
     
     menuDisplayed: function() {
@@ -1409,11 +1427,71 @@ var MainMenu = Class.extend({
         }
     },
     
-    clearItemMenu: function() {
+    clearSubMenu: function() {
         menuCtx.clearRect(150, 0, 300, 200);
         textCtx.clearRect(150, 0, 300, 200);
         
         this._currentMenu = MAIN_MENU;
+    },
+    
+    displaySpellMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
+        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        
+        // Text properties
+        textCtx.font = "bold 20px monospace";
+        textCtx.textBaseline = "top";
+        
+        // Display items in inventory
+        var numSpells = 0;
+        var menu = this;
+        g_player.forEachSpell(function(spellId) {
+            var spellName = g_spellData.spells[spellId].name;
+            var spellType = g_spellData.spells[spellId].type;
+            if (numSpells <= 6)
+                if (spellType == SPELLTYPE_HEAL_ONE) {
+                    textCtx.fillStyle = "white";
+                    menu._canUseSpell[numSpells] = true;
+                } else {
+                    textCtx.fillStyle = "gray";
+                    menu._canUseSpell[numSpells] = false;
+                }
+                textCtx.fillText(spellName, 186, menu._lineHeight[numSpells]);
+            menu._spellId[numSpells] = spellId;
+            numSpells++;
+        });
+        
+        this._numSpells = numSpells;
+        this._currentMenu = SPELL_MENU;
+        if (numSpells > 0) {
+            this._spellSelection = 0;
+            this.drawSpellSelection();
+        }
+    },
+    
+    displayStatusMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
+        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        
+        // Text properties
+        textCtx.font = "bold 14px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        // Properties of g_player
+        textCtx.fillText("HP:      " + g_player.getHP() + "/" + g_player.getMaxHP(), 180, 18);
+        textCtx.fillText("MP:      " + g_player.getMP() + "/" + g_player.getMaxMP(), 180, 36);
+        textCtx.fillText("Attack:  " + g_player.getAttack(), 180, 54);
+        textCtx.fillText("Defense: " + g_player.getDefense(), 180, 72);
+        textCtx.fillText("Level:   " + g_player.getLevel(), 180, 90);
+        textCtx.fillText("Exp:     " + g_player.getExp() + "/" + g_player.getNextExp(), 180, 108);
+        textCtx.fillText("Gold:    " + g_player.getGold(), 180, 126);
+        
+        this._currentMenu = STATUS_MENU;
     },
     
     /* Draws an arrow next to the current menu item in main menu */
@@ -1447,6 +1525,21 @@ var MainMenu = Class.extend({
     /* Erases the arrow next to currently selected item */
     clearItemSelection: function() {
         textCtx.clearRect(165, this._lineHeight[this._itemSelection], 21, 20);
+    },
+    
+    /* Draws an arrow next to currently selected spell */
+    drawSpellSelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 166, this._lineHeight[this._spellSelection]);
+    },
+    
+    /* Erases the arrow next to currently selected item */
+    clearSpellSelection: function() {
+        textCtx.clearRect(165, this._lineHeight[this._spellSelection], 21, 20);
     },
     
     /* Handles arrow key input for main menu */
@@ -1483,6 +1576,22 @@ var MainMenu = Class.extend({
                     break;
             }
             this.drawItemSelection();
+        } else if (this._currentMenu == SPELL_MENU && this._numSpells > 0) {
+            this.clearSpellSelection();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._spellSelection++;
+                    this._spellSelection %= this._numSpells;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._spellSelection--;
+                    if (this._spellSelection < 0)
+                        this._spellSelection += this._numSpells;
+                    break;
+            }
+            this.drawSpellSelection();
         }
     },
     
@@ -1494,8 +1603,14 @@ var MainMenu = Class.extend({
                     this.displayItemMenu();
                     break;
                 case MAIN_MENU_SPELL:
-                case MAIN_MENU_EQUIP:
+                    this.clearArrow();
+                    this.displaySpellMenu();
+                    break;
                 case MAIN_MENU_STATUS:
+                    this.clearArrow();
+                    this.displayStatusMenu();
+                    break;
+                case MAIN_MENU_EQUIP:
                 case MAIN_MENU_SAVE:
                 case MAIN_MENU_LOAD:
                     this.clearArrow();
@@ -1503,12 +1618,25 @@ var MainMenu = Class.extend({
             }
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
             if (this._canUseItem[this._itemSelection]) {
-                this.clearItemMenu();
+                this.clearSubMenu();
                 this.clearMenu();
                 var itemId = this._itemId[this._itemSelection];
                 var item = g_itemData.items[itemId];
                 item.use(g_player);
                 g_player.removeFromInventory(itemId);
+            }
+        } else if (this._currentMenu == SPELL_MENU && this._numSpells > 0) {
+            if (this._canUseSpell[this._spellSelection]) {
+                this.clearSubMenu();
+                this.clearMenu();
+                var spellId = this._spellId[this._spellSelection];
+                var spell = g_spellData.spells[spellId];
+                if (g_player.getMP() >= spell.mpCost) {
+                    spell.use(g_player);
+                    g_player.useMP(spell.mpCost);
+                } else {
+                    g_textDisplay.displayText("You do not have enough mp to use " + spell.name + ".");
+                }
             }
         }
     },
@@ -1519,7 +1647,9 @@ var MainMenu = Class.extend({
                 this.clearMenu();
                 break;
             case ITEM_MENU:
-                this.clearItemMenu();
+            case SPELL_MENU:
+            case STATUS_MENU:
+                this.clearSubMenu();
                 this.drawArrow();
                 break;
             case NOT_IMPLEMENTED_MENU:
@@ -3191,7 +3321,7 @@ var g_monsterData = {
     }, {
         "id": 7,
         "name": "mage",
-        "hp": 80,
+        "hp": 100,
         "attack": 55,
         "defense": 20,
         "exp": 60,
