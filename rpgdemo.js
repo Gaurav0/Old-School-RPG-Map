@@ -1114,6 +1114,10 @@ var Player = Character.extend({
         this._gold += amt;
     },
     
+    spendGold: function(amt) {
+        this._gold -= amt;
+    },
+    
     addToInventory: function(item, amt) {
         if (amt == undefined)
             amt = 1;
@@ -1274,6 +1278,11 @@ var Tileset = Class.extend({
 var TextDisplay = Class.extend({
     _init: function() {
         this._textDisplayed = false;
+        this._callback = null;
+    },
+    
+    setCallback: function(callback) {
+        this._callback = callback;
     },
     
     textDisplayed: function() {
@@ -1298,6 +1307,11 @@ var TextDisplay = Class.extend({
     clearText: function() {
         textCtx.clearRect(0, 236, textCanvas.width, 100);
         this._textDisplayed = false;
+        
+        if (this._callback) {
+            this._callback();
+            this._callback = null;
+        }
     }
 });
 
@@ -1656,6 +1670,298 @@ var MainMenu = Class.extend({
                 this.clearNotImplementedMenu();
                 this.drawArrow();
         }
+    }
+});
+
+var SHOP_MENU = 0;
+var BUY_MENU = 1;
+var SELL_MENU = 2;
+
+var SHOP_BUY = 0;
+var SHOP_SELL = 1;
+var SHOP_EXIT = 2;
+
+/* Class for shops */
+var Shop = Class.extend({
+    _init: function() {
+        this._shopDisplayed = false;
+        this._currentMenu = SHOP_MENU;
+        this._currentAction = SHOP_BUY;
+        this._arrow = false;
+        this._lineHeight = [ 12, 40, 68 ];
+        this._drawHeight = [ 40, 60, 80, 100, 120, 140, 160, 180, 200, 220 ];
+        this._itemList = null;
+        this._buySelection = 0;
+        this._sellSelection = 0;
+        this._numItems = 0;
+        this._itemId = [];
+    },
+    
+    shopDisplayed: function() {
+        return this._shopDisplayed;
+    },
+    
+    displayShop: function(itemList) {
+        // Draw box
+        menuCtx.drawImage(g_box, 0, 0, 100, 200, 0, 0, 50, 100);
+        menuCtx.drawImage(g_box, 100, 0, 100, 200, 50, 0, 50, 100);
+        
+        // Draw Text
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText("Buy", 32, this._lineHeight[0]);
+        textCtx.fillText("Sell", 32, this._lineHeight[1]);
+        textCtx.fillText("Exit", 32, this._lineHeight[2]);
+        
+        this.drawArrow();
+        
+        this._itemList = itemList;
+        this._shopDisplayed = true;
+    },
+    
+    clearShop: function() {
+        menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
+        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        
+        this._itemList = null;
+        this._shopDisplayed = false;
+        g_textDisplay.displayText("Thank you for your business.\nPlease come again.");
+    },
+    
+    /* Draws an arrow next to the current shop action in shop menu */
+    drawArrow: function() {
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._currentAction % 3];        
+        textCtx.fillText(arrowChar, 15, drawHeight);
+        this._arrow = true;
+    },
+    
+    /* Erases the arrow next to the current shop action in shop menu */
+    clearArrow: function() {
+        var drawHeight = this._lineHeight[this._currentAction % 3];
+        textCtx.clearRect(14, drawHeight, 16, 20);
+        this._arrow = false;
+    },
+    
+    displayBuyMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 50, 200, 100, 0, 75, 300);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 175, 0, 150, 300);
+        menuCtx.drawImage(g_box, 150, 0, 50, 200, 325, 0, 75, 300);
+        
+        // Text properties
+        textCtx.font = "bold 16px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        for (var i = 0; i < this._itemList.length; ++i) {
+            var itemId = this._itemList[i];
+            var itemName = g_itemData.items[itemId].name;
+            var itemCost = g_itemData.items[itemId].cost;
+            var displayName = itemName;
+            while (displayName.length < 15)
+                displayName += " ";
+            var displayCost = itemCost.toString();
+            while (displayCost.length < 5)
+                displayCost = " " + displayCost;
+            textCtx.fillText(displayName + " " + displayCost + "G", 144, this._drawHeight[i]);
+        }
+        
+        this._currentMenu = BUY_MENU;
+        this._buySelection = 0;
+        this.drawBuySelection();
+    },
+    
+    displaySellMenu: function() {
+        // Draw Box
+        menuCtx.drawImage(g_box, 0, 0, 50, 200, 100, 0, 75, 300);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 175, 0, 150, 300);
+        menuCtx.drawImage(g_box, 150, 0, 50, 200, 325, 0, 75, 300);
+        
+        // Text properties
+        textCtx.font = "bold 14px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        // Display items in inventory
+        var numItems = 0;
+        var shop = this;
+        g_player.forEachItemInInventory(function(itemId, amt) {
+            if (amt > 0) {
+                var itemName = g_itemData.items[itemId].name;
+                var itemCost = g_itemData.items[itemId].cost;
+                var sellPrice = Math.floor(itemCost * 0.75);
+                var displayAmt = (amt >= 10) ? amt : " " + amt;
+                var displayPrice = sellPrice.toString();
+                while (displayPrice.length < 5)
+                    displayPrice = " " + displayPrice;
+                var displayName = itemName;
+                while (displayName.length < 15)
+                    displayName += " ";
+                if (numItems < 10)
+                    textCtx.fillText(
+                        displayName + " " + displayAmt + " " + displayPrice + "G",
+                        150, shop._drawHeight[numItems]);
+                shop._itemId[numItems] = itemId;
+                numItems++;
+            }
+        });
+        
+        this._numItems = numItems;
+        this._currentMenu = SELL_MENU;
+        if (numItems > 0) {
+            this._sellSelection = 0;
+            this.drawSellSelection();
+        }
+    },
+    
+    clearSubMenu: function() {
+        menuCtx.clearRect(100, 0, 300, 300);
+        textCtx.clearRect(100, 0, 300, 300);
+        
+        this._currentMenu = SHOP_MENU;
+    },
+    
+    /* Draws an arrow next to currently selected item to buy */
+    drawBuySelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 16px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 128, this._drawHeight[this._buySelection]);
+    },
+    
+    /* Erases the arrow next to currently selected item to buy*/
+    clearBuySelection: function() {
+        textCtx.clearRect(127, this._drawHeight[this._buySelection], 17, 16);
+    },
+    
+    /* Draws an arrow next to currently selected item to buy */
+    drawSellSelection: function() {
+        
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 14px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(arrowChar, 136, this._drawHeight[this._sellSelection]);
+    },
+    
+    /* Erases the arrow next to currently selected item to buy*/
+    clearSellSelection: function() {
+        textCtx.clearRect(135, this._drawHeight[this._sellSelection], 15, 14);
+    },
+    
+    handleInput: function(key) {
+        if (this._currentMenu == SHOP_MENU) {
+            this.clearArrow();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._currentAction++;
+                    this._currentAction %= 3;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._currentAction--;
+                    if (this._currentAction < 0)
+                        this._currentAction += 3;
+                    break;
+            }
+            this.drawArrow();
+        } else if (this._currentMenu == BUY_MENU) {
+            this.clearBuySelection();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._buySelection++;
+                    this._buySelection %= this._itemList.length;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._buySelection--;
+                    if (this._buySelection < 0)
+                        this._buySelection += this._itemList.length;
+                    break;
+            }
+            this.drawBuySelection();
+        } else if (this._currentMenu == SELL_MENU && this._numItems > 0) {
+            this.clearSellSelection();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._sellSelection++;
+                    this._sellSelection %= this._numItems;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._sellSelection--;
+                    if (this._sellSelection < 0)
+                        this._sellSelection += this._numItems;
+                    break;
+            }
+            this.drawSellSelection();
+        }
+    },
+    
+    handleEnter: function() {
+        if (this._currentMenu == SHOP_MENU) {
+            switch (this._currentAction) {
+                case SHOP_BUY:
+                    this.displayBuyMenu();
+                    break;
+                case SHOP_SELL:
+                    this.displaySellMenu();
+                    break;
+                case SHOP_EXIT:
+                    this.clearShop();
+                    break;
+            }
+        } else if (this._currentMenu == BUY_MENU)
+            this.buyItem();
+        else if (this._currentMenu == SELL_MENU && this._numItems > 0)
+            this.sellItem();
+    },
+    
+    handleEsc: function() {
+        if (this._currentMenu == SHOP_MENU)
+            this.clearShop();
+        else
+            this.clearSubMenu();
+    },
+    
+    buyItem: function() {
+        this.clearSubMenu();
+        
+        var itemId = this._itemList[this._buySelection];
+        var itemName = g_itemData.items[itemId].name;
+        var itemCost = g_itemData.items[itemId].cost;
+        var gold = g_player.getGold();
+        if (gold >= itemCost) {
+            g_player.spendGold(itemCost);
+            g_player.addToInventory(itemId, 1);
+            g_textDisplay.displayText("You purchased 1 " +
+                itemName + " for " + itemCost + "G.");
+        } else {
+            g_textDisplay.displayText("You do not have enough gold\nto buy a " +
+                itemName + ".\nYou only have " + gold + "G.");
+        }
+    },
+    
+    sellItem: function() {
+        this.clearSubMenu();
+        
+        var itemId = this._itemList[this._sellSelection];
+        var itemName = g_itemData.items[itemId].name;
+        var itemCost = g_itemData.items[itemId].cost;
+        var sellPrice = Math.floor(itemCost * 0.75);
+        g_player.removeFromInventory(itemId);
+        g_player.earnGold(sellPrice);
+        g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
     }
 });
 
@@ -2422,17 +2728,25 @@ var Battle = Class.extend({
         
         // Basic battle system; determine damage from attack and defense
         var monster = this._monsterList[id];
-        var damage = g_player.getAttack() - monster.getDefense();
-        if (damage < 1)
-            damage = 1;
-        var rand = Math.floor(Math.random() * damage / 2);
-        damage -= rand;
-        this.writeMsg("You attacked for " + damage + " damage.");
-        monster.damage(damage);
-        
-        // If monster is dead, earn exp & gold associated.
-        if (monster.isDead()) {
-            this.earnReward(monster, id);
+        var rand = Math.random();
+        if (rand > 0.95) {
+            this.writeMsg("You missed!");
+        } else {
+            var damage = g_player.getAttack() - monster.getDefense();
+            if (rand > 0.9) {
+                this.writeMsg("Critical Hit!");
+                damage *= 2;
+            }
+            if (damage < 1)
+                damage = 1;
+            damage -= Math.floor(Math.random() * damage / 2);
+            this.writeMsg("You attacked for " + damage + " damage.");
+            monster.damage(damage);
+
+            // If monster is dead, earn exp & gold associated.
+            if (monster.isDead()) {
+                this.earnReward(monster, id);
+            }
         }
     },
     
@@ -2445,25 +2759,33 @@ var Battle = Class.extend({
                     monster.useSpecialAttack();
                 else {
                     // Basic battle system; determine damage from attack and defense
-                    var damage = monster.getAttack() - g_player.getDefense();
-                    if (defending)
-                        damage = Math.floor(damage / 2.5);
-                    if (damage < 1)
-                        damage = 1;
-                    var rand = Math.floor(Math.random() * damage / 2);
-                    damage -= rand;
-                    g_player.damage(damage);
-                    this.writeMsg("The " + monster.getName() + " attacked for");
-                    this.writeMsg(damage + " damage.");
-                    
-                    // Update health bar as you go.
-                    var battle = this;
-                    var health = g_player.getHP();
-                    window.setTimeout(function(health) {
-                        return function() {
-                            battle.updateHealthBar(health);
-                        };
-                    }(health), this._delay);
+                    var rand = Math.random();
+                    if (rand > 0.9) {
+                        this.writeMsg("The " + monster.getName() + " missed!");
+                    } else {
+                        var damage = monster.getAttack() - g_player.getDefense();
+                        if (rand > 0.85) {
+                            this.writeMsg("Terrible Hit!");
+                            damage *= 2;
+                        }
+                        if (defending)
+                            damage = Math.floor(damage / 2.5);
+                        if (damage < 1)
+                            damage = 1;
+                        damage -= Math.floor(Math.random() * damage / 2);
+                        g_player.damage(damage);
+                        this.writeMsg("The " + monster.getName() + " attacked for");
+                        this.writeMsg(damage + " damage.");
+
+                        // Update health bar as you go.
+                        var battle = this;
+                        var health = g_player.getHP();
+                        window.setTimeout(function(health) {
+                            return function() {
+                                battle.updateHealthBar(health);
+                            };
+                        }(health), this._delay);
+                    }   
                 }
                 
                 // If player is dead, end game!
@@ -2483,12 +2805,12 @@ var Battle = Class.extend({
     
     /* Player will attempt to run */
     run: function() {
-        if (Math.random() >= 0.1) {
+        if (Math.random() >= 0.25) {
             this.writeMsg("You start to run.");
             this.monsterTurn(false);
             if (g_player.isDead() || this._over)
                 return false;
-            if (Math.random() < 0.25) {
+            if (Math.random() < 0.33) {
                 this.writeMsg("You couldn't run away.")
                 return false;
             }
@@ -2574,6 +2896,7 @@ var g_enemies = null;
 var g_box = null;
 var g_textDisplay = new TextDisplay();
 var g_menu = new MainMenu();
+var g_shop = new Shop();
 var g_battle = null;
 var g_chest = null;
 
@@ -2620,6 +2943,8 @@ function handleKeyPress(event) {
                 case DOWN_ARROW:
                     if (g_menu.menuDisplayed())
                         g_menu.handleInput(key);
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
@@ -2629,6 +2954,8 @@ function handleKeyPress(event) {
                 case UP_ARROW:
                     if (g_menu.menuDisplayed())
                         g_menu.handleInput(key);
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
@@ -2638,6 +2965,8 @@ function handleKeyPress(event) {
                 case RIGHT_ARROW:
                     if (g_menu.menuDisplayed())
                         g_menu.handleInput(key);
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
@@ -2647,6 +2976,8 @@ function handleKeyPress(event) {
                 case LEFT_ARROW:
                     if (g_menu.menuDisplayed())
                         g_menu.handleInput(key);
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_worldmap.animating)
@@ -2655,23 +2986,27 @@ function handleKeyPress(event) {
                     break;
                 case SPACEBAR:
                 case ENTER:
-                    if (g_menu.menuDisplayed())
+                    if (g_textDisplay.textDisplayed())
+                        g_textDisplay.clearText();
+                    else if (g_menu.menuDisplayed())
                         g_menu.handleEnter();
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleEnter();
                     else if (g_battle)
                         g_battle.handleEnter();
                     else if (!g_worldmap.animating) {
-                        if (g_textDisplay.textDisplayed())
-                            g_textDisplay.clearText();
-                        else {
-                            g_worldmap.doAction();
-                            g_player.getSquareUnderfoot().onAction();
-                        }
+                        g_worldmap.doAction();
+                        g_player.getSquareUnderfoot().onAction();
                     }
                     event.preventDefault();
                     break;
                 case ESC:
-                    if (g_menu.menuDisplayed())
+                    if (g_textDisplay.textDisplayed())
+                        g_textDisplay.clearText();
+                    else if (g_menu.menuDisplayed())
                         g_menu.handleEsc();
+                    else if (g_shop.shopDisplayed())
+                        g_shop.handleEsc();
                     else if (g_battle)
                         g_battle.handleEsc();
                     else
@@ -2879,7 +3214,10 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     var npc3 = new Character(1, 12, img3, mapId, FACING_RIGHT);
     img3.src = "images/Woman2.png";
     npc3.action = function() {
-        g_textDisplay.displayText("Item Shop coming soon.");
+        g_textDisplay.setCallback(function() {
+            g_shop.displayShop([ITEM_POTION, ITEM_BOMB, ITEM_ETHER]);
+        });
+        g_textDisplay.displayText("Welcome to the item shop.");
     };
     map.addSprite(npc3);
     var img4 = new Image();
@@ -3009,21 +3347,47 @@ var ITEMTYPE_ATTACK_ALL = 4;
 
 var ITEM_POTION = 0;
 var ITEM_BOMB = 1;
+var ITEM_ETHER = 2;
+var ITEM_TIN_SWORD = 3;
+var ITEM_COPPER_SWORD = 4;
+var ITEM_BRONZE_SWORD = 5;
+var ITEM_IRON_SWORD = 6;
+var ITEM_STEEL_SWORD = 7;
+var ITEM_GREAT_SWORD = 8;
+var ITEM_CLOTHES = 9;
+var ITEM_LEATHER_ARMOR = 10;
+var ITEM_CHAIN_MAIL = 11;
+var ITEM_HALF_PLATE_ARMOR = 12;
+var ITEM_FULL_PLATE_ARMOR = 13;
+var ITEM_CAP = 14;
+var ITEM_LEATHER_HELMET = 15;
+var ITEM_BRONZE_HELMET = 16;
+var ITEM_IRON_HELMET = 17;
+var ITEM_STEEL_HELMET = 18;
+var ITEM_TIN_SHIELD = 19;
+var ITEM_COPPER_SHIELD = 20;
+var ITEM_BRONZE_SHIELD = 21;
+var ITEM_IRON_SHIELD = 22;
+var ITEM_STEEL_SHIELD = 23;
 
 var g_itemData = {
     "items": [ {
-        "id": 0,
+        "id": ITEM_POTION,
         "name": "Potion",
         "type": ITEMTYPE_HEAL_ONE,
+        "cost": 15,
+        "usable": true,
         "use": function(target) {
             var amt = 100 + Math.floor(Math.random() * 100);
             target.heal(amt);
             printText(target.getName() + " healed for " + amt + " points.");
         }
     }, {
-        "id": 1,
+        "id": ITEM_BOMB,
         "name": "Bomb",
         "type": ITEMTYPE_ATTACK_ALL,
+        "cost": 35,
+        "usable": true,
         "use": function() {
             g_battle.forEachMonster(function(monster, id) {
                 var amt = 50 + Math.floor(Math.random() * 100);
@@ -3036,6 +3400,17 @@ var g_itemData = {
                 if (monster.isDead())
                     g_battle.earnReward(monster, id);
             });
+        }
+    }, {
+        "id": ITEM_ETHER,
+        "name": "Ether",
+        "type": ITEMTYPE_HEAL_ONE,
+        "cost": 100,
+        "usable": true,
+        "use": function(target) {
+            var amt = 25 + Math.floor(Math.random() * 25);
+            target.gainMP(amt);
+            printText(target.getName() + " healed for " + amt + " magic points.");
         }
     }]
 };
@@ -3051,7 +3426,7 @@ var SPELL_BOMB = 1;
 
 var g_spellData = {
     "spells": [ {
-        "id": 0,
+        "id": SPELL_HEAL,
         "name": "Heal",
         "mpCost": 5,
         "type": SPELLTYPE_HEAL_ONE,
@@ -3061,7 +3436,7 @@ var g_spellData = {
             printText(target.getName() + " healed for " + amt + " points.");
         }
     }, {
-        "id": 1,
+        "id": SPELL_BOMB,
         "name": "Bomb",
         "mpCost": 8,
         "type": SPELLTYPE_ATTACK_ALL,
