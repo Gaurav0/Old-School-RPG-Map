@@ -297,8 +297,8 @@ var SubMap = Class.extend({
     
     /* This function does the scrolling animation */
     animate: function(fromX, fromY, toX, toY) {
-        g_worldmap.animating = true;
-        g_worldmap.scrolling = true;
+        g_worldmap.startAnimating();
+        g_worldmap.startScrolling();
         var deltaX = toX - fromX;
         var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
@@ -345,8 +345,8 @@ var SubMap = Class.extend({
             }, 1000 / FPS);
         }
         else {
-            g_worldmap.animating = false;
-            g_worldmap.scrolling = false;
+            g_worldmap.finishAnimating();
+            g_worldmap.finishScrolling();
             this._lastOffsetX = undefined;
             this._lastOffsetY = undefined;
             window.setTimeout(handleBufferedKey, 1000 / FPS);
@@ -370,10 +370,13 @@ var WorldMap = Class.extend({
         this._subMapList.push(mainMap); // main map is id = 0
 
         // Are we busy with animations?
-        this.animating = false;
+        this._animating = false;
         
         // Are we scrolling?
-        this.scrolling = false;
+        this._scrolling = false;
+        
+        // Function to run after animation
+        this._runAfterAnimation = null;
     },
 
     getSubMap: function(id) {
@@ -542,16 +545,37 @@ var WorldMap = Class.extend({
         this._subMapList[this._currentSubMap].clearSprites();
     },
     
-    // Polls and runs callback after animation is complete.
-    runAfterAnimation: function(callback) {
-        if (!this.animating)
-            callback();
-        else {
-            var worldmap = this;
-            window.setTimeout(function() {
-                worldmap.runAfterAnimation(callback);
-            }, 1);
+    isAnimating: function() {
+        return this._animating;
+    },
+    
+    startAnimating: function() {
+        this._animating = true;
+    },
+    
+    finishAnimating: function() {
+        this._animating = false;
+        if (this._runAfterAnimation) {
+            this._runAfterAnimation();
+            this._runAfterAnimation = null;
         }
+    },
+    
+    isScrolling: function() {
+        return this._scrolling;
+    },
+    
+    startScrolling: function() {
+        this._scrolling = true;
+    },
+    
+    finishScrolling: function() {
+        this._scrolling = false;
+    },
+    
+    // Will run callback after animation is complete.
+    runAfterAnimation: function(callback) {
+        this._runAfterAnimation = callback;
     }
 });
 
@@ -636,7 +660,7 @@ var Sprite = Class.extend({
                 // if another sprite below the player, replot it
                 var sprite = map.getSpriteAt(this._x, this._y + 1);
                 if (sprite != null) {
-                    if (g_worldmap.scrolling) {
+                    if (g_worldmap.isScrolling()) {
                         if (map._lastOffsetX != undefined)
                             sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                     } else
@@ -646,7 +670,7 @@ var Sprite = Class.extend({
                 // if another sprite below the player's previous location, replot it
                 var sprite = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (sprite != null) {
-                    if (g_worldmap.scrolling) {
+                    if (g_worldmap.isScrolling()) {
                         if (map._lastOffsetX != undefined)
                             sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                         else
@@ -694,7 +718,12 @@ var Sprite = Class.extend({
         
         if (!map.isOverWorld()) {
             if (this == g_player) {
-                    
+                
+                // if sprite above current location, replot it.
+                var spriteAbove = map.getSpriteAt(this._x, this._y - 1);
+                if (spriteAbove != null)
+                    spriteAbove.plot();
+
                 // if sprite above or below previous location, replot it.
                 var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
                 if (spriteAbove != null)
@@ -864,7 +893,7 @@ var Character = Sprite.extend({
         if (!g_worldmap.pointInBounds(newX, newY) ||
                 !g_worldmap.isPassable(newX, newY) ||
                 g_worldmap.isOccupied(newX, newY)) {
-            if (!g_worldmap.animating) {
+            if (!g_worldmap.isAnimating()) {
                 this.clear();
                 this.plot();
             }
@@ -912,14 +941,14 @@ var Character = Sprite.extend({
     
     /* Show sprite as walking as background scrolls */
     scrollAnimation: function() {
-        if (g_worldmap.animating) {
+        if (g_worldmap.isAnimating()) {
             this.scrollAnimationSub(0);
         }
     },
     
     /* Recursive part of sprite.scrollAnimation */
     scrollAnimationSub: function(animStage) {
-        if (g_worldmap.animating && !g_battle) {
+        if (g_worldmap.isAnimating() && !g_battle) {
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
@@ -941,13 +970,13 @@ var Character = Sprite.extend({
     
     /* Shows the sprite walking from one square to another */
     walkAnimation: function(deltaX, deltaY) {
-        if (g_worldmap.animating) {
+        if (g_worldmap.isAnimating()) {
             var sprite = this;
             window.setTimeout(function() {
                 sprite.walkAnimationPoll(deltaX, deltaY);
             }, 1000 / FPS);
         } else if (!g_battle) {
-            g_worldmap.animating = true;
+            g_worldmap.startAnimating();
             this._walking = true;
             var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
             var destOffsetX = -deltaX * TILE_WIDTH;
@@ -958,7 +987,7 @@ var Character = Sprite.extend({
     
     // Polls until we can start walk animation
     walkAnimationPoll: function(deltaX, deltaY) {
-        if (g_worldmap.animating) {
+        if (g_worldmap.isAnimating()) {
             var sprite = this;
             window.setTimeout(function() {
                 sprite.walkAnimationPoll(deltaX, deltaY);
@@ -988,13 +1017,13 @@ var Character = Sprite.extend({
                 sprite.walkAnimationSub((animStage + 1) % 4, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
             }, 1000 / FPS);
         } else {
-            g_worldmap.animating = false;
             this._walking = false;
             if (!g_battle) {
                 this.clear(destOffsetX, destOffsetY); // clear last image drawn
                 this.plot();
                 window.setTimeout(handleBufferedKey, 1000 / FPS);
             }
+            g_worldmap.finishAnimating();
         }
     }
 });
@@ -1123,8 +1152,8 @@ var Player = Character.extend({
             this._level++;
             
             // Stat changes upon earning new level here
-            this._attack += 3;
-            this._defense += 2;
+            this._attack += 2;
+            this._defense += 1;
             this._maxHP += 20;
             this._maxMP += 5;
             
@@ -2232,6 +2261,7 @@ var Battle = Class.extend({
         
         // Initialize properties
         this._encounter = null;
+        this._ignoringKeys = false;
         this._monsterList = null;
         this._currentAction = BATTLE_MENU_ATTACK;
         this._currentMenu = BATTLE_ATTACK_MENU;
@@ -2298,6 +2328,8 @@ var Battle = Class.extend({
                     }
             }
         }
+        
+        this._ignoringKeys = true;
     },
     
     /* Setup scripted encounter (for boss monsters, etc.) */
@@ -2319,6 +2351,8 @@ var Battle = Class.extend({
                     this._monsterList.push(monster);
                 }
         }
+        
+        this._ignoringKeys = true;
     },
     
     /* Draws battle screen */
@@ -2693,7 +2727,7 @@ var Battle = Class.extend({
     
     /* Handles input while battling for up, down, left, and right arrow keys */
     handleInput: function(key) {
-        if (!this._writing) {
+        if (!this._writing && !this._ignoringKeys) {
             if (this._selectingMonster) {
                 this.clearMonsterSelection();
                 switch(key) {
@@ -2895,6 +2929,11 @@ var Battle = Class.extend({
         }
     },
     
+    /* handles key up event */
+    handleKeyUp: function() {
+        this._ignoringKeys = false;
+    },
+    
     /* Sets monster selection to the first living monster. */
     selectFirstLiveMonster: function() {
         for (var i = 0; i < this._monsterList.length; ++i)
@@ -3002,9 +3041,9 @@ var Battle = Class.extend({
                         this.writeMsg("The " + monster.getName() + " missed!");
                     } else {
                         var damage = monster.getAttack() - g_player.getDefense();
-                        if (rand > 0.85) {
+                        if (rand > 0.86) {
                             this.writeMsg("Terrible Hit!");
-                            damage *= 2;
+                            damage = 2 * monster.getAttack() - g_player.getDefense();
                         }
                         if (defending)
                             damage = Math.floor(damage / 2.5);
@@ -3175,7 +3214,7 @@ function handleKeyPress(event) {
     if (g_worldmap && g_player) {
         if (!event.ctrlKey && !event.altKey && !event.metaKey) {
             var key = event.keyCode ? event.keyCode : event.charCode ? event.charCode : 0;
-            if (g_worldmap.animating)
+            if (g_worldmap.isAnimating())
                 keyBuffer = key;
             switch (key) {
                 case DOWN_ARROW:
@@ -3185,7 +3224,7 @@ function handleKeyPress(event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
+                    else if (!g_worldmap.isAnimating())
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
@@ -3196,7 +3235,7 @@ function handleKeyPress(event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
+                    else if (!g_worldmap.isAnimating())
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
@@ -3207,7 +3246,7 @@ function handleKeyPress(event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
+                    else if (!g_worldmap.isAnimating())
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
@@ -3218,7 +3257,7 @@ function handleKeyPress(event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.animating)
+                    else if (!g_worldmap.isAnimating())
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
                     break;
@@ -3232,7 +3271,7 @@ function handleKeyPress(event) {
                         g_shop.handleEnter();
                     else if (g_battle)
                         g_battle.handleEnter();
-                    else if (!g_worldmap.animating) {
+                    else if (!g_worldmap.isAnimating()) {
                         g_worldmap.doAction();
                         g_player.getSquareUnderfoot().onAction();
                     }
@@ -3256,8 +3295,13 @@ function handleKeyPress(event) {
     }
 }
 
+function handleKeyUp() {
+    if (g_battle)
+        g_battle.handleKeyUp();
+}
+
 function handleBufferedKey() {
-    if (keyBuffer && !g_battle && !g_worldmap.animating) {
+    if (keyBuffer && !g_battle && !g_worldmap.isAnimating()) {
         var key = keyBuffer;
         keyBuffer = 0;
         switch (key) {
@@ -3288,6 +3332,7 @@ if (window.opera || $.browser.mozilla)
     $(window).keypress(handleKeyPress);
 else
     $(window).keydown(handleKeyPress);
+$(window).keyup(handleKeyUp);
 
 /* Main Game setup code */
 $(document).ready(function() {
@@ -3582,7 +3627,7 @@ function setupForestMap(mapXml, tileset) {
         if (!g_game.isFlagSet("fb")) {
             keyBuffer = 0;
             g_battle = new Battle();
-            g_battle.setupEncounter("2 mages", [ 7, 7 ]);
+            g_battle.setupEncounter("2 mages", [ 9, 9 ]);
             g_battle.onWin = function() {
                 g_game.setFlag("fb");
             };
@@ -3732,35 +3777,35 @@ var g_itemData = {
             "type": ITEMTYPE_ARMOR,
             "cost": 10,
             "usable": false,
-            "defense": 2
+            "defense": 1
         }, 21: {
             "id": ITEM_LEATHER_ARMOR,
             "name": "Leather Armor",
             "type": ITEMTYPE_ARMOR,
             "cost": 50,
             "usable": false,
-            "defense": 6
+            "defense": 4
         }, 22: {
             "id": ITEM_CHAIN_MAIL,
             "name": "Chain Mail",
             "type": ITEMTYPE_ARMOR,
             "cost": 250,
             "usable": false,
-            "defense": 10
+            "defense": 7
         }, 23: {
             "id": ITEM_HALF_PLATE_MAIL,
             "name": "Half Plate Mail",
             "type": ITEMTYPE_ARMOR,
             "cost": 1250,
             "usable": false,
-            "defense": 14
+            "defense": 10
         }, 24: {
             "id": ITEM_FULL_PLATE_MAIL,
             "name": "Full Plate Mail",
             "type": ITEMTYPE_ARMOR,
             "cost": 6250,
             "usable": false,
-            "defense": 18
+            "defense": 13
         }, 30: {
             "id": ITEM_CAP,
             "name": "Cap",
@@ -3774,28 +3819,28 @@ var g_itemData = {
             "type": ITEMTYPE_HELMET,
             "cost": 30,
             "usable": false,
-            "defense": 3
+            "defense": 2
         }, 32: {
             "id": ITEM_BRONZE_HELMET,
             "name": "Bronze Helmet",
             "type": ITEMTYPE_HELMET,
             "cost": 150,
             "usable": false,
-            "defense": 5
+            "defense": 4
         }, 33: {
             "id": ITEM_IRON_HELMET,
             "name": "Iron Helmet",
             "type": ITEMTYPE_HELMET,
             "cost": 600,
             "usable": false,
-            "defense": 7
+            "defense": 6
         }, 34: {
             "id": ITEM_STEEL_HELMET,
             "name": "Steel Helmet",
             "type": ITEMTYPE_HELMET,
             "cost": 1800,
             "usable": false,
-            "defense": 9
+            "defense": 8
         }, 40: {
             "id": ITEM_TIN_SHIELD,
             "name": "Tin Shield",
@@ -3823,14 +3868,14 @@ var g_itemData = {
             "type": ITEMTYPE_SHIELD,
             "cost": 700,
             "usable": false,
-            "defense": 7
+            "defense": 6
         }, 44: {
             "id": ITEM_STEEL_SHIELD,
             "name": "Steel Shield",
             "type": ITEMTYPE_SHIELD,
             "cost": 2100,
             "usable": false,
-            "defense": 10
+            "defense": 8
         }
     }
 };
@@ -3905,104 +3950,104 @@ var g_encounterData = {
             "name": "2 red slimes",
             "monsters": [ 5, 5 ]
         }, {
-            "name": "3 snakes",
-            "monsters": [ 2, 2, 2 ]
-        }, {
-            "name": "3 blue slimes",
-            "monsters": [ 3, 3, 3 ]
+            "name": "3 red slimes",
+            "monsters": [ 5, 5, 5 ]
         }, {
             "name": "A cocatrice",
             "monsters": [ 4 ]
         }, {
-            "name": "A red slime",
-            "monsters": [ 5 ]
-        }, {
             "name": "A white rat",
             "monsters": [ 6 ]
+        }, {
+            "name": "A cobra",
+            "monsters": [ 7 ]
+        }, {
+            "name": "A wolf",
+            "monsters": [ 8 ]
         }]
     }, {
         "zone": "3",
         "encounters": [ {
-            "name": "2 red slimes",
-            "monsters": [ 5, 5 ]
+            "name": "2 cobras",
+            "monsters": [ 7, 7 ]
         }, {
-            "name": "3 snakes",
-            "monsters": [ 2, 2, 2 ]
+            "name": "2 wolves",
+            "monsters": [ 8, 8 ]
         }, {
-            "name": "3 blue slimes",
-            "monsters": [ 3, 3, 3 ]
+            "name": "3 cocatrices",
+            "monsters": [ 4, 4, 4 ]
         }, {
-            "name": "A cocatrice",
-            "monsters": [ 4 ]
+            "name": "3 white rats",
+            "monsters": [ 6, 6, 6 ]
         }, {
-            "name": "A red slime",
-            "monsters": [ 5 ]
+            "name": "A wolf and a cobra",
+            "monsters": [ 8, 7 ]
         }, {
-            "name": "A white rat",
-            "monsters": [ 6 ]
+            "name": "A mage",
+            "monsters": [ 9 ]
         }]
     }, {
         "zone": "4",
         "encounters": [ {
-            "name": "2 red slimes",
-            "monsters": [ 5, 5 ]
+            "name": "2 cobras",
+            "monsters": [ 7, 7 ]
         }, {
-            "name": "3 snakes",
-            "monsters": [ 2, 2, 2 ]
+            "name": "2 wolves",
+            "monsters": [ 8, 8 ]
         }, {
-            "name": "3 blue slimes",
-            "monsters": [ 3, 3, 3 ]
+            "name": "3 cocatrices",
+            "monsters": [ 4, 4, 4 ]
         }, {
-            "name": "A cocatrice",
-            "monsters": [ 4 ]
+            "name": "3 white rats",
+            "monsters": [ 6, 6, 6 ]
         }, {
-            "name": "A red slime",
-            "monsters": [ 5 ]
+            "name": "A wolf and a cobra",
+            "monsters": [ 8, 7 ]
         }, {
-            "name": "A white rat",
-            "monsters": [ 6 ]
+            "name": "A mage",
+            "monsters": [ 9 ]
         }]
     }, {
         "zone": "5",
         "encounters": [ {
-            "name": "2 red slimes",
-            "monsters": [ 5, 5 ]
+            "name": "2 cobras",
+            "monsters": [ 7, 7 ]
         }, {
-            "name": "3 snakes",
-            "monsters": [ 2, 2, 2 ]
+            "name": "2 wolves",
+            "monsters": [ 8, 8 ]
         }, {
-            "name": "3 blue slimes",
-            "monsters": [ 3, 3, 3 ]
+            "name": "3 cocatrices",
+            "monsters": [ 4, 4, 4 ]
         }, {
-            "name": "A cocatrice",
-            "monsters": [ 4 ]
+            "name": "3 white rats",
+            "monsters": [ 6, 6, 6 ]
         }, {
-            "name": "A red slime",
-            "monsters": [ 5 ]
+            "name": "A wolf and a cobra",
+            "monsters": [ 8, 7 ]
         }, {
-            "name": "A white rat",
-            "monsters": [ 6 ]
+            "name": "A mage",
+            "monsters": [ 9 ]
         }]
     }, {
         "zone": "6",
         "encounters": [ {
-            "name": "2 red slimes",
-            "monsters": [ 5, 5 ]
+            "name": "2 cobras",
+            "monsters": [ 7, 7 ]
         }, {
-            "name": "3 snakes",
-            "monsters": [ 2, 2, 2 ]
+            "name": "2 wolves",
+            "monsters": [ 8, 8 ]
         }, {
-            "name": "3 blue slimes",
-            "monsters": [ 3, 3, 3 ]
+            "name": "3 cocatrices",
+            "monsters": [ 4, 4, 4 ]
         }, {
-            "name": "A cocatrice",
-            "monsters": [ 4 ]
+            "name": "3 white rats",
+            "monsters": [ 6, 6, 6 ]
         }, {
-            "name": "A red slime",
-            "monsters": [ 5 ]
+            "name": "A wolf and a cobra",
+            "monsters": [ 8, 7 ]
         }, {
-            "name": "A white rat",
-            "monsters": [ 6 ]
+            "name": "A mage",
+            "monsters": [ 9 ]
         }]
     }, {
         "zone": "forest",
@@ -4092,11 +4137,11 @@ var g_monsterData = {
     }, {
         "id": 5,
         "name": "red slime",
-        "hp": 25,
+        "hp": 30,
         "attack": 30,
-        "defense": 35,
+        "defense": 30,
         "exp": 30,
-        "gold": 10,
+        "gold": 15,
         "left":41,
         "top": 109,
         "width": 31,
@@ -4115,6 +4160,30 @@ var g_monsterData = {
         "height": 55
     }, {
         "id": 7,
+        "name": "cobra",
+        "hp": 60,
+        "attack": 42,
+        "defense": 30,
+        "exp": 40,
+        "gold": 40,
+        "left": 67,
+        "top": 160,
+        "width": 48,
+        "height": 59
+    }, {
+        "id": 8,
+        "name": "wolf",
+        "hp": 68,
+        "attack": 46,
+        "defense": 28,
+        "exp": 50,
+        "gold": 25,
+        "left": 7,
+        "top": 685,
+        "width": 47,
+        "height": 55
+    }, {
+        "id": 9,
         "name": "mage",
         "hp": 100,
         "attack": 55,
