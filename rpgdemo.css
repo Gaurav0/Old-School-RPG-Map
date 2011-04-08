@@ -11,10 +11,17 @@ canvas {
 	left: 10px;
 }
 
+#gamepad {
+	display: none;
+	position: absolute;
+	top: 480px;
+	left: 10px;
+}
+
 footer {
 	display: block;
 	position: absolute;
-	top: 540px;
+	top: 500px;
 	left: 10px;
 	padding-bottom: 30px;
 }

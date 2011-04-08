@@ -1030,28 +1030,26 @@ var Character = Sprite.extend({
 
 /* Class representing a main character that can fight in battles. */
 var Player = Character.extend({
-    _init: function(x, y, img, subMapId, dir, name) {
+    _init: function(x, y, img, subMapId, dir, playerId) {
         this._super(x, y, img, subMapId, dir);
-        this._name = name;
-        this._exp = 0;
-        this._gold = 0;
-        this._level = 1;
-        this._maxHP = 100;
-        this._maxMP = 5;
-        this._hp = 100;
-        this._mp = 5;
-        this._attack = 12;
-        this._defense = 0;
-        this._levels = [ 0, 50, 110, 200, 350, 600, 1000, 1500, 2250, 3375, 5000,
-            7500, 11250, 16875, 25000, 37500, 56250, 84375, 126500, 189750, 284625,
-            426900, 640350, 960525, 1440750, 2161125, 3241650, 4862475, 7293700, 10940550, 16410825
-        ];
-        this._weapon = ITEM_TIN_SWORD;
-        this._armor = ITEM_CLOTHES;
-        this._helmet = ITEM_CAP
-        this._shield = ITEM_TIN_SHIELD;
-        this._inventory = [];
-        this._spells = [];
+        this._player = g_playerData.players[playerId]
+        this._name = this._player.name;
+        this._exp = this._player.exp;
+        this._gold = this._player.gold;
+        this._level = this._player.level;
+        this._maxHP = this._player.maxHP;
+        this._maxMP = this._player.maxMP;
+        this._hp = this._player.maxHP;
+        this._mp = this._player.maxMP;
+        this._attack = this._player.attack;
+        this._defense = this._player.defense;
+        this._levels = this._player.levels;
+        this._weapon = this._player.weapon;
+        this._armor = this._player.armor;
+        this._helmet = this._player.helmet;
+        this._shield = this._player.shield;
+        this._inventory = this._player.inventory;
+        this._spells = this._player.spells;
     },
     
     getName: function() {
@@ -1148,14 +1146,14 @@ var Player = Character.extend({
     
     earnExp: function(amt) {
         this._exp += amt;
-        if (this._level < 30 && this._exp >= this.getNextExp()) {
+        if (this._level < this._player.max_levels && this._exp >= this.getNextExp()) {
             this._level++;
             
             // Stat changes upon earning new level here
-            this._attack += 2;
-            this._defense += 1;
-            this._maxHP += 20;
-            this._maxMP += 5;
+            this._attack += this._player.attack_increase;
+            this._defense += this._player.defense_increase;
+            this._maxHP += this._player.maxHP_increase;
+            this._maxMP += this._player.maxMP_increase;
             
             return true;
         }
@@ -2329,7 +2327,8 @@ var Battle = Class.extend({
             }
         }
         
-        this._ignoringKeys = true;
+        if (keyDown)
+            this._ignoringKeys = true;
     },
     
     /* Setup scripted encounter (for boss monsters, etc.) */
@@ -2352,7 +2351,8 @@ var Battle = Class.extend({
                 }
         }
         
-        this._ignoringKeys = true;
+        if (keyDown)
+            this._ignoringKeys = true;
     },
     
     /* Draws battle screen */
@@ -2664,12 +2664,15 @@ var Battle = Class.extend({
         var battle = this;
         g_player.forEachItemInInventory(function(itemId, amt) {
             if (amt > 0) {
-                var itemName = g_itemData.items[itemId].name;
-                var amt2 = (amt < 10) ? " " + amt : amt;
-                if (numItems <= 5)
-                    textCtx.fillText(itemName + ":" + amt2, 180, battle._textHeight[numItems]);
-                battle._itemId[numItems] = itemId;
-                numItems++;
+                var item = g_itemData.items[itemId];
+                if (item.usable) {
+                    var itemName = item.name;
+                    var amt2 = (amt < 10) ? " " + amt : amt;
+                    if (numItems <= 5)
+                        textCtx.fillText(itemName + ":" + amt2, 180, battle._textHeight[numItems]);
+                    battle._itemId[numItems] = itemId;
+                    numItems++;
+                }
             }
         });
         
@@ -3082,7 +3085,7 @@ var Battle = Class.extend({
     
     /* Player will attempt to run */
     run: function() {
-        if (Math.random() >= 0.25) {
+        if (Math.random() >= 0.33) {
             this.writeMsg("You start to run.");
             this.monsterTurn(false);
             if (g_player.isDead() || this._over)
@@ -3100,6 +3103,7 @@ var Battle = Class.extend({
         this.runAfterWriting(function() {
             battle.clearPlayer();
         });
+        return true;
     },
     
     /* Use the selected item. Returns true if an item was used. */
@@ -3209,13 +3213,27 @@ var SPACEBAR = 32;
 var ENTER = 13;
 var ESC = 27;
 var keyBuffer = 0;
+var keyDown = false;
 
 function handleKeyPress(event) {
+    if (!event.ctrlKey && !event.altKey && !event.metaKey) {
+        var key = event.keyCode ? event.keyCode : event.charCode ? event.charCode : 0;
+        keyDown = true;
+        handleKey(key, event);
+    }
+}
+
+function handleKeyUp() {
+    keyDown = false;
+    if (g_battle)
+        g_battle.handleKeyUp();
+}
+
+function handleKey(key, event) {
     if (g_worldmap && g_player) {
-        if (!event.ctrlKey && !event.altKey && !event.metaKey) {
-            var key = event.keyCode ? event.keyCode : event.charCode ? event.charCode : 0;
-            if (g_worldmap.isAnimating())
-                keyBuffer = key;
+        if (g_worldmap.isAnimating())
+            keyBuffer = key;
+        else {
             switch (key) {
                 case DOWN_ARROW:
                     if (g_menu.menuDisplayed())
@@ -3295,11 +3313,6 @@ function handleKeyPress(event) {
     }
 }
 
-function handleKeyUp() {
-    if (g_battle)
-        g_battle.handleKeyUp();
-}
-
 function handleBufferedKey() {
     if (keyBuffer && !g_battle && !g_worldmap.isAnimating()) {
         var key = keyBuffer;
@@ -3334,6 +3347,42 @@ else
     $(window).keydown(handleKeyPress);
 $(window).keyup(handleKeyUp);
 
+$(document).ready(function() {
+    var showpad = document.getElementById("showpad");
+    showpad.onclick = function() {
+        if (showpad.innerHTML == "Show Gamepad") {
+            var gamepad = document.getElementById("gamepad");
+            gamepad.style.display = "block";
+            var footer = document.getElementsByTagName("footer")[0];
+            footer.style.top = "620px";
+            showpad.innerHTML = "Hide Gamepad";
+            var nokeyb = document.getElementById("nokeyb");
+            nokeyb.style.display = "none";
+        } else {
+            var gamepad = document.getElementById("gamepad");
+            gamepad.style.display = "none";
+            var footer = document.getElementsByTagName("footer")[0];
+            footer.style.top = "500px";
+            showpad.innerHTML = "Show Gamepad";
+            var nokeyb = document.getElementById("nokeyb");
+            nokeyb.style.display = "inline";
+        }
+    };
+    
+    var upButton = document.getElementById("upButton");
+    upButton.onclick = function(event) { handleKey(UP_ARROW, event); }
+    var downButton = document.getElementById("downButton");
+    downButton.onclick = function(event) { handleKey(DOWN_ARROW, event); }
+    var leftButton = document.getElementById("leftButton");
+    leftButton.onclick = function(event) { handleKey(LEFT_ARROW, event); }
+    var rightButton = document.getElementById("rightButton");
+    rightButton.onclick = function(event) { handleKey(RIGHT_ARROW, event); }
+    var escButton = document.getElementById("escButton");
+    escButton.onclick = function(event) { handleKey(ESC, event); }
+    var enterButton = document.getElementById("enterButton");
+    enterButton.onclick = function(event) { handleKey(ENTER, event); }
+});
+
 /* Main Game setup code */
 $(document).ready(function() {
     g_game = new Game();
@@ -3345,7 +3394,7 @@ $(document).ready(function() {
         loadXml("WorldMap1.tmx.xml", function(mapXml) {
             g_worldmap = new WorldMap(mapXml, worldTileset);
             var img = new Image();
-            g_player = new Player(23, 13, img, 0, FACING_DOWN, "You");
+            g_player = new Player(23, 13, img, 0, FACING_DOWN, PLAYER_TREVOR);
             g_worldmap.goTo(17, 8);
             img.onload = function() {
                 g_player.plot();
@@ -4209,5 +4258,36 @@ var g_monsterData = {
             monster.heal(amt);
             g_battle.writeMsg("The " + monster.getName() + " was healed for " + amt + ".");
         }
+    }]
+};
+
+var PLAYER_TREVOR = 0;
+
+var g_playerData = {
+    players: [ {
+        id: 0,
+        name: "You",
+        level: 1,
+        maxHP: 100,
+        maxMP: 5,
+        attack: 12,
+        defense: 0,
+        exp: 0,
+        gold: 0,
+        weapon: ITEM_TIN_SWORD,
+        armor: ITEM_CLOTHES,
+        helmet: ITEM_CAP,
+        shield: ITEM_TIN_SHIELD,
+        inventory: [],
+        spells: [],
+        levels: [ 0, 50, 110, 200, 350, 600, 1000, 1500, 2250, 3375, 5000,
+            7500, 11250, 16875, 25000, 37500, 56250, 84375, 126500, 189750, 284625,
+            426900, 640350, 960525, 1440750, 2161125, 3241650, 4862475, 7293700, 10940550, 16410825
+        ],
+        max_levels: 30,
+        maxHP_increase: 20,
+        maxMP_increase: 5,
+        attack_increase: 2,
+        defense_increase: 1
     }]
 };

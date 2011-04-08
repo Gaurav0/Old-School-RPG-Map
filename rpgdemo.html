@@ -16,7 +16,19 @@
         <canvas id="spriteCanvas" width="416" height="352"></canvas>
         <canvas id="menuCanvas" width="416" height="352"></canvas>
         <canvas id="textCanvas" width="416" height="352"></canvas>
+        <div id="gamepad"><img src="images/gamepad.png" usemap="#gamepadmap">
+            <map id="gamepadmap" name="gamepad">
+                <area id="upButton" shape="rect" alt="Up" coords="63,1,104,38" href="#" title="Up" />
+                <area id="leftButton" shape="rect" alt="Left" coords="28,39,63,77" href="#" title="Left" />
+                <area id="rightButton" shape="rect" alt="Right" coords="104,38,140,77" href="#" title="Right" />
+                <area id="downButton" shape="rect" alt="Down" coords="63,77,104,114" href="#" title="Down" />
+                <area id="escButton" shape="circle" alt="ESC" coords="256,60,40" href="#" title="ESC" />
+                <area id="enterButton" shape="circle" alt="ENTER" coords="344,62,41" href="#" title="ENTER" />
+                <area shape="default" nohref alt="" />
+            </map>
+        </div>
         <footer>
+            <p><span id="nokeyb">No keyboard? </span><a id="showpad" href="#">Show Gamepad</a></p>
             <p><a href="http://github.com/Gaurav0/Old-School-RPG-Map">Source Code</a> Contributors Welcome!</p>
             <p>Credits:</p>
             <small><a href="http://people.mozilla.com/~jdicarlo/rpg-map-demo/rpg.html">Original version</a> by Jono X, Mozilla Labs</small>
