@@ -2281,6 +2281,7 @@ var Battle = Class.extend({
     _init: function() {
         
         // Initialize properties
+        this._background = null;
         this._encounter = null;
         this._ignoringKeys = false;
         this._monsterList = null;
@@ -2324,7 +2325,9 @@ var Battle = Class.extend({
     },
     
     /* Setup random encounter */
-    setupRandomEncounter: function(zone) {
+    setupRandomEncounter: function(zone, background) {
+        
+        this._background = background;
         
         // Get encounter data associated with zone
         var zoneXml = null;
@@ -2355,7 +2358,9 @@ var Battle = Class.extend({
     },
     
     /* Setup scripted encounter (for boss monsters, etc.) */
-    setupEncounter: function(name, aryMonsters) {
+    setupEncounter: function(name, aryMonsters, background) {
+        
+        this._background = background;
         
         // Create encounter object
         this._encounter = {
@@ -2383,9 +2388,8 @@ var Battle = Class.extend({
         var screenWidth = mapCanvas.width;
         var screenHeight = mapCanvas.height;
 
-        // Change this to background pic later
-        mapCtx.fillStyle = "#0080ff";
-        mapCtx.fillRect(0, 0, screenWidth, screenHeight);
+        // Draw battle background
+        mapCtx.drawImage(this._background, 0, 0, screenWidth, screenHeight);
 
         spriteCtx.clearRect(0, 0, screenWidth, screenHeight);
         this.drawPlayer();
@@ -3377,16 +3381,12 @@ $(document).ready(function() {
         if (showpad.innerHTML == "Show Gamepad") {
             var gamepad = document.getElementById("gamepad");
             gamepad.style.display = "block";
-            var footer = document.getElementsByTagName("footer")[0];
-            footer.style.top = "620px";
             showpad.innerHTML = "Hide Gamepad";
             var nokeyb = document.getElementById("nokeyb");
             nokeyb.style.display = "none";
         } else {
             var gamepad = document.getElementById("gamepad");
             gamepad.style.display = "none";
-            var footer = document.getElementsByTagName("footer")[0];
-            footer.style.top = "500px";
             showpad.innerHTML = "Show Gamepad";
             var nokeyb = document.getElementById("nokeyb");
             nokeyb.style.display = "inline";
@@ -3424,8 +3424,12 @@ $(document).ready(function() {
                 g_player.plot();
             };
             
-            // src set must be after onload function set due to bug in IE9b1
+            // src set must be after onload function set due to bug in IE9
             img.src = "images/Trevor.png";
+            
+            // Temporary background
+            var meadow = new Image();
+            meadow.src = "images/meadow.png";
             
             // Setup random encounters
             for (var x = 0; x < g_worldmap.getXLimit(); ++x)
@@ -3437,7 +3441,7 @@ $(document).ready(function() {
                                 keyBuffer = 0;
                                 g_battle = new Battle();
                                 var zone = this.getZone();
-                                g_battle.setupRandomEncounter(zone);
+                                g_battle.setupRandomEncounter(zone, meadow);
                                 g_battle.draw();
                             }
                         };
@@ -3638,6 +3642,11 @@ function setupForestMap(mapXml, tileset) {
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
     
+    
+    // Temporary background
+    var meadow = new Image();
+    meadow.src = "images/meadow.png";
+    
     // Setup random encounters
     for (var x = 0; x < xLimit; ++x)
         for (var y = 0; y < yLimit; ++y) {
@@ -3647,7 +3656,7 @@ function setupForestMap(mapXml, tileset) {
                     if (Math.random() < BATTLE_FREQ) {
                         keyBuffer = 0;
                         g_battle = new Battle();
-                        g_battle.setupRandomEncounter("forest");
+                        g_battle.setupRandomEncounter("forest", meadow);
                         g_battle.draw();
                     }
                 };
@@ -3709,7 +3718,7 @@ function setupForestMap(mapXml, tileset) {
             if (Math.random() < BATTLE_FREQ) {
                 keyBuffer = 0;
                 g_battle = new Battle();
-                g_battle.setupRandomEncounter("forest");
+                g_battle.setupRandomEncounter("forest", meadow);
                 g_battle.draw();
             }
         }

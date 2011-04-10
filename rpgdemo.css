@@ -14,7 +14,7 @@ canvas {
 #gamepad {
 	display: none;
 	position: absolute;
-	top: 480px;
+	top: 120px;
 	left: 10px;
 }
 
