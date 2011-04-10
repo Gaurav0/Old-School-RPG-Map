@@ -65,7 +65,7 @@ var FPS = 25;
 var SCROLL_FACTOR = 4;
 
 // How often to battle
-var BATTLE_FREQ = 0.3;
+var BATTLE_FREQ = 0.2;
 
 // How long to wait in ms between writing lines
 var MESSAGE_DELAY = 500;
@@ -1978,6 +1978,7 @@ var Shop = Class.extend({
         textCtx.fillText("Sell", 32, this._lineHeight[1]);
         textCtx.fillText("Exit", 32, this._lineHeight[2]);
         
+        this.displayGold();
         this.drawArrow();
         
         this._itemList = itemList;
@@ -1991,6 +1992,24 @@ var Shop = Class.extend({
         this._itemList = null;
         this._shopDisplayed = false;
         g_textDisplay.displayText("Thank you for your business.\nPlease come again.");
+    },
+    
+    displayGold: function() {
+        // Draw box
+        menuCtx.drawImage(g_box, 0, 0, 100, 200, 0, 120, 25, 50);
+        menuCtx.drawImage(g_box, 50, 0, 100, 200, 25, 120, 50, 50);
+        menuCtx.drawImage(g_box, 100, 0, 100, 200, 75, 120, 25, 50);
+        
+        // Draw Text
+        textCtx.font = "bold 20px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText(g_player.getGold() + "G", 16, 134);
+    },
+    
+    clearGold: function() {
+        menuCtx.clearRect(0, 120, 100, 50);
+        textCtx.clearRect(0, 120, 100, 50);
     },
     
     /* Draws an arrow next to the current shop action in shop menu */
@@ -2211,6 +2230,8 @@ var Shop = Class.extend({
             g_player.addToInventory(itemId, 1);
             g_textDisplay.displayText("You purchased 1 " +
                 itemName + " for " + itemCost + "G.");
+            this.clearGold();
+            this.displayGold();
         } else {
             g_textDisplay.displayText("You do not have enough gold\nto buy a " +
                 itemName + ".\nYou only have " + gold + "G.");
@@ -2226,6 +2247,8 @@ var Shop = Class.extend({
         var sellPrice = Math.floor(itemCost * 0.75);
         g_player.removeFromInventory(itemId);
         g_player.earnGold(sellPrice);
+        this.clearGold();
+        this.displayGold();
         g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
     }
 });
@@ -3231,9 +3254,10 @@ function handleKeyUp() {
 
 function handleKey(key, event) {
     if (g_worldmap && g_player) {
-        if (g_worldmap.isAnimating())
+        if (g_worldmap.isAnimating()) {
             keyBuffer = key;
-        else {
+            event.preventDefault();
+        } else {
             switch (key) {
                 case DOWN_ARROW:
                     if (g_menu.menuDisplayed())
