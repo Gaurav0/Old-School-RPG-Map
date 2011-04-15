@@ -65,7 +65,7 @@ var FPS = 25;
 var SCROLL_FACTOR = 4;
 
 // How often to battle
-var BATTLE_FREQ = 0.2;
+var BATTLE_FREQ = 0.14;
 
 // How long to wait in ms between writing lines
 var MESSAGE_DELAY = 500;
@@ -213,6 +213,16 @@ var SubMap = Class.extend({
     addSprite: function(sprite) {
         this._spriteList.push(sprite);
         return this._spriteList.length - 1;
+    },
+    
+    /* Remove a sprite (NPC) from the submap */
+    removeSprite: function(sprite) {
+        var index;
+        for (var i = 0; i < this._spriteList.length; ++i) {
+            if (this._spriteList[i] == sprite)
+                index = i;
+        }
+        this._spriteList.splice(index, 1);
     },
     
     /* Determines if any sprites are located at (x,y) on this submap */
@@ -585,13 +595,15 @@ var WorldMap = Class.extend({
  * the map using a separate canvas with z-index=1 and absolute
  * positioning (these CSS styles are defined in rpgdemo.css) */
 var Sprite = Class.extend({
-    _init: function(x, y, width, height, img, subMapId) {
+    _init: function(x, y, width, height, img, subMapId, sx, sy) {
         this._x = x;
         this._y = y;
         this._width = width;
         this._height = height;
         this._subMap = subMapId;
         this._img = img;
+        this._sx = (sx != undefined ? sx : 0);
+        this._sy = (sy != undefined ? sy : 0);
     },
     
     getX: function() {
@@ -638,10 +650,10 @@ var Sprite = Class.extend({
         dy += TILE_HEIGHT - dsh;                  // upward for y
 
         // apply sourceOffsetX and sourceOffsetY if available
-        var sx = 0;
+        var sx = this._sx;
         if (sourceOffsetX != undefined)
             sx += sourceOffsetX;
-        var sy = 0;
+        var sy = this._sy;
         if (sourceOffsetY != undefined)
             sy += sourceOffsetY;
 
@@ -694,8 +706,8 @@ var Sprite = Class.extend({
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
-        var dsw = SPRITE_WIDTH;
-        var dsh = SPRITE_HEIGHT;
+        var dsw = this._width;
+        var dsh = this._height;
         
         // If overworld map, clamp sprite height to tile height
         var map = g_worldmap.getSubMap(this._subMap);
@@ -731,10 +743,13 @@ var Sprite = Class.extend({
                 var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (spriteBelow != null)
                     spriteBelow.plot();
-            } else {
+                    
+            } else if (!g_worldmap.isScrolling()) {
 
-                // if player sprite above current location, replot it.
+                // if player sprite above or below current location, replot it.
                 if (g_player.isAt(this._x, this._y - 1))
+                    g_player.plot();
+                if (g_player.isAt(this._x, this._y + 1))
                     g_player.plot();
             }
         }
@@ -3705,24 +3720,24 @@ function setupForestMap(mapXml, tileset) {
     map.addSprite(chest4);
     
     // Boss monster
-    map.getSquareAt(11, 7).onEnter = function() {
-        if (!g_game.isFlagSet("fb")) {
-            keyBuffer = 0;
-            g_battle = new Battle();
-            g_battle.setupEncounter("2 mages", [ 9, 9 ]);
-            g_battle.onWin = function() {
-                g_game.setFlag("fb");
-            };
-            g_battle.draw();
-        } else {
-            if (Math.random() < BATTLE_FREQ) {
+    if (!g_game.isFlagSet("fb")) {
+        var boss = new Sprite(11, 7, 32, 58, g_enemies, mapId, 664, 249);
+        map.addSprite(boss);
+        boss.action = function() {
+            g_textDisplay.setCallback(function() {
                 keyBuffer = 0;
                 g_battle = new Battle();
-                g_battle.setupRandomEncounter("forest", meadow);
+                g_battle.setupEncounter("A rat king", [ 10 ], meadow);
+                g_battle.onWin = function() {
+                    g_game.setFlag("fb");
+                    boss.clear();
+                    map.removeSprite(boss);
+                };
                 g_battle.draw();
-            }
-        }
-    };
+            });
+            g_textDisplay.displayText("I am the rat king.\nI rule this domain.\nPrepare to die.");
+        };
+    }
 }
 
 /* Items */
@@ -4291,6 +4306,18 @@ var g_monsterData = {
             monster.heal(amt);
             g_battle.writeMsg("The " + monster.getName() + " was healed for " + amt + ".");
         }
+    }, {
+        "id": 10,
+        "name": "rat king",
+        "hp": 200,
+        "attack": 55,
+        "defense": 35,
+        "exp": 120,
+        "gold": 80,
+        "left": 653,
+        "top": 249,
+        "width": 47,
+        "height": 58
     }]
 };
 
