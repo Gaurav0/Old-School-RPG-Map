@@ -1447,9 +1447,7 @@ var MainMenu = Class.extend({
     },
     
     displayMenu: function() {
-        // Draw box
-        menuCtx.drawImage(g_box, 0, 0, 75, 200, 0, 0, 75, 200);
-        menuCtx.drawImage(g_box, 125, 0, 75, 200, 75, 0, 75, 200);
+        drawBox(menuCtx, 0, 0, 150, 200, 25, 4);
         
         // Draw Text
         textCtx.font = "bold 20px monospace";
@@ -1475,32 +1473,26 @@ var MainMenu = Class.extend({
     },
     
     displayNotImplementedMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 50, 200, 150, 220, 20, 80);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 170, 220, 220, 80);
-        menuCtx.drawImage(g_box, 150, 0, 50, 200, 390, 220, 20, 80);
+        drawBox(menuCtx, 150, 220, 260, 50, 10, 2);
         
         // Draw Text
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText("Not yet implemented.", 160, 240);
+        textCtx.fillText("Not yet implemented.", 163, 235);
         
         this._currentMenu = NOT_IMPLEMENTED_MENU;
     },
     
     clearNotImplementedMenu: function() {
-        menuCtx.clearRect(150, 220, 300, 80);
-        textCtx.clearRect(150, 220, 300, 80);
+        menuCtx.clearRect(150, 220, 260, 50);
+        textCtx.clearRect(150, 220, 260, 50);
         
         this._currentMenu = MAIN_MENU;
     },
     
     displayItemMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
-        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        drawBox(menuCtx, 150, 0, 250, 200, 25, 4);
         
         // Text properties
         textCtx.font = "bold 20px monospace";
@@ -1539,17 +1531,14 @@ var MainMenu = Class.extend({
     },
     
     clearSubMenu: function() {
-        menuCtx.clearRect(150, 0, 300, 200);
-        textCtx.clearRect(150, 0, 300, 200);
+        menuCtx.clearRect(150, 0, 250, 200);
+        textCtx.clearRect(150, 0, 250, 200);
         
         this._currentMenu = MAIN_MENU;
     },
     
     displaySpellMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
-        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        drawBox(menuCtx, 150, 0, 250, 200, 25, 4);
         
         // Text properties
         textCtx.font = "bold 20px monospace";
@@ -1585,10 +1574,7 @@ var MainMenu = Class.extend({
     },
     
     displayEquipMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
-        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        drawBox(menuCtx, 150, 0, 250, 200, 25, 4);
         
         // Text properties
         textCtx.font = "bold 16px monospace";
@@ -1629,10 +1615,7 @@ var MainMenu = Class.extend({
         if (itemType == -1)
             return;
         
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 100, 200, 150, 200, 75, 150);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 200, 75, 150);
-        menuCtx.drawImage(g_box, 100, 0, 100, 200, 300, 200, 75, 150);
+        drawBox(menuCtx, 150, 200, 250, 150, 25, 4);
         
         // Text properties
         textCtx.font = "bold 16px monospace";
@@ -1661,17 +1644,14 @@ var MainMenu = Class.extend({
     },
     
     clearEquipSubMenu: function() {
-        menuCtx.clearRect(150, 200, 300, 150);
-        textCtx.clearRect(150, 200, 300, 150);
+        menuCtx.clearRect(150, 200, 250, 150);
+        textCtx.clearRect(150, 200, 250, 150);
         
         this._currentMenu = EQUIP_MENU;
     },
     
     displayStatusMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 75, 200, 150, 0, 75, 200);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 225, 0, 100, 200);
-        menuCtx.drawImage(g_box, 125, 0, 75, 200, 325, 0, 75, 200);
+        drawBox(menuCtx, 150, 0, 250, 200, 25, 4);
         
         // Text properties
         textCtx.font = "bold 14px monospace";
@@ -1981,9 +1961,7 @@ var Shop = Class.extend({
     },
     
     displayShop: function(itemList) {
-        // Draw box
-        menuCtx.drawImage(g_box, 0, 0, 100, 200, 0, 0, 50, 100);
-        menuCtx.drawImage(g_box, 100, 0, 100, 200, 50, 0, 50, 100);
+        drawBox(menuCtx, 0, 0, 100, 100, 15, 3);
         
         // Draw Text
         textCtx.font = "bold 20px monospace";
@@ -2010,16 +1988,13 @@ var Shop = Class.extend({
     },
     
     displayGold: function() {
-        // Draw box
-        menuCtx.drawImage(g_box, 0, 0, 100, 200, 0, 120, 25, 50);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 25, 120, 50, 50);
-        menuCtx.drawImage(g_box, 100, 0, 100, 200, 75, 120, 25, 50);
+        drawBox(menuCtx, 0, 120, 100, 40, 10, 2);
         
         // Draw Text
         textCtx.font = "bold 20px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText(g_player.getGold() + "G", 16, 134);
+        textCtx.fillText(g_player.getGold() + "G", 16, 130);
     },
     
     clearGold: function() {
@@ -2046,10 +2021,7 @@ var Shop = Class.extend({
     },
     
     displayBuyMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 50, 200, 100, 0, 75, 300);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 175, 0, 150, 300);
-        menuCtx.drawImage(g_box, 150, 0, 50, 200, 325, 0, 75, 300);
+        drawBox(menuCtx, 100, 0, 300, 300, 40, 5);
         
         // Text properties
         textCtx.font = "bold 16px monospace";
@@ -2075,10 +2047,7 @@ var Shop = Class.extend({
     },
     
     displaySellMenu: function() {
-        // Draw Box
-        menuCtx.drawImage(g_box, 0, 0, 50, 200, 100, 0, 75, 300);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 175, 0, 150, 300);
-        menuCtx.drawImage(g_box, 150, 0, 50, 200, 325, 0, 75, 300);
+        drawBox(menuCtx, 100, 0, 300, 300, 40, 5);
         
         // Text properties
         textCtx.font = "bold 14px monospace";
@@ -2413,10 +2382,8 @@ var Battle = Class.extend({
         this.drawMonsters();
 
         // Draw boxes
-        menuCtx.drawImage(g_box, 0, 0, 200, 200, 0, screenHeight - 150, 150, 150);
-        menuCtx.drawImage(g_box, 0, 0, 100, 200, 140, screenHeight - 150, 75, 150);
-        menuCtx.drawImage(g_box, 50, 0, 100, 200, 215, screenHeight - 150, screenWidth - 290, 150);
-        menuCtx.drawImage(g_box, 100, 0, 100, 200, screenWidth - 75, screenHeight - 150, 75, 150);
+        drawBox(menuCtx, 0, screenHeight - 150, 140, 150, 15, 3);
+        drawBox(menuCtx, 133, screenHeight - 150, screenWidth - 133, 150, 15, 3);
 
         this._currentMenu = BATTLE_ATTACK_MENU;
         this.drawMenu();
@@ -2425,7 +2392,7 @@ var Battle = Class.extend({
 
         textCtx.font = "bold 16px sans-serif";
         var txt = this._encounter.name + " appeared!";
-        textCtx.fillText(txt, 160, this._textHeight[0]);
+        textCtx.fillText(txt, 154, this._textHeight[0]);
         this._line = 1;
         this._txt = txt;
     },
@@ -2601,7 +2568,7 @@ var Battle = Class.extend({
         window.setTimeout(function() {
             g_battle.drawText();
             var line = g_battle._line <= 4 ? g_battle._line : 4;
-            textCtx.fillText(msg, 160, g_battle._textHeight[line]);
+            textCtx.fillText(msg, 154, g_battle._textHeight[line]);
             g_battle._txt += "\n" + msg;
             g_battle._line++;
             g_battle._delay -= MESSAGE_DELAY;
@@ -2625,20 +2592,20 @@ var Battle = Class.extend({
         var prevText = this._txt.split("\n");
         if (this._line <= 4) {
             for (var i = 0; i < this._line; ++i)
-                textCtx.fillText(prevText[i], 160, this._textHeight[i]);
+                textCtx.fillText(prevText[i], 154, this._textHeight[i]);
         } else {
             for (var i = 0; i < 4; ++i) {
                 var lineText = prevText[prevText.length - 4 + i];
-                textCtx.fillText(lineText, 160, this._textHeight[i]);
+                textCtx.fillText(lineText, 154, this._textHeight[i]);
             }
         }
     },
     
     /* Clears text in bottom right box of battle screen */
     clearText: function() {
-        textCtx.clearRect(160,
+        textCtx.clearRect(154,
             this._textHeight[0],
-            textCanvas.width - 160,
+            textCanvas.width - 154,
             textCanvas.height - this._textHeight[0]);
     },
     
@@ -2728,12 +2695,12 @@ var Battle = Class.extend({
         textCtx.font = "bold 16px sans-serif";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 160, this._textHeight[this._itemSelection]);
+        textCtx.fillText(arrowChar, 154, this._textHeight[this._itemSelection]);
     },
     
     /* Erases the arrow next to currently selected item */
     clearItemSelection: function() {
-        textCtx.clearRect(159, this._textHeight[this._itemSelection], 16, 15);
+        textCtx.clearRect(153, this._textHeight[this._itemSelection], 16, 15);
     },
     
     /* Display spells known by player character for selection during battle */
@@ -2747,7 +2714,7 @@ var Battle = Class.extend({
         g_player.forEachSpell(function(spellId) {
             var spellName = g_spellData.spells[spellId].name;
             if (numSpells <= 5)
-                textCtx.fillText(spellName, 180, battle._textHeight[numSpells]);
+                textCtx.fillText(spellName, 174, battle._textHeight[numSpells]);
             battle._spellId[numSpells] = spellId;
             numSpells++;
         });
@@ -2762,12 +2729,12 @@ var Battle = Class.extend({
         textCtx.font = "bold 16px sans-serif";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 160, this._textHeight[this._spellSelection]);
+        textCtx.fillText(arrowChar, 154, this._textHeight[this._spellSelection]);
     },
     
     /* Erases the arrow next to currently selected spell */
     clearSpellSelection: function() {
-        textCtx.clearRect(159, this._textHeight[this._spellSelection], 16, 15);
+        textCtx.clearRect(153, this._textHeight[this._spellSelection], 16, 15);
     },
     
     /* Handles input while battling for up, down, left, and right arrow keys */
@@ -3216,7 +3183,6 @@ var g_game = null;
 var g_player = null;
 var g_worldmap = null;
 var g_enemies = null;
-var g_box = null;
 var g_textDisplay = new TextDisplay();
 var g_menu = new MainMenu();
 var g_shop = new Shop();
@@ -3244,6 +3210,49 @@ function printText(msg) {
         g_battle.writeMsg(msg);
     else
         g_textDisplay.displayText(msg);
+}
+
+// Procedurally generate gui box similar to
+// http://opengameart.org/content/rpg-gui-block-element
+function drawBox(ctx, x, y, width, height, radius, lineWidth) {
+    
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = "white";
+    
+    var left = x + 2 * lineWidth;
+    var top = y + 2 * lineWidth;
+    var right = x + width - 2 * lineWidth;
+    var bottom = y + height - 2 * lineWidth;
+    
+    ctx.beginPath();
+    ctx.moveTo(left + radius, top);
+    ctx.lineTo(right - radius, top);
+    ctx.quadraticCurveTo(right, top, right, top + radius);
+    ctx.lineTo(right, bottom - radius);
+    ctx.quadraticCurveTo(right, bottom, right - radius, bottom);
+    ctx.lineTo(left + radius, bottom);
+    ctx.quadraticCurveTo(left, bottom, left, bottom - radius);
+    ctx.lineTo(left, top + radius);
+    ctx.quadraticCurveTo(left, top, left + radius, top);
+    ctx.closePath();
+    
+    ctx.shadowOffsetX = lineWidth / 2;
+    ctx.shadowOffsetY = lineWidth / 2;
+    ctx.shadowBlur = lineWidth;
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    
+    var grd = ctx.createLinearGradient(x, y, x, y + height);
+    grd.addColorStop(0, "#0066FF");
+    grd.addColorStop(1, "#000099");
+    ctx.fillStyle = grd;
+    ctx.fill();    
+    ctx.stroke();
+    
+    //Turn off the shadow
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = "transparent";
 }
 
 /* Input Handling */
@@ -3487,8 +3496,6 @@ $(document).ready(function() {
     
     g_enemies = new Image();
     g_enemies.src = "images/enemies-t2.png";
-    g_box = new Image();
-    g_box.src = "images/box-highres.png";
 });
 
 /* Castle submap setup code */
