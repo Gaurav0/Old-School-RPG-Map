@@ -393,6 +393,14 @@ var WorldMap = Class.extend({
         return this._subMapList[id];
     },
 
+    getScrollX: function() {
+        return this._scrollX;
+    },
+
+    getScrollY: function() {
+        return this._scrollY;
+    },
+
     getCurrentSubMapId: function() {
         return this._currentSubMap;
     },
@@ -586,6 +594,18 @@ var WorldMap = Class.extend({
     // Will run callback after animation is complete.
     runAfterAnimation: function(callback) {
         this._runAfterAnimation = callback;
+    },
+    
+    createSaveData: function() {
+        return {
+            scrollX: this._scrollX,
+            scrollY: this._scrollY
+        };
+    },
+
+    loadSaveData: function(worldMapData) {
+        this._scrollX = worldMapData.scrollX;
+        this._scrollY = worldMapData.scrollY;
     }
 });
 
@@ -612,6 +632,10 @@ var Sprite = Class.extend({
     
     getY: function() {
         return this._y;
+    },
+    
+    getSubMap: function() {
+        return this._subMap;
     },
     
     isAt: function(x, y) {
@@ -1047,7 +1071,7 @@ var Character = Sprite.extend({
 var Player = Character.extend({
     _init: function(x, y, img, subMapId, dir, playerId) {
         this._super(x, y, img, subMapId, dir);
-        this._player = g_playerData.players[playerId]
+        this._player = g_playerData.players[playerId];
         this._name = this._player.name;
         this._exp = this._player.exp;
         this._gold = this._player.gold;
@@ -1233,6 +1257,49 @@ var Player = Character.extend({
     forEachSpell: function(callback) {
         for (var spellId in this._spells)
             callback(spellId);
+    },
+    
+    createSaveData: function() {
+        return {
+            exp: this._exp,
+            gold: this._gold,
+            level: this._level,
+            maxHP: this._maxHP,
+            maxMP: this._maxMP,
+            hp: this._hp, 
+            mp: this._mp,
+            attack: this._attack,
+            defense: this._defense,
+            weapon: this._weapon,
+            armor: this._armor,
+            helmet: this._helmet,
+            shield: this._shield,
+            x: this._x,
+            y: this._y,
+            subMap: this._subMap,
+            dir: this._dir
+        };
+    },
+
+    /* load save data */
+    loadSaveData: function(playerData) {
+        this._exp = playerData.exp;
+        this._gold = playerData.gold;
+        this._level = playerData.level;
+        this._maxHP = playerData.maxHP;
+        this._maxMP = playerData.maxMP;
+        this._hp = playerData.hp;
+        this._mp = playerData.mp;
+        this._attack = playerData.attack;
+        this._defense = playerData.defense;
+        this._weapon = playerData.weapon;
+        this._armor = playerData.armor;
+        this._helmet = playerData.helmet;
+        this._shield = playerData.shield;
+        this._x = playerData.x;
+        this._y = playerData.y;
+        this._subMap = playerData.subMap;
+        this._dir = playerData.dir;
     }
 });
 
@@ -1850,8 +1917,19 @@ var MainMenu = Class.extend({
                     this.displayStatusMenu();
                     break;
                 case MAIN_MENU_SAVE:
+                    amplify.store("save1_player", g_player.createSaveData());
+                    amplify.store("save1_worldmap", g_worldmap.createSaveData());
+                    this.clearSubMenu();
+                    this.clearMenu();
+                    break;
                 case MAIN_MENU_LOAD:
-                    this.displayNotImplementedMenu();
+                    this.clearSubMenu();
+                    this.clearMenu();
+                    spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+                    g_player.loadSaveData(amplify.store("save1_player"));
+                    g_worldmap.loadSaveData(amplify.store("save1_worldmap"));
+                    g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
+                    break;
             }
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
             if (this._canUseItem[this._itemSelection]) {
@@ -4051,6 +4129,27 @@ var g_encounterData = {
     }, {
         "zone": "2",
         "encounters": [ {
+            "name": "3 snakes",
+            "monsters": [ 2, 2, 2 ]
+        }, {
+            "name": "3 blue slimes",
+            "monsters": [ 3, 3, 3 ]
+        }, {
+            "name": "A red slime",
+            "monsters": [ 5 ]
+        }, {
+            "name": "2 red slimes",
+            "monsters": [ 5, 5 ]
+        }, {
+            "name": "A cocatrice",
+            "monsters": [ 4 ]
+        }, {
+            "name": "A white rat",
+            "monsters": [ 6 ]
+        }]
+    }, {
+        "zone": "3",
+        "encounters": [ {
             "name": "2 red slimes",
             "monsters": [ 5, 5 ]
         }, {
@@ -4068,27 +4167,6 @@ var g_encounterData = {
         }, {
             "name": "A wolf",
             "monsters": [ 8 ]
-        }]
-    }, {
-        "zone": "3",
-        "encounters": [ {
-            "name": "2 cobras",
-            "monsters": [ 7, 7 ]
-        }, {
-            "name": "2 wolves",
-            "monsters": [ 8, 8 ]
-        }, {
-            "name": "3 cocatrices",
-            "monsters": [ 4, 4, 4 ]
-        }, {
-            "name": "3 white rats",
-            "monsters": [ 6, 6, 6 ]
-        }, {
-            "name": "A wolf and a cobra",
-            "monsters": [ 8, 7 ]
-        }, {
-            "name": "A mage",
-            "monsters": [ 9 ]
         }]
     }, {
         "zone": "4",
