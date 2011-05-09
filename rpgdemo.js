@@ -20,6 +20,7 @@
  * Contributor(s):
  *   Jono Xia <jono@mozilla.com>
  *   Gaurav Munjal <Gaurav0@aol.com>
+ *   Jebb Burditt <jebb.burditt@gmail.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -225,6 +226,15 @@ var SubMap = Class.extend({
         this._spriteList.splice(index, 1);
     },
     
+	/* True if the submap contains the sprite */
+	hasSprite: function(sprite) {
+		for (var i = 0; i < this._spriteList.length; ++i) {
+            if (this._spriteList[i] == sprite)
+                return true;
+        }
+		return false;
+	},
+	
     /* Determines if any sprites are located at (x,y) on this submap */
     getSpriteAt: function(x, y) {
         for (var i = 0; i < this._spriteList.length; ++i) {
@@ -377,7 +387,7 @@ var WorldMap = Class.extend({
         this._scrollY = 0;
 
         var mainMap = new SubMap(mapXml, tileset, true);
-        this._subMapList.push(mainMap); // main map is id = 0
+        this._subMapList[0] = mainMap;
 
         // Are we busy with animations?
         this._animating = false;
@@ -519,10 +529,9 @@ var WorldMap = Class.extend({
     },
 
     /* Adds a new sub-map from the given to the world map list.
-     * Returns new map id so client code can keep it for reference.*/
-    addSubMap: function(subMap) {
-        this._subMapList.push(subMap);
-        return this._subMapList.length - 1;
+     * Uses submap id provided as index. */
+    addSubMap: function(subMapId, subMap) {
+        this._subMapList[subMapId] = subMap;
     },
 
     /* Moves sprite to the submap identified by mapId at point x,y
@@ -726,7 +735,14 @@ var Sprite = Class.extend({
     },
 
     // clears sprite canvas of this sprite
-    clear: function(destOffsetX, destOffsetY) {        
+    clear: function(destOffsetX, destOffsetY) {
+        if (g_worldmap.getCurrentSubMapId() != this._subMap) {
+            return;
+        }
+        if (!g_worldmap.isOnScreen(this._x, this._y)) {
+            return;
+        }
+		
         var screenCoords = g_worldmap.transform(this._x, this._y);
         var dx = screenCoords[0];
         var dy = screenCoords[1];
@@ -1274,6 +1290,8 @@ var Player = Character.extend({
             armor: this._armor,
             helmet: this._helmet,
             shield: this._shield,
+			inventory: this._inventory,
+			spells: this._spells,
             x: this._x,
             y: this._y,
             subMap: this._subMap,
@@ -1296,6 +1314,8 @@ var Player = Character.extend({
         this._armor = playerData.armor;
         this._helmet = playerData.helmet;
         this._shield = playerData.shield;
+		this._inventory = playerData.inventory;
+		this._spells = playerData.spells;
         this._x = playerData.x;
         this._y = playerData.y;
         this._subMap = playerData.subMap;
@@ -1917,8 +1937,7 @@ var MainMenu = Class.extend({
                     this.displayStatusMenu();
                     break;
                 case MAIN_MENU_SAVE:
-                    amplify.store("save1_player", g_player.createSaveData());
-                    amplify.store("save1_worldmap", g_worldmap.createSaveData());
+					g_game.save();
                     this.clearSubMenu();
                     this.clearMenu();
                     break;
@@ -1926,9 +1945,7 @@ var MainMenu = Class.extend({
                     this.clearSubMenu();
                     this.clearMenu();
                     spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-                    g_player.loadSaveData(amplify.store("save1_player"));
-                    g_worldmap.loadSaveData(amplify.store("save1_worldmap"));
-                    g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
+					g_game.load();
                     break;
             }
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
@@ -2315,10 +2332,12 @@ var Shop = Class.extend({
     }
 });
 
-/* Class representing a game, used to store progress */
+/* Class representing a game, used to store progress
+ * and functions to call whenever a game is loaded */
 var Game = Class.extend({
     _init: function() {
-        this._flags = [];
+        this._flags = {};
+		this._loadFunctions = [];
     },
     
     isFlagSet: function(flag) {
@@ -2327,7 +2346,34 @@ var Game = Class.extend({
     
     setFlag: function(flag) {
         this._flags[flag] = true;
-    }
+    },
+	
+	addLoadFunction: function(callback) {
+		this._loadFunctions.push(callback);
+	},
+	
+	save: function() {
+		amplify.store("save1_player", g_player.createSaveData());
+		amplify.store("save1_worldmap", g_worldmap.createSaveData());
+		amplify.store("save1_game", g_game.createSaveData());
+	},
+	
+	load: function() {
+		g_player.loadSaveData(amplify.store("save1_player"));
+		g_worldmap.loadSaveData(amplify.store("save1_worldmap"));
+		g_game.loadSaveData(amplify.store("save1_game"));
+		for (var i = 0; i < this._loadFunctions.length; ++i)
+			this._loadFunctions[i]();
+		g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
+	},
+	
+	createSaveData: function() {
+		return this._flags;
+	},
+	
+	loadSaveData: function(gameData) {
+		this._flags = gameData;
+	}
 });
 
 var BATTLE_MENU_ATTACK = 0;
@@ -3579,7 +3625,8 @@ $(document).ready(function() {
 /* Castle submap setup code */
 function setupCastleMap(mapXml, tileset) {
     var map = new SubMap(mapXml, tileset, false);
-    var mapId = g_worldmap.addSubMap(map);
+    var mapId = SUBMAP_CASTLE_EXTERIOR;
+	g_worldmap.addSubMap(mapId, map);
     
     // Exit at edges of map
     var xLimit = map.getXLimit();
@@ -3632,7 +3679,8 @@ function setupCastleMap(mapXml, tileset) {
 /* Castle Shops submap setup code */
 function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     var map = new SubMap(mapXml, tileset, false);
-    var mapId = g_worldmap.addSubMap(map);
+    var mapId = SUBMAP_CASTLE_TAVERN;
+	g_worldmap.addSubMap(mapId, map);
     
     // Exit at bottom of map
     var xLimit = map.getXLimit();
@@ -3738,10 +3786,10 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
 /* Forest submap setup code */
 function setupForestMap(mapXml, tileset) {
     var map = new SubMap(mapXml, tileset, false);
-    var mapId = g_worldmap.addSubMap(map);
+    var mapId = SUBMAP_FOREST_DUNGEON;
+	g_worldmap.addSubMap(mapId, map);
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
-    
     
     // Temporary background
     var meadow = new Image();
@@ -3805,25 +3853,37 @@ function setupForestMap(mapXml, tileset) {
     map.addSprite(chest4);
     
     // Boss monster
-    if (!g_game.isFlagSet("fb")) {
-        var boss = new Sprite(11, 7, 32, 58, g_enemies, mapId, 664, 249);
-        map.addSprite(boss);
-        boss.action = function() {
-            g_textDisplay.setCallback(function() {
-                keyBuffer = 0;
-                g_battle = new Battle();
-                g_battle.setupEncounter("A rat king", [ 10 ], meadow);
-                g_battle.onWin = function() {
-                    g_game.setFlag("fb");
-                    boss.clear();
-                    map.removeSprite(boss);
-                };
-                g_battle.draw();
-            });
-            g_textDisplay.displayText("I am the rat king.\nI rule this domain.\nPrepare to die.");
-        };
-    }
+    var boss = new Sprite(11, 7, 32, 58, g_enemies, mapId, 664, 249);
+	boss.action = function() {
+		g_textDisplay.setCallback(function() {
+			keyBuffer = 0;
+			g_battle = new Battle();
+			g_battle.setupEncounter("A rat king", [ 10 ], meadow);
+			g_battle.onWin = function() {
+				g_game.setFlag("fb");
+				boss.clear();
+				map.removeSprite(boss);
+			};
+			g_battle.draw();
+		});
+		g_textDisplay.displayText("I am the rat king.\nI rule this domain.\nPrepare to die.");
+	};
+	g_game.addLoadFunction(function() {
+		if (!g_game.isFlagSet("fb")) {
+			if (!map.hasSprite(boss))
+				map.addSprite(boss);
+		} else {
+			boss.clear();
+			map.removeSprite(boss);
+		}
+	});
 }
+
+/* Maps */
+var SUBMAP_WORLD_MAP = 0;
+var SUBMAP_CASTLE_EXTERIOR = 1;
+var SUBMAP_CASTLE_TAVERN = 2;
+var SUBMAP_FOREST_DUNGEON = 3;
 
 /* Items */
 var ITEMTYPE_HEAL_ONE = 1;
