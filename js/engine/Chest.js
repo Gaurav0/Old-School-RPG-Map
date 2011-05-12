@@ -38,10 +38,19 @@
 
 /* Class representing a treasure chest */
 var Chest = Sprite.extend({
-    _init: function(x, y, subMapId) {
+    _init: function(x, y, subMapId, flagName) {
         this._super(x, y, TILE_WIDTH, TILE_HEIGHT, g_chest, subMapId);
-        
+        this._flagName = flagName;
         this._open = false;
+        
+        var chest = this;
+        g_game.addLoadFunction(function() {
+            alert(chest._flagName + ":" + g_game.isFlagSet(chest._flagName));
+            if (g_game.isFlagSet(chest._flagName))
+                chest._open = true;
+            else
+                chest._open = false;
+        });
     },
     
     isOpen: function() {
@@ -51,6 +60,7 @@ var Chest = Sprite.extend({
     open: function() {
         this.clear();
         this._open = true;
+        g_game.setFlag(this._flagName);
         this.plot();
     },
     

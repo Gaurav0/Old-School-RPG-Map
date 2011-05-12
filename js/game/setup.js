@@ -313,22 +313,22 @@ function setupForestMap(mapXml, tileset) {
     // Treasure chests
     g_chest = new Image();
     g_chest.src = "images/Chest2.png";
-    var chest1 = new Chest(3, 27, mapId);
+    var chest1 = new Chest(3, 27, mapId, "fc1");
     chest1.action = function() {
         this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
     };
     map.addSprite(chest1);
-    var chest2 = new Chest(17, 11, mapId);
+    var chest2 = new Chest(17, 11, mapId, "fc2");
     chest2.action = function() {
         this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
     };
     map.addSprite(chest2);
-    var chest3 = new Chest(16, 2, mapId);
+    var chest3 = new Chest(16, 2, mapId, "fc3");
     chest3.action = function() {
         this.onOpenLearnSpell(SPELL_HEAL);
     };
     map.addSprite(chest3);
-    var chest4 = new Chest(3, 7, mapId);
+    var chest4 = new Chest(3, 7, mapId, "fc4");
     chest4.action = function() {
         this.onOpenLearnSpell(SPELL_BOMB);
     };
@@ -350,6 +350,7 @@ function setupForestMap(mapXml, tileset) {
         });
         g_textDisplay.displayText("I am the rat king.\nI rule this domain.\nPrepare to die.");
     };
+    map.addSprite(boss);
     g_game.addLoadFunction(function() {
         if (!g_game.isFlagSet("fb")) {
             if (!map.hasSprite(boss))
