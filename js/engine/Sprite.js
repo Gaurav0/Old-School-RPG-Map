@@ -215,5 +215,5 @@ var Sprite = Class.extend({
     
     action: function() {
         // What happens when this sprite is acted on?
-    },
+    }
 });

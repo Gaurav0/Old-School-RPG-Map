@@ -46,11 +46,11 @@ var MapSquare = Class.extend({
         this._zone = zone;
     },
 
-    get x() {
+    getX: function() {
         return this._x;
     },
 
-    get y() {
+    getY: function() {
         return this._y;
     },
 
