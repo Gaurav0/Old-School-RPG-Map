@@ -45,7 +45,6 @@ var Chest = Sprite.extend({
         
         var chest = this;
         g_game.addLoadFunction(function() {
-            alert(chest._flagName + ":" + g_game.isFlagSet(chest._flagName));
             if (g_game.isFlagSet(chest._flagName))
                 chest._open = true;
             else

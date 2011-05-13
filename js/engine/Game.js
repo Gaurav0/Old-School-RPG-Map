@@ -57,18 +57,22 @@ var Game = Class.extend({
     },
     
     save: function() {
+        amplify.store("save1_version", CURRENT_VERSION);
         amplify.store("save1_player", g_player.createSaveData());
         amplify.store("save1_worldmap", g_worldmap.createSaveData());
         amplify.store("save1_game", g_game.createSaveData());
     },
     
     load: function() {
+        if (!amplify.store("save1_version"))
+            throw new NoSaveException();
+        if (amplify.store("save1_version") != CURRENT_VERSION)
+            throw new OldVersionException();
         g_player.loadSaveData(amplify.store("save1_player"));
         g_worldmap.loadSaveData(amplify.store("save1_worldmap"));
         g_game.loadSaveData(amplify.store("save1_game"));
         for (var i = 0; i < this._loadFunctions.length; ++i)
             this._loadFunctions[i]();
-        g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
     },
     
     createSaveData: function() {
@@ -79,3 +83,6 @@ var Game = Class.extend({
         this._flags = gameData;
     }
 });
+
+var NoSaveException = Class.extend({});
+var OldVersionException = Class.extend({});

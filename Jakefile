@@ -36,6 +36,7 @@ task('rpg.min.js', [], function(params) {
     ast = uglify.uglify.ast_mangle(ast, { toplevel: true });
     ast = uglify.uglify.ast_squeeze(ast);
     var final_code = uglify.uglify.gen_code(ast);
+    final_code = uglify.uglify.split_lines(final_code, 32 * 1024);
     var license = fs.readFileSync('js/LICENSE').toString();
     final_code = license + final_code;
     var out = fs.openSync('js/rpg.min.js', 'w+');

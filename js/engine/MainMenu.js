@@ -497,8 +497,18 @@ var MainMenu = Class.extend({
                 case MAIN_MENU_LOAD:
                     this.clearSubMenu();
                     this.clearMenu();
-                    spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-                    g_game.load();
+                    try {
+                        g_game.load();
+                        spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+                        g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
+                    } catch (e) {
+                        if (e instanceof NoSaveException)
+                            g_textDisplay.displayText("There is no saved game stored.");
+                        else if (e instanceof OldVersionException)
+                            g_textDisplay.displayText("The game saved is from an old,\nincompatible version.");
+                        else
+                            throw e;
+                    }
                     break;
             }
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
