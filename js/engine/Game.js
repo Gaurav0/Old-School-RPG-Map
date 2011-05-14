@@ -36,8 +36,10 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* Class representing a game, used to store progress
- * and functions to call whenever a game is loaded */
+/* Class representing a game, used to keep track of
+ * progress, provides functions to save and load the 
+ * game, and maintains a list of functions to call
+ * whenever a game is loaded */
 var Game = Class.extend({
     _init: function() {
         this._flags = {};
@@ -56,23 +58,36 @@ var Game = Class.extend({
         this._loadFunctions.push(callback);
     },
     
-    save: function() {
-        amplify.store("save1_version", CURRENT_VERSION);
-        amplify.store("save1_player", g_player.createSaveData());
-        amplify.store("save1_worldmap", g_worldmap.createSaveData());
-        amplify.store("save1_game", g_game.createSaveData());
+    save: function(slot) {
+        amplify.store("save" + slot, {
+            version: CURRENT_VERSION,
+            timestamp: new Date().toString(),
+            player: g_player.createSaveData(),
+            worldmap: g_worldmap.createSaveData(),
+            game: this.createSaveData()
+        });
     },
     
-    load: function() {
-        if (!amplify.store("save1_version"))
+    load: function(slot) {
+        var data = amplify.store("save" + slot);
+        if (!data)
             throw new NoSaveException();
-        if (amplify.store("save1_version") != CURRENT_VERSION)
+        if (data.version != CURRENT_VERSION)
             throw new OldVersionException();
-        g_player.loadSaveData(amplify.store("save1_player"));
-        g_worldmap.loadSaveData(amplify.store("save1_worldmap"));
-        g_game.loadSaveData(amplify.store("save1_game"));
+        g_player.loadSaveData(data.player);
+        g_worldmap.loadSaveData(data.worldmap);
+        this.loadSaveData(data.game);
         for (var i = 0; i < this._loadFunctions.length; ++i)
             this._loadFunctions[i]();
+    },
+    
+    hasSaveInfo: function(slot) {
+        return !!amplify.store("save" + slot);
+    },
+    
+    getSaveInfo: function(slot) {
+        var timestamp = new Date(amplify.store("save" + slot).timestamp);
+        return dateFormat(timestamp, "ddd, mmm d h:MM TT");
     },
     
     createSaveData: function() {
