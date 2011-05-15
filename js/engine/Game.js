@@ -41,7 +41,8 @@
  * game, and maintains a list of functions to call
  * whenever a game is loaded */
 var Game = Class.extend({
-    _init: function() {
+    _init: function(titlescreenImg) {
+        this._titlescreenImg = titlescreenImg;
         this._flags = {};
         this._loadFunctions = [];
     },
@@ -58,6 +59,7 @@ var Game = Class.extend({
         this._loadFunctions.push(callback);
     },
     
+    // Saves game to LocalStorage
     save: function(slot) {
         amplify.store("save" + slot, {
             version: CURRENT_VERSION,
@@ -68,6 +70,7 @@ var Game = Class.extend({
         });
     },
     
+    // Loads game to LocalStorage
     load: function(slot) {
         var data = amplify.store("save" + slot);
         if (!data)
@@ -79,6 +82,18 @@ var Game = Class.extend({
         this.loadSaveData(data.game);
         for (var i = 0; i < this._loadFunctions.length; ++i)
             this._loadFunctions[i]();
+    },
+    
+    // Resets Game to beginning
+    reset: function() {
+        this._flags = {};
+        for (var i = 0; i < this._loadFunctions.length; ++i)
+            this._loadFunctions[i]();
+        g_player.reset();
+    },
+    
+    showTitleScreen: function() {
+        mapCtx.drawImage(this._titlescreenImg, 0, 0);
     },
     
     hasSaveInfo: function(slot) {

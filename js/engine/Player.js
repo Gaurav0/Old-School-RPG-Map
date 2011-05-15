@@ -41,6 +41,10 @@ var Player = Character.extend({
     _init: function(x, y, img, subMapId, dir, playerId) {
         this._super(x, y, img, subMapId, dir);
         this._player = g_playerData.players[playerId];
+        this.reset();
+    },
+    
+    reset: function() {
         this._name = this._player.name;
         this._exp = this._player.exp;
         this._gold = this._player.gold;

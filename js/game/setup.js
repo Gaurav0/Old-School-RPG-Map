@@ -38,7 +38,6 @@
 
 /* Main Game setup code */
 $(document).ready(function() {
-    g_game = new Game();
     var titlescreen = new Image();
     titlescreen.onload = function() {
         mapCtx.drawImage(titlescreen, 0, 0);
@@ -47,6 +46,7 @@ $(document).ready(function() {
     // src set must be after onload function set due to bug in IE9
     titlescreen.src = "images/titlescreen.png";
     
+    g_game = new Game(titlescreen);
     var url = "images/World3.png"; // url of worlmap's tileset
     var img = new Image();
     var worldTileset = new Tileset(256, 1152, url, img);
@@ -57,8 +57,7 @@ $(document).ready(function() {
             var img = new Image();
             g_player = new Player(23, 13, img, 0, FACING_DOWN, PLAYER_TREVOR);
             g_menu.setOnNewGame(function() {
-                g_worldmap.goTo(17, 8);
-                g_player.plot();
+                g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
             });
             img.src = "images/Trevor.png";
             

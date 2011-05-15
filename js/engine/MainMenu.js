@@ -45,7 +45,7 @@ var SAVE_MENU = 5;
 var LOAD_MENU = 6;
 var NOT_IMPLEMENTED_MENU = 7;
 var EQUIP_SUBMENU = 8;
-var LOADSCREEN_MENU = 9;
+var TITLESCREEN_MENU = 9;
 
 var MAIN_MENU_ITEM = 0;
 var MAIN_MENU_SPELL = 1;
@@ -62,8 +62,8 @@ var EQUIP_ARMOR = 1;
 var EQUIP_HELMET = 2;
 var EQUIP_SHIELD = 3;
 
-var LOADSCREEN_MENU_NEW_GAME = 0;
-var LOADSCREEN_MENU_LOAD_GAME = 1;
+var TITLESCREEN_MENU_NEW_GAME = 0;
+var TITLESCREEN_MENU_LOAD_GAME = 1;
 
 /* Class for main menu */
 var MainMenu = Class.extend({
@@ -141,7 +141,8 @@ var MainMenu = Class.extend({
         
         this.drawTitleScreenAction();
         
-        this._currentMenu = LOADSCREEN_MENU;
+        this._currentMenu = TITLESCREEN_MENU;
+        this._currentAction = TITLESCREEN_MENU_NEW_GAME;
         this._menuDisplayed = true;
     },
     
@@ -208,7 +209,7 @@ var MainMenu = Class.extend({
         textCtx.clearRect(150, 0, 250, 200);
         
         if (g_titlescreen)
-            this._currentMenu = LOADSCREEN_MENU;
+            this._currentMenu = TITLESCREEN_MENU;
         else
             this._currentMenu = MAIN_MENU;
     },
@@ -522,7 +523,7 @@ var MainMenu = Class.extend({
                     break;
             }
             this.drawArrow();
-        } else if (this._currentMenu == LOADSCREEN_MENU) {
+        } else if (this._currentMenu == TITLESCREEN_MENU) {
             this.clearTitleScreenAction();
             switch(key) {
                 case DOWN_ARROW:
@@ -644,15 +645,16 @@ var MainMenu = Class.extend({
                     this.displayLoadMenu();
                     break;
             }
-        } else if (this._currentMenu == LOADSCREEN_MENU) {
+        } else if (this._currentMenu == TITLESCREEN_MENU) {
             this.clearTitleScreenAction();
             switch (this._currentAction) {
-                case LOADSCREEN_MENU_NEW_GAME:
+                case TITLESCREEN_MENU_NEW_GAME:
                     this.clearMenu();
+                    g_game.reset();
                     this._onNewGame();
                     g_titlescreen = false;
                     break;
-                case LOADSCREEN_MENU_LOAD_GAME:
+                case TITLESCREEN_MENU_LOAD_GAME:
                     this.displayLoadMenu();
                     break;
             }
@@ -695,6 +697,8 @@ var MainMenu = Class.extend({
             this.clearSubMenu();
             this.clearMenu();
             this.loadGame();
+            if (g_titlescreen)
+                g_titlescreen = false;
         }
     },
     

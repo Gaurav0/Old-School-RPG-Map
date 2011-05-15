@@ -398,14 +398,19 @@ var Battle = Class.extend({
         menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        g_worldmap.redraw();
-        g_worldmap.drawSprites();
-        g_player.plot();
+        if (!g_player.isDead()) {
+            g_worldmap.redraw();
+            g_worldmap.drawSprites();
+            g_player.plot();
         
-        // Callback functions for after the battle is over.
-        if (this._win)
-            this.onWin();
-        this.onExit();
+            // Callback functions for after the battle is over.
+            if (this._win)
+                this.onWin();
+            this.onExit();
+        } else {
+            g_titlescreen = true;
+            g_game.showTitleScreen();
+        }
         
         g_battle = null;
     },
@@ -722,6 +727,8 @@ var Battle = Class.extend({
             this.clearSpellSelection();
             this._selectingSpell = false;
             this.drawText();
+        } else if (this._over) {
+            this.end();
         }
     },
     
