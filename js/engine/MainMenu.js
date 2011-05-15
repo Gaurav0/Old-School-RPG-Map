@@ -45,6 +45,7 @@ var SAVE_MENU = 5;
 var LOAD_MENU = 6;
 var NOT_IMPLEMENTED_MENU = 7;
 var EQUIP_SUBMENU = 8;
+var LOADSCREEN_MENU = 9;
 
 var MAIN_MENU_ITEM = 0;
 var MAIN_MENU_SPELL = 1;
@@ -60,6 +61,9 @@ var EQUIP_WEAPON = 0;
 var EQUIP_ARMOR = 1;
 var EQUIP_HELMET = 2;
 var EQUIP_SHIELD = 3;
+
+var LOADSCREEN_MENU_NEW_GAME = 0;
+var LOADSCREEN_MENU_LOAD_GAME = 1;
 
 /* Class for main menu */
 var MainMenu = Class.extend({
@@ -85,12 +89,19 @@ var MainMenu = Class.extend({
         this._equipOptionId = [];
         this._saveHeight = [ 20, 60, 100, 140 ];
         this._saveSelection = 0;
+        this._onNewGame = null;
     },
     
     menuDisplayed: function() {
         return this._menuDisplayed;
     },
     
+    // set function to call when new game is started.
+    setOnNewGame: function(callback) {
+        this._onNewGame = callback;
+    },
+    
+    // displays Main Menu
     displayMenu: function() {
         drawBox(menuCtx, 0, 0, 150, 200, 25, 4);
         
@@ -107,6 +118,7 @@ var MainMenu = Class.extend({
         
         this.drawArrow();
         
+        this._currentMenu = MAIN_MENU;
         this._menuDisplayed = true;
     },
     
@@ -115,6 +127,22 @@ var MainMenu = Class.extend({
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         
         this._menuDisplayed = false;
+    },
+    
+    displayTitleScreenMenu: function() {
+        drawBox(menuCtx, 0, 0, 150, 90, 25, 4);
+        
+        // Draw Text
+        textCtx.font = "bold 18px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        textCtx.fillText("New Game", 34, this._lineHeight[0]);
+        textCtx.fillText("Load Game", 34, this._lineHeight[1]);
+        
+        this.drawTitleScreenAction();
+        
+        this._currentMenu = LOADSCREEN_MENU;
+        this._menuDisplayed = true;
     },
     
     displayNotImplementedMenu: function() {
@@ -179,7 +207,10 @@ var MainMenu = Class.extend({
         menuCtx.clearRect(150, 0, 250, 200);
         textCtx.clearRect(150, 0, 250, 200);
         
-        this._currentMenu = MAIN_MENU;
+        if (g_titlescreen)
+            this._currentMenu = LOADSCREEN_MENU;
+        else
+            this._currentMenu = MAIN_MENU;
     },
     
     displaySpellMenu: function() {
@@ -380,6 +411,24 @@ var MainMenu = Class.extend({
         this._arrow = false;
     },
     
+    /* Draws an arrow next to the current titlescreen action */
+    drawTitleScreenAction: function() {
+        var arrowChar = "\u25ba";
+        textCtx.font = "bold 18px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._currentAction];        
+        textCtx.fillText(arrowChar, 20, drawHeight);
+        this._arrow = true;
+    },
+    
+    /* Erases the arrow next to the current titlescreen action */
+    clearTitleScreenAction: function() {
+        var drawHeight = this._lineHeight[this._currentAction];
+        textCtx.clearRect(19, drawHeight, 15, 19);
+        this._arrow = false;
+    },
+    
     /* Draws an arrow next to currently selected item */
     drawItemSelection: function() {
         
@@ -473,6 +522,22 @@ var MainMenu = Class.extend({
                     break;
             }
             this.drawArrow();
+        } else if (this._currentMenu == LOADSCREEN_MENU) {
+            this.clearTitleScreenAction();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    this._currentAction++;
+                    this._currentAction %= 2;
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    this._currentAction--;
+                    if (this._currentAction < 0)
+                        this._currentAction += 2;
+                    break;
+            }
+            this.drawTitleScreenAction();
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
             this.clearItemSelection();
             switch(key) {
@@ -579,6 +644,18 @@ var MainMenu = Class.extend({
                     this.displayLoadMenu();
                     break;
             }
+        } else if (this._currentMenu == LOADSCREEN_MENU) {
+            this.clearTitleScreenAction();
+            switch (this._currentAction) {
+                case LOADSCREEN_MENU_NEW_GAME:
+                    this.clearMenu();
+                    this._onNewGame();
+                    g_titlescreen = false;
+                    break;
+                case LOADSCREEN_MENU_LOAD_GAME:
+                    this.displayLoadMenu();
+                    break;
+            }
         } else if (this._currentMenu == ITEM_MENU && this._numItems > 0) {
             if (this._canUseItem[this._itemSelection]) {
                 this.clearSubMenu();
@@ -633,7 +710,10 @@ var MainMenu = Class.extend({
             case SAVE_MENU:
             case LOAD_MENU:
                 this.clearSubMenu();
-                this.drawArrow();
+                if (g_titlescreen)
+                    this.drawTitleScreenAction();
+                else
+                    this.drawArrow();
                 break;
             case EQUIP_SUBMENU:
                 this.clearEquipSubMenu();

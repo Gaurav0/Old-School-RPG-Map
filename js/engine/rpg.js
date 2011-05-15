@@ -1,3 +1,41 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is Old School RPG Map.
+ *
+ * The Initial Developer of the Original Code is Jono Xia.
+ * Portions created by the Initial Developer are Copyright (C) 2007
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Jono Xia <jono@mozilla.com>
+ *   Gaurav Munjal <Gaurav0@aol.com>
+ *   Jebb Burditt <jebb.burditt@gmail.com>
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 // Current Version used for savegame compatibility checking
 var CURRENT_VERSION = "0.1pre 20110514"
 
@@ -49,6 +87,7 @@ var textCtx = textCanvas.getContext("2d");
 var g_game = null;
 var g_player = null;
 var g_worldmap = null;
+var g_titlescreen = true;
 var g_enemies = null;
 var g_textDisplay = new TextDisplay();
 var g_menu = new MainMenu();
@@ -161,7 +200,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_worldmap.isAnimating())
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
@@ -172,7 +211,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_worldmap.isAnimating())
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
@@ -183,7 +222,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_worldmap.isAnimating())
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
@@ -194,7 +233,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_worldmap.isAnimating())
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
                     break;
@@ -204,6 +243,8 @@ function handleKey(key, event) {
                         g_textDisplay.clearText();
                     else if (g_menu.menuDisplayed())
                         g_menu.handleEnter();
+                    else if (g_titlescreen)
+                        g_menu.displayTitleScreenMenu();
                     else if (g_shop.shopDisplayed())
                         g_shop.handleEnter();
                     else if (g_battle)
@@ -223,6 +264,8 @@ function handleKey(key, event) {
                         g_shop.handleEsc();
                     else if (g_battle)
                         g_battle.handleEsc();
+                    else if (g_titlescreen)
+                        g_menu.displayTitleScreenMenu();
                     else
                         g_menu.displayMenu();
                     event.preventDefault();
@@ -265,44 +308,6 @@ if (window.opera || $.browser.mozilla)
 else
     $(window).keydown(handleKeyPress);
 $(window).keyup(handleKeyUp);
-
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Old School RPG Map.
- *
- * The Initial Developer of the Original Code is Jono Xia.
- * Portions created by the Initial Developer are Copyright (C) 2007
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Jono Xia <jono@mozilla.com>
- *   Gaurav Munjal <Gaurav0@aol.com>
- *   Jebb Burditt <jebb.burditt@gmail.com>
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
 
 $(document).ready(function() {
     var showpad = document.getElementById("showpad");
