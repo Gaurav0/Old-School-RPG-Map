@@ -139,10 +139,9 @@ var MainMenu = Class.extend({
         textCtx.fillText("New Game", 34, this._lineHeight[0]);
         textCtx.fillText("Load Game", 34, this._lineHeight[1]);
         
-        this.drawTitleScreenAction();
-        
         this._currentMenu = TITLESCREEN_MENU;
         this._currentAction = TITLESCREEN_MENU_NEW_GAME;
+        this.drawTitleScreenAction();        
         this._menuDisplayed = true;
     },
     

@@ -119,7 +119,7 @@ var Sprite = Class.extend({
 
         if (!map.isOverWorld()) {
             if (this == g_player) {
-                
+            
                 // if another sprite below the player, replot it
                 var sprite = map.getSpriteAt(this._x, this._y + 1);
                 if (sprite != null) {

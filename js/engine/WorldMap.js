@@ -202,6 +202,7 @@ var WorldMap = Class.extend({
         var oldMap = this._subMapList[this._currentSubMap];
         oldMap.onExit();
         oldMap.clearSprites();
+        spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         this._currentSubMap = mapId;
         sprite.enterNewSubMap(mapId, x, y, dir);
         this.goTo(scrollX, scrollY);
