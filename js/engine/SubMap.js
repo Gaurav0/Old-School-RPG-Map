@@ -296,7 +296,8 @@ var SubMap = Class.extend({
             g_worldmap.finishScrolling();
             this._lastOffsetX = undefined;
             this._lastOffsetY = undefined;
-            window.setTimeout(handleBufferedKey, 1000 / FPS);
+            //window.setTimeout(handleBufferedKey, 1000 / FPS);
+            handleBufferedKey();
         }
     }
 });
