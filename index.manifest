@@ -1,0 +1,27 @@
+CACHE MANIFEST
+index.html
+rpgdemo.css
+http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js
+js/amplify.min.js
+js/includes.js
+js/rpg.min.js
+xml/Castle1.tmx.xml
+xml/CastleShops.tmx.xml
+xml/Forest1.tmx.xml
+xml/WorldMap1.tmx.xml
+images/Boy.png
+images/Chest2.png
+images/Elfwood_Forest.png
+images/enemies-t2.png
+images/Inq_XP_Medieval_Indoors.png
+images/InqCastle.png
+images/Man1.png
+images/Man2.png
+images/meadow.png
+images/osck.svg
+images/Soldier2.png
+images/titlescreen.png
+images/Trevor.png
+images/Woman1.png
+images/Woman2.png
+images/World3.png

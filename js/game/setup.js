@@ -52,7 +52,7 @@ $(document).ready(function() {
     var worldTileset = new Tileset(256, 1152, url, img);
     img.src = url;
     img.onload = function() {
-        loadXml("WorldMap1.tmx.xml", function(mapXml) {
+        loadXml("xml/WorldMap1.tmx.xml", function(mapXml) {
             g_worldmap = new WorldMap(mapXml, worldTileset);
             var img = new Image();
             g_player = new Player(23, 13, img, 0, FACING_DOWN, PLAYER_TREVOR);
@@ -88,17 +88,17 @@ $(document).ready(function() {
             var tileset2 = new Tileset(256, 2304, url2, img2);
             img2.src = url2;
             img2.onload = function() {
-                loadXml("Castle1.tmx.xml", function(mapXml) {
+                loadXml("xml/Castle1.tmx.xml", function(mapXml) {
                     setupCastleMap(mapXml, tileset2);
                 });
             };
             
-            var url3 = "images/Elfwood Forest.png";
+            var url3 = "images/Elfwood_Forest.png";
             var img3 = new Image();
             var tileset3 = new Tileset(256, 576, url3, img3);
             img3.src = url3;
             img3.onload = function() {
-                loadXml("Forest1.tmx.xml", function(mapXml) {
+                loadXml("xml/Forest1.tmx.xml", function(mapXml) {
                     setupForestMap(mapXml, tileset3);
                 });
             };
@@ -152,12 +152,12 @@ function setupCastleMap(mapXml, tileset) {
     map.addSprite(soldier2);
     
     // Submap of this submap
-    var url4 = "images/Inq XP MI- Medieval Indoors.png";
+    var url4 = "images/Inq_XP_Medieval Indoors.png";
     var img4 = new Image();
     var tileset4 = new Tileset(256, 8704, url4, img4);
     img4.src = url4;
     img4.onload = function() {
-        loadXml("CastleShops.tmx.xml", function(mapXml) {
+        loadXml("xml/CastleShops.tmx.xml", function(mapXml) {
             setupCastleShopsMap(mapXml, tileset4, mapId);
         });
     };
