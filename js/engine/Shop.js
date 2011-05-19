@@ -52,19 +52,26 @@ var Shop = Class.extend({
         this._currentAction = SHOP_BUY;
         this._arrow = false;
         this._lineHeight = [ 12, 40, 68 ];
-        this._drawHeight = [ 40, 60, 80, 100, 120, 140, 160, 180, 200, 220 ];
+        this._drawHeight = [ 35, 55, 75, 95, 115, 135, 155, 175, 195, 215 ];
         this._itemList = null;
         this._buySelection = 0;
         this._sellSelection = 0;
         this._numItems = 0;
         this._itemId = [];
+        this._quantity = 1;
+        this._maxquantity = 99;
+        this._price = 0;
+        this._quantityDisplayed = false;
+        this._toDisplayQuantity = false;
     },
     
     shopDisplayed: function() {
         return this._shopDisplayed;
     },
     
-    displayShop: function(itemList) {
+    displayShop: function(itemList, toDisplayQty) {
+        this._toDisplayQuantity = toDisplayQty;
+    
         drawBox(menuCtx, 0, 0, 100, 100, 15, 3);
         
         // Draw Text
@@ -125,7 +132,7 @@ var Shop = Class.extend({
     },
     
     displayBuyMenu: function() {
-        drawBox(menuCtx, 100, 0, 300, 300, 40, 5);
+        drawBox(menuCtx, 100, 0, 300, 250, 40, 5);
         
         // Text properties
         textCtx.font = "bold 16px monospace";
@@ -151,7 +158,7 @@ var Shop = Class.extend({
     },
     
     displaySellMenu: function() {
-        drawBox(menuCtx, 100, 0, 300, 300, 40, 5);
+        drawBox(menuCtx, 100, 0, 300, 250, 40, 5);
         
         // Text properties
         textCtx.font = "bold 14px monospace";
@@ -192,10 +199,45 @@ var Shop = Class.extend({
     },
     
     clearSubMenu: function() {
-        menuCtx.clearRect(100, 0, 300, 300);
-        textCtx.clearRect(100, 0, 300, 300);
+        menuCtx.clearRect(100, 0, 300, 250);
+        textCtx.clearRect(100, 0, 300, 250);
         
         this._currentMenu = SHOP_MENU;
+    },
+    
+    displayQuantityDialog: function() {
+        this._quantity = 1;
+        
+        var itemId, price;
+        if (this._currentMenu == BUY_MENU) {
+            itemId = this._itemList[this._buySelection];
+            price = g_itemData.items[itemId].cost;
+            this._maxQuantity = 99;
+        } else if (this._currentMenu == SELL_MENU) {
+            itemId = this._itemId[this._sellSelection];
+            price = g_itemData.items[itemId].cost;
+            price = Math.floor(price * SELL_PRICE_RATIO);
+            this._maxQuantity = g_player.numInInventory(itemId);
+        }
+        this._price = price;
+        
+        drawBox(menuCtx, 100, 250, 300, 50, 10, 3);
+        
+        // Text properties
+        textCtx.font = "bold 16px monospace";
+        textCtx.fillStyle = "white";
+        textCtx.textBaseline = "top";
+        
+        textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * price + "G", 120, 266);
+        
+        this._quantityDisplayed = true;
+    },
+    
+    clearQuantityDialog: function() {
+        menuCtx.clearRect(100, 250, 300, 50);
+        textCtx.clearRect(100, 250, 300, 50);
+        
+        this._quantityDisplayed = false;
     },
     
     /* Draws an arrow next to currently selected item to buy */
@@ -228,8 +270,35 @@ var Shop = Class.extend({
         textCtx.clearRect(135, this._drawHeight[this._sellSelection], 15, 14);
     },
     
+    increaseQuantity: function() {
+        if (this._quantity < this._maxQuantity)
+            this._quantity++;
+        
+        textCtx.clearRect(100, 250, 300, 50);
+        textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * this._price + "G", 120, 266);
+    },
+    
+    decreaseQuantity: function() {
+        if (this._quantity > 1)
+            this._quantity--;
+        
+        textCtx.clearRect(100, 250, 300, 50);
+        textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * this._price + "G", 120, 266);
+    },
+    
     handleInput: function(key) {
-        if (this._currentMenu == SHOP_MENU) {
+        if (this._quantityDisplayed) {
+            switch(key) {
+                case UP_ARROW:
+                case RIGHT_ARROW:
+                    this.increaseQuantity();
+                    break;
+                case LEFT_ARROW:
+                case DOWN_ARROW:
+                    this.decreaseQuantity();
+                    break;
+            }
+        } else if (this._currentMenu == SHOP_MENU) {
             this.clearArrow();
             switch(key) {
                 case DOWN_ARROW:
@@ -281,7 +350,12 @@ var Shop = Class.extend({
     },
     
     handleEnter: function() {
-        if (this._currentMenu == SHOP_MENU) {
+        if (this._quantityDisplayed) {
+            if (this._currentMenu == BUY_MENU)
+                this.buyItems();
+            else
+                this.sellItems();
+        } else if (this._currentMenu == SHOP_MENU) {
             switch (this._currentAction) {
                 case SHOP_BUY:
                     this.displayBuyMenu();
@@ -293,14 +367,23 @@ var Shop = Class.extend({
                     this.clearShop();
                     break;
             }
-        } else if (this._currentMenu == BUY_MENU)
-            this.buyItem();
-        else if (this._currentMenu == SELL_MENU && this._numItems > 0)
-            this.sellItem();
+        } else if (this._currentMenu == BUY_MENU) {
+            if (this._toDisplayQuantity)
+                this.displayQuantityDialog();
+            else
+                this.buyItem();
+        } else if (this._currentMenu == SELL_MENU && this._numItems > 0) {
+            if (g_player.numInInventory(this._itemId[this._sellSelection]) > 1)
+                this.displayQuantityDialog();
+            else
+                this.sellItem();
+        }
     },
     
     handleEsc: function() {
-        if (this._currentMenu == SHOP_MENU)
+        if (this._quantityDisplayed)
+            this.clearQuantityDialog();
+        else if (this._currentMenu == SHOP_MENU)
             this.clearShop();
         else
             this.clearSubMenu();
@@ -326,17 +409,55 @@ var Shop = Class.extend({
         }
     },
     
+    buyItems: function() {
+        this.clearQuantityDialog();
+        this.clearSubMenu();
+        
+        var itemId = this._itemList[this._buySelection];
+        var itemName = g_itemData.items[itemId].name;
+        var itemCost = g_itemData.items[itemId].cost;
+        var gold = g_player.getGold();
+        var totalCost = itemCost * this._quantity;
+        if (gold >= totalCost) {
+            g_player.spendGold(itemCost * this._quantity);
+            g_player.addToInventory(itemId, this._quantity);
+            g_textDisplay.displayText("You purchased " + this._quantity + " " +
+                itemName + "s for " + totalCost + "G.");
+            this.clearGold();
+            this.displayGold();
+        } else {
+            g_textDisplay.displayText("You do not have enough gold\nto buy " +
+                this._quantity + " " + itemName + "s.\nYou only have " + gold + "G.");
+        }
+    },
+    
     sellItem: function() {
         this.clearSubMenu();
         
         var itemId = this._itemId[this._sellSelection];
         var itemName = g_itemData.items[itemId].name;
         var itemCost = g_itemData.items[itemId].cost;
-        var sellPrice = Math.floor(itemCost * 0.75);
+        var sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
         g_player.removeFromInventory(itemId);
         g_player.earnGold(sellPrice);
         this.clearGold();
         this.displayGold();
         g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
+    },
+    
+    sellItems: function() {
+        this.clearQuantityDialog();
+        this.clearSubMenu();
+        
+        var itemId = this._itemId[this._sellSelection];
+        var itemName = g_itemData.items[itemId].name;
+        var itemCost = g_itemData.items[itemId].cost;
+        var sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
+        var totalCost = sellPrice * this._quantity;
+        g_player.removeFromInventory(itemId, this._quantity);
+        g_player.earnGold(totalCost);
+        this.clearGold();
+        this.displayGold();
+        g_textDisplay.displayText("You sold " + this._quantity + " " + itemName + "s for " + totalCost + "G.");
     }
 });

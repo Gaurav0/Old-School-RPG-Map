@@ -35,6 +35,9 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+
+// Ratio of Sell Price to Buy Price of Items
+var SELL_PRICE_RATIO = 0.75;
  
 var ITEMTYPE_HEAL_ONE = 1;
 // var ITEMTYPE_HEAL_ALL = 2;

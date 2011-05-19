@@ -152,7 +152,7 @@ function setupCastleMap(mapXml, tileset) {
     map.addSprite(soldier2);
     
     // Submap of this submap
-    var url4 = "images/Inq_XP_Medieval Indoors.png";
+    var url4 = "images/Inq_XP_Medieval_Indoors.png";
     var img4 = new Image();
     var tileset4 = new Tileset(256, 8704, url4, img4);
     img4.src = url4;
@@ -201,7 +201,7 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
                 ITEM_BRONZE_SWORD,
                 ITEM_IRON_SWORD,
                 ITEM_STEEL_SWORD
-            ]);
+            ], false);
         });
         g_textDisplay.displayText("Welcome to the weapon shop.");
     };
@@ -221,7 +221,7 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
                 ITEM_COPPER_SHIELD,
                 ITEM_BRONZE_SHIELD,
                 ITEM_IRON_SHIELD
-            ]);
+            ], false);
         });
         g_textDisplay.displayText("Welcome to the armor shop.");
     };
@@ -231,7 +231,7 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     img3.src = "images/Woman2.png";
     npc3.action = function() {
         g_textDisplay.setCallback(function() {
-            g_shop.displayShop([ITEM_POTION, ITEM_BOMB, ITEM_ETHER]);
+            g_shop.displayShop([ITEM_POTION, ITEM_BOMB, ITEM_ETHER], true);
         });
         g_textDisplay.displayText("Welcome to the item shop.");
     };
