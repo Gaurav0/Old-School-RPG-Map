@@ -6,6 +6,7 @@ var uglify = require('uglify-js');
 task('default', ['js/rpg.min.js', 'js/includes.js'], function() {});
 
 var rpgSourceFiles = [
+    'js/engine/Animation.js',
     'js/engine/MapSquare.js',
     'js/engine/SubMap.js',
     'js/engine/WorldMap.js',

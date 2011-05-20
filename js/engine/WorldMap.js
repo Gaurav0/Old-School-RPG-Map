@@ -125,7 +125,7 @@ var WorldMap = Class.extend({
         
         // includes one less / one more for benefit of scrolling animation
         return (screenX >= -1 && screenX <= TILES_ON_SCREEN_X
-                && screenY >= -1 && screenY <= TILES_ON_SCREEN_Y);
+                && screenY >= -1 && screenY <= TILES_ON_SCREEN_Y + 1);
     },
 
     // Scrolls screen if this is too close to the edge and it's
@@ -170,9 +170,11 @@ var WorldMap = Class.extend({
             scrollY = yLimit - TILES_ON_SCREEN_Y;
 
         if (scrollX != this._scrollX || scrollY != this._scrollY) {
-            this.animate(scrollX, scrollY); 
+            var oldScrollX = this._scrollX;
+            var oldScrollY = this._scrollY;
             this._scrollX = scrollX;
             this._scrollY = scrollY;
+            this.animate(oldScrollX, oldScrollY, scrollX, scrollY);
             return true;
         }
         return false;
@@ -185,8 +187,8 @@ var WorldMap = Class.extend({
     },
     
     /* This function does the scrolling animation */
-    animate: function(newScrollX, newScrollY) {
-        this._subMapList[this._currentSubMap].animate(this._scrollX, this._scrollY, newScrollX, newScrollY);
+    animate: function(fromX, fromY, toX, toY) {
+        this._subMapList[this._currentSubMap].animate(fromX, fromY, toX, toY);
     },
 
     /* Adds a new sub-map from the given to the world map list.
@@ -264,7 +266,8 @@ var WorldMap = Class.extend({
     
     // Will run callback after animation is complete.
     runAfterAnimation: function(callback) {
-        this._runAfterAnimation = callback;
+        if (!this._runAfterAnimation)
+            this._runAfterAnimation = callback;
     },
     
     createSaveData: function() {

@@ -196,15 +196,15 @@ var Character = Sprite.extend({
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
-            if (animStage == 1)
+            if (animStage == 2 || animStage == 3)
                 sourceOffsetX = -SPRITE_WIDTH;
-            else if (animStage == 3)
+            else if (animStage == 6 || animStage == 7)
                 sourceOffsetX = SPRITE_WIDTH;
             this.plot(sourceOffsetX);
             
             var sprite = this;
             window.setTimeout(function() {
-                sprite.scrollAnimationSub((animStage + 1) % 4);
+                sprite.scrollAnimationSub((animStage + 1) % 8);
             }, 1000 / FPS);
         } else if (!g_battle) {
             this.clear();
@@ -216,9 +216,9 @@ var Character = Sprite.extend({
     walkAnimation: function(deltaX, deltaY) {
         if (g_worldmap.isAnimating()) {
             var sprite = this;
-            window.setTimeout(function() {
-                sprite.walkAnimationPoll(deltaX, deltaY);
-            }, 1000 / FPS);
+            g_worldmap.runAfterAnimation(function() {
+                sprite.walkAnimation(deltaX, deltaY);
+            });
         } else if (!g_battle) {
             g_worldmap.startAnimating();
             this._walking = true;
@@ -229,17 +229,6 @@ var Character = Sprite.extend({
         }
     },
     
-    // Polls until we can start walk animation
-    walkAnimationPoll: function(deltaX, deltaY) {
-        if (g_worldmap.isAnimating()) {
-            var sprite = this;
-            window.setTimeout(function() {
-                sprite.walkAnimationPoll(deltaX, deltaY);
-            }, 1000 / FPS);
-        } else
-            this.walkAnimation(deltaX, deltaY);
-    },
-    
     /* Recursive part of sprite.walkAnimation */
     walkAnimationSub: function(animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps) {
         if (numSteps > 1 && !g_battle) {
@@ -247,9 +236,9 @@ var Character = Sprite.extend({
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
-            if (animStage == 1)
+            if (animStage == 2 || animStage == 3)
                 sourceOffsetX = -SPRITE_WIDTH;
-            else if (animStage == 3)
+            else if (animStage == 6 || animStage == 7)
                 sourceOffsetX = SPRITE_WIDTH;
     
             destOffsetX += deltaX * SCROLL_FACTOR;
@@ -258,16 +247,17 @@ var Character = Sprite.extend({
             
             var sprite = this;
             window.setTimeout(function() {
-                sprite.walkAnimationSub((animStage + 1) % 4, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
+                sprite.walkAnimationSub((animStage + 1) % 8, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
             }, 1000 / FPS);
         } else {
             this._walking = false;
             if (!g_battle) {
                 this.clear(destOffsetX, destOffsetY); // clear last image drawn
                 this.plot();
-                window.setTimeout(handleBufferedKey, 1000 / FPS);
             }
             g_worldmap.finishAnimating();
+            if (!g_battle)
+                handleBufferedKey();
         }
     }
 });

@@ -50,6 +50,7 @@ var SubMap = Class.extend({
         this._overworld = overworld;
         this._spriteList = [];
         this._mapSquares = [];
+        this._animation = new Animation();
         
         // Create mapSquares table used to cache passable / zone info.
         var baseTiles = $(mapXml).find('layer[name="Base"]').find('tile');
@@ -250,13 +251,12 @@ var SubMap = Class.extend({
         var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
         var submap = this;
-        window.setTimeout(function() {
-            submap.animateSub(fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
-        }, 1);
+        submap.animateSub(fromX, fromY, 0, 0, deltaX, deltaY, numSteps);
     },
     
     // Recursive part of Submap.animate, the scrolling animation.
     animateSub: function(fromX, fromY, offsetX, offsetY, deltaX, deltaY, numSteps) {
+        this._animation.update();
         
         // Don't redraw sprites the last time, or the plot will not be cleared.
         if (numSteps > 0) {
@@ -289,14 +289,13 @@ var SubMap = Class.extend({
             var submap = this;
             window.setTimeout(function() {
                 submap.animateSub(fromX, fromY, offsetX, offsetY, deltaX, deltaY, --numSteps);
-            }, 1000 / FPS);
+            }, this._animation.getDelay());
         }
         else {
             g_worldmap.finishAnimating();
             g_worldmap.finishScrolling();
             this._lastOffsetX = undefined;
             this._lastOffsetY = undefined;
-            //window.setTimeout(handleBufferedKey, 1000 / FPS);
             handleBufferedKey();
         }
     }
