@@ -192,15 +192,27 @@ var Sprite = Class.extend({
                 // if sprite above current location, replot it.
                 var spriteAbove = map.getSpriteAt(this._x, this._y - 1);
                 if (spriteAbove != null)
-                    spriteAbove.plot();
+                    if (g_worldmap.isScrolling()) {
+                        if (map._lastOffsetX != undefined)
+                            spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                    } else
+                        spriteAbove.plot();
 
                 // if sprite above or below previous location, replot it.
                 var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
                 if (spriteAbove != null)
-                    spriteAbove.plot();
+                    if (g_worldmap.isScrolling()) {
+                        if (map._lastOffsetX != undefined)
+                            spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                    } else
+                        spriteAbove.plot();
                 var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (spriteBelow != null)
-                    spriteBelow.plot();
+                    if (g_worldmap.isScrolling()) {
+                        if (map._lastOffsetX != undefined)
+                            spriteBelow.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                    } else
+                        spriteBelow.plot();
                     
             } else if (!g_worldmap.isScrolling()) {
 

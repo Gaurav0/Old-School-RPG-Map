@@ -185,16 +185,17 @@ var Character = Sprite.extend({
     
     /* Show sprite as walking as background scrolls */
     scrollAnimation: function() {
-        if (g_worldmap.isAnimating()) {
+        if (g_worldmap.isScrolling()) {
             this.scrollAnimationSub(0);
         }
     },
     
     /* Recursive part of sprite.scrollAnimation */
     scrollAnimationSub: function(animStage) {
-        if (g_worldmap.isAnimating() && !g_battle) {
+        if (g_worldmap.isScrolling() && !g_battle) {
             
             // Determine source offset in sprite image based on animation stage.
+            this.clear();
             var sourceOffsetX = 0;
             if (animStage == 2 || animStage == 3)
                 sourceOffsetX = -SPRITE_WIDTH;
