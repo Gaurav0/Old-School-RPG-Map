@@ -200,7 +200,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_titlescreen && !g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
@@ -211,7 +211,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_titlescreen && !g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
@@ -222,7 +222,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_titlescreen && !g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
@@ -233,7 +233,7 @@ function handleKey(key, event) {
                         g_shop.handleInput(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
-                    else if (!g_titlescreen && !g_worldmap.isAnimating())
+                    else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
                     break;
