@@ -94,6 +94,15 @@ var g_menu = new MainMenu();
 var g_shop = new Shop();
 var g_battle = null;
 var g_chest = null;
+var g_fullscreen = false;
+
+var g_elements = [
+    mapCanvas,
+    spriteCanvas,
+    menuCanvas,
+    textCanvas,
+    document.getElementById("gamepad")
+];
 
 // Utility function to load the xml for a tileset
 // Callback function must have mapXml parameter.
@@ -340,3 +349,66 @@ $(document).ready(function() {
     var enterButton = document.getElementById("enterButton");
     enterButton.onclick = function(event) { handleKey(ENTER, event); }
 });
+
+/* Experimental Full Screen Support
+ * Activate by double clicking
+ * Right now, scrolling performs well only in IE9 in my tests */
+
+$(window).dblclick(function(event) {
+    g_fullscreen = !g_fullscreen;
+    resize();
+    event.preventDefault();
+});
+
+$(window).resize(function() {
+    if (g_fullscreen)
+        resize();
+});
+
+function resize() {
+    if (g_fullscreen) {
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        var widthRatio = width / mapCanvas.width;
+        var heightRatio = height / mapCanvas.height;
+        var ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
+        var top = 0;
+        var left = 0;
+        if (widthRatio < heightRatio)
+            top = (height - mapCanvas.height) / 2;
+        else
+            left = (width - mapCanvas.width) / 2;
+        for (var i = 0; i < g_elements.length; ++i) {
+            var element = g_elements[i];
+            if (widthRatio < heightRatio) {
+                element.style.MozTransformOrigin = "center left";
+                element.style.WebkitTransformOrigin = "center left";
+                element.style.OTransformOrigin = "center left";
+                element.style.msTransformOrigin = "center left";
+            } else {
+                element.style.MozTransformOrigin = "top center";
+                element.style.WebkitTransformOrigin = "top center";
+                element.style.OTransformOrigin = "top center";
+                element.style.msTransformOrigin = "top center";
+            }
+            element.style.left = Math.floor(left) + "px";
+            element.style.top = Math.floor(top) + "px";
+            element.style.MozTransform = "scale(" + ratio + ")";
+            element.style.WebkitTransform = "scale(" + ratio + ")";
+            element.style.OTransform = "scale(" + ratio + ")";
+            element.style.msTransform = "scale(" + ratio + ")";
+            element.style.zIndex = 1;
+        }
+    } else {
+        for (var i = 0; i < g_elements.length; ++i) {
+            var element = g_elements[i];
+            element.style.MozTransform = "";
+            element.style.WebkitTransform = "";
+            element.style.OTransform = "";
+            element.style.msTransform = "";
+            element.style.left = "10px";
+            element.style.top = "120px";
+            element.style.zIndex = 0;
+        }
+    }
+}
