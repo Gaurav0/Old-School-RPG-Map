@@ -42,13 +42,13 @@
  * the map using a separate canvas with z-index=1 and absolute
  * positioning (these CSS styles are defined in rpgdemo.css) */
 var Sprite = Class.extend({
-    _init: function(x, y, width, height, img, subMapId, sx, sy) {
+    _init: function(x, y, width, height, imgRef, subMapId, sx, sy) {
         this._x = x;
         this._y = y;
         this._width = width;
         this._height = height;
         this._subMap = subMapId;
-        this._img = img;
+        this._img = g_imageData.images[imgRef].img;
         this._sx = (sx != undefined ? sx : 0);
         this._sy = (sy != undefined ? sy : 0);
     },

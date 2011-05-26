@@ -62,104 +62,53 @@ $(document).ready(function() {
     };
     
     g_game = new Game(titlescreen);
-    var url = "images/World3.png"; // url of worlmap's tileset
-    var img = new Image();
-    var worldTileset = new Tileset(256, 1152, url, img);
-    g_progress.addResource(url, img);
+    
+    loadImages();
+    
+    var worldTileset = new Tileset(256, 1152, "world");
     var worldmapUrl = "xml/WorldMap1.tmx.xml";
     g_progress.addResource(worldmapUrl);
-    img.onload = function() {
-        g_progress.setLoaded(url);
-        loadXml(worldmapUrl, function(mapXml) {
-            g_progress.setLoaded(worldmapUrl);
-            g_worldmap = new WorldMap(mapXml, worldTileset);
-            var img1 = new Image();
-            var url1 = "images/Trevor.png";
-            g_progress.addResource(url1, img1);
-            g_player = new Player(23, 13, img1, 0, FACING_DOWN, PLAYER_TREVOR);
-            g_menu.setOnNewGame(function() {
-                g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
-            });
-            img1.onload = function() {
-                g_progress.setLoaded(url1);
-            };
-            img1.src = url1;
-            
-            // Temporary background
-            var meadow = new Image();
-            var meadowUrl = "images/meadow.png";
-            g_progress.addResource(meadowUrl, meadow);
-            meadow.onload = function() {
-                g_progress.setLoaded(meadowUrl);
-            };
-            meadow.src = meadowUrl;
-            
-            
-            // Setup random encounters
-            for (var x = 0; x < g_worldmap.getXLimit(); ++x)
-                for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
-                    var square = g_worldmap.getSquareAt(x, y);
-                    if (square.passable()) {
-                        square.onEnter = function() {
-                            if (Math.random() < BATTLE_FREQ) {
-                                keyBuffer = 0;
-                                g_battle = new Battle();
-                                var zone = this.getZone();
-                                g_battle.setupRandomEncounter(zone, meadow);
-                                g_battle.draw();
-                            }
-                        };
-                    }
+    loadXml(worldmapUrl, function(mapXml) {
+        g_progress.setLoaded(worldmapUrl);
+        g_worldmap = new WorldMap(mapXml, worldTileset);
+        g_player = new Player(23, 13, "trevor", 0, FACING_DOWN, PLAYER_TREVOR);
+        g_menu.setOnNewGame(function() {
+            g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
+        });        
+        
+        // Setup random encounters
+        for (var x = 0; x < g_worldmap.getXLimit(); ++x)
+            for (var y = 0; y < g_worldmap.getYLimit(); ++y) {
+                var square = g_worldmap.getSquareAt(x, y);
+                if (square.passable()) {
+                    square.onEnter = function() {
+                        if (Math.random() < BATTLE_FREQ) {
+                            keyBuffer = 0;
+                            g_battle = new Battle();
+                            var zone = this.getZone();
+                            g_battle.setupRandomEncounter(zone, "meadow");
+                            g_battle.draw();
+                        }
+                    };
                 }
+            }
 
-            var url2 = "images/InqCastle.png";
-            var img2 = new Image();
-            g_progress.addResource(url2, img2);
-            var tileset2 = new Tileset(256, 2304, url2, img2);
-            var castleMapUrl = "xml/Castle1.tmx.xml";
-            g_progress.addResource(castleMapUrl);
-            img2.onload = function() {
-                g_progress.setLoaded(url2);
-                loadXml(castleMapUrl, function(mapXml) {
-                    g_progress.setLoaded(castleMapUrl);
-                    setupCastleMap(mapXml, tileset2);
-                });
-            };
-            img2.src = url2;
-            
-            var url3 = "images/Elfwood_Forest.png";
-            var img3 = new Image();
-            g_progress.addResource(url3, img3);
-            var tileset3 = new Tileset(256, 576, url3, img3);
-            var forestMapUrl = "xml/Forest1.tmx.xml";
-            g_progress.addResource(forestMapUrl);
-            img3.onload = function() {
-                g_progress.setLoaded(url3);
-                loadXml(forestMapUrl, function(mapXml) {
-                    g_progress.setLoaded(forestMapUrl);
-                    setupForestMap(mapXml, tileset3);
-                });
-            };
-            img3.src = url3;
+        var tileset2 = new Tileset(256, 2304, "InqCastle");
+        var castleMapUrl = "xml/Castle1.tmx.xml";
+        g_progress.addResource(castleMapUrl);
+        loadXml(castleMapUrl, function(mapXml) {
+            g_progress.setLoaded(castleMapUrl);
+            setupCastleMap(mapXml, tileset2);
         });
-    };
-    img.src = url;
-    
-    g_enemies = new Image();
-    var enemiesUrl = "images/enemies-t2.png";
-    g_progress.addResource(enemiesUrl, g_enemies);
-    g_enemies.onload = function() {
-        g_progress.setLoaded(enemiesUrl);
-    };
-    g_enemies.src = enemiesUrl;
-    
-    g_chest = new Image();
-    var chestUrl = "images/Chest2.png";
-    g_progress.addResource(chestUrl, g_chest);
-    g_chest.onload = function() {
-        g_progress.setLoaded(chestUrl);
-    };
-    g_chest.src = chestUrl;
+        
+        var tileset3 = new Tileset(256, 576, "forest");
+        var forestMapUrl = "xml/Forest1.tmx.xml";
+        g_progress.addResource(forestMapUrl);
+        loadXml(forestMapUrl, function(mapXml) {
+            g_progress.setLoaded(forestMapUrl);
+            setupForestMap(mapXml, tileset3);
+        });
+    });
     
     if (++setupFunctions == 4)
         g_progress.finishSetup();
@@ -192,20 +141,13 @@ function setupCastleMap(mapXml, tileset) {
     };
     
     // Soldier NPCs
-    var img = new Image();
-    var url = "images/Soldier2.png";
-    g_progress.addResource(url, img);
-    img.onload = function() {
-        g_progress.setLoaded(url);
-    };
-    img.src = url;
-    var soldier1 = new Character(10, 14, img, mapId, FACING_DOWN);
+    var soldier1 = new Character(10, 14, "soldier", mapId, FACING_DOWN);
     soldier1.action = function() {
         this.facePlayer();
         g_textDisplay.displayText("You may enter the castle now.");
     };
     map.addSprite(soldier1);
-    var soldier2 = new Character(14, 14, img, mapId, FACING_DOWN);
+    var soldier2 = new Character(14, 14, "soldier", mapId, FACING_DOWN);
     soldier2.action = function() {
         this.facePlayer();
         g_textDisplay.displayText("But the interior is still under\nconstruction.");
@@ -213,20 +155,13 @@ function setupCastleMap(mapXml, tileset) {
     map.addSprite(soldier2);
     
     // Submap of this submap
-    var url4 = "images/Inq_XP_Medieval_Indoors.png";
-    var img4 = new Image();
-    g_progress.addResource(url4, img4);
-    var tileset4 = new Tileset(256, 8704, url4, img4);
+    var tileset4 = new Tileset(256, 8704, "InqIndoors");
     var castleShopsUrl = "xml/CastleShops.tmx.xml";
     g_progress.addResource(castleShopsUrl);
-    img4.onload = function() {
-        g_progress.setLoaded(url4);
-        loadXml("xml/CastleShops.tmx.xml", function(mapXml) {
-            g_progress.setLoaded(castleShopsUrl);
-            setupCastleShopsMap(mapXml, tileset4, mapId);
-        });
-    };
-    img4.src = url4;
+    loadXml("xml/CastleShops.tmx.xml", function(mapXml) {
+        g_progress.setLoaded(castleShopsUrl);
+        setupCastleShopsMap(mapXml, tileset4, mapId);
+    });
     
     if (++setupFunctions == 4)
         g_progress.finishSetup();
@@ -258,16 +193,9 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         g_worldmap.getSubMap(parentMapId).getSquareAt(i, 12).onEnter = function() {
             g_worldmap.goToMap(g_player, mapId, 10, 18, 4, 9, FACING_UP);
         };
-        
+    
     // NPCs
-    var img1 = new Image();
-    var url1 = "images/Man1.png";
-    g_progress.addResource(url1, img1);
-    img1.onload = function() {
-        g_progress.setLoaded(url1);
-    };
-    img1.src = url1;
-    var npc1 = new Character(1, 8, img1, mapId, FACING_RIGHT);
+    var npc1 = new Character(1, 8, "man1", mapId, FACING_RIGHT);
     npc1.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([
@@ -281,14 +209,7 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     };
     map.addSprite(npc1);
     
-    var img2 = new Image();
-    var url2 = "images/Man2.png";
-    g_progress.addResource(url2, img2);
-    img2.onload = function() {
-        g_progress.setLoaded(url2);
-    };
-    img2.src = url2;
-    var npc2 = new Character(18, 8, img2, mapId, FACING_LEFT);
+    var npc2 = new Character(18, 8, "man2", mapId, FACING_LEFT);
     npc2.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([
@@ -307,14 +228,7 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     };
     map.addSprite(npc2);
     
-    var img3 = new Image();
-    var url3 = "images/Woman2.png"
-    g_progress.addResource(url3, img3);
-    img3.onload = function() {
-        g_progress.setLoaded(url3);
-    };
-    img3.src = url3;
-    var npc3 = new Character(1, 12, img3, mapId, FACING_RIGHT);
+    var npc3 = new Character(1, 12, "woman2", mapId, FACING_RIGHT);
     npc3.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([ITEM_POTION, ITEM_BOMB, ITEM_ETHER], true);
@@ -323,28 +237,14 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
     };
     map.addSprite(npc3);
     
-    var img4 = new Image();
-    var url4 = "images/Woman1.png";
-    g_progress.addResource(url4, img4);
-    img4.onload = function() {
-        g_progress.setLoaded(url4);
-    };
-    img4.src = url4;
-    var npc4 = new Character(10, 12, img4, mapId, FACING_DOWN);
+    var npc4 = new Character(10, 12, "woman1", mapId, FACING_DOWN);
     npc4.action = function() {
         this.facePlayer();
         g_textDisplay.displayText("Welcome to the castle's tavern.");
     };
     map.addSprite(npc4);
     
-    var img5 = new Image();
-    var url5 = "images/Boy.png";
-    g_progress.addResource(url5, img5);
-    img5.onload = function() {
-        g_progress.setLoaded(url5);
-    };
-    img5.src = url5;
-    var npc5 = new Character(16, 17, img5, mapId, FACING_LEFT);
+    var npc5 = new Character(16, 17, "boy", mapId, FACING_LEFT);
     npc5.action = function() {
         this.facePlayer();
         var msg = "Whenever I return to the castle,\n";
@@ -379,15 +279,6 @@ function setupForestMap(mapXml, tileset) {
     var xLimit = map.getXLimit();
     var yLimit = map.getYLimit();
     
-    // Temporary background
-    var meadow = new Image();
-    var meadowUrl = "images/meadow.png";
-    g_progress.addResource(meadowUrl, meadow);
-    meadow.onload = function() {
-        g_progress.setLoaded(meadowUrl);
-    };
-    meadow.src = meadowUrl;
-    
     // Setup random encounters
     for (var x = 0; x < xLimit; ++x)
         for (var y = 0; y < yLimit; ++y) {
@@ -397,7 +288,7 @@ function setupForestMap(mapXml, tileset) {
                     if (Math.random() < BATTLE_FREQ) {
                         keyBuffer = 0;
                         g_battle = new Battle();
-                        g_battle.setupRandomEncounter("forest", meadow);
+                        g_battle.setupRandomEncounter("forest", "meadow");
                         g_battle.draw();
                     }
                 };
@@ -422,29 +313,29 @@ function setupForestMap(mapXml, tileset) {
     };
     
     // Treasure chests
-    var chest1 = new Chest(3, 27, mapId, "fc1");
+    var chest1 = new Chest(3, 27, "chest", mapId, "fc1");
     chest1.action = function() {
         this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
     };
     map.addSprite(chest1);
-    var chest2 = new Chest(17, 11, mapId, "fc2");
+    var chest2 = new Chest(17, 11, "chest", mapId, "fc2");
     chest2.action = function() {
         this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
     };
     map.addSprite(chest2);
-    var chest3 = new Chest(16, 2, mapId, "fc3");
+    var chest3 = new Chest(16, 2, "chest", mapId, "fc3");
     chest3.action = function() {
         this.onOpenLearnSpell(SPELL_HEAL);
     };
     map.addSprite(chest3);
-    var chest4 = new Chest(3, 7, mapId, "fc4");
+    var chest4 = new Chest(3, 7, "chest", mapId, "fc4");
     chest4.action = function() {
         this.onOpenLearnSpell(SPELL_BOMB);
     };
     map.addSprite(chest4);
     
     // Boss monster
-    var boss = new Sprite(11, 7, 32, 58, g_enemies, mapId, 664, 249);
+    var boss = new Sprite(11, 7, 32, 58, "enemies", mapId, 664, 249);
     boss.action = function() {
         g_textDisplay.setCallback(function() {
             keyBuffer = 0;

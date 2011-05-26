@@ -55,6 +55,10 @@ var Progress = Class.extend({
     
     finishSetup: function() {
         this._setupFinished = true;
+        if (this.isLoadComplete()) {
+            window.clearTimeout(this._failTimeout);
+            this.onComplete();
+        }
     },
     
     setLoaded: function(url) {

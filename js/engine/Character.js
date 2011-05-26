@@ -45,8 +45,8 @@ var FACING_LEFT = 3;
 /* Class representing either a player character or NPC
  * Characters can either stay still or move about the map. */
 var Character = Sprite.extend({
-   _init: function(x, y, img, subMapId, dir) {
-        this._super(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, img, subMapId);
+   _init: function(x, y, imgRef, subMapId, dir) {
+        this._super(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, imgRef, subMapId);
         
         this._dir = dir;
 

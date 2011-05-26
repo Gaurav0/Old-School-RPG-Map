@@ -93,9 +93,9 @@ var Battle = Class.extend({
     },
     
     /* Setup random encounter */
-    setupRandomEncounter: function(zone, background) {
+    setupRandomEncounter: function(zone, backgroundRef) {
         
-        this._background = background;
+        this._background = g_imageData.images[backgroundRef].img;
         
         // Get encounter data associated with zone
         var zoneXml = null;
@@ -211,7 +211,8 @@ var Battle = Class.extend({
         var destLeft = 2 * TILE_WIDTH;
         for (var i = 0; i < this._monsterList.length; ++i) {
             var monster = this._monsterList[i];
-            spriteCtx.drawImage(g_enemies,
+            var img = g_imageData.images[monster.getImageRef()].img;
+            spriteCtx.drawImage(img,
                 monster.getLeft(),
                 monster.getTop(),
                 monster.getWidth(),

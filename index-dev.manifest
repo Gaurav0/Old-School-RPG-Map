@@ -23,6 +23,7 @@ js/engine/Game.js
 js/engine/Battle.js
 js/engine/rpg.js
 js/game/setup.js
+js/game/images.js
 js/game/items.js
 js/game/monsters.js
 js/game/misc.js
@@ -47,4 +48,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-#updated Thu May 26 2011 11:40:26 GMT+0000 (EST)
+#updated Thu May 26 2011 23:13:40 GMT+0000 (EST)

@@ -91,6 +91,10 @@ var Monster = Class.extend({
         return this._monster.gold;
     },
     
+    getImageRef: function() {
+        return this._monster.imgRef;
+    },
+    
     getLeft: function() {
         return this._monster.left;
     },

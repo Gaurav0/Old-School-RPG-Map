@@ -38,8 +38,8 @@
 
 /* Class representing a main character that can fight in battles. */
 var Player = Character.extend({
-    _init: function(x, y, img, subMapId, dir, playerId) {
-        this._super(x, y, img, subMapId, dir);
+    _init: function(x, y, imgRef, subMapId, dir, playerId) {
+        this._super(x, y, imgRef, subMapId, dir);
         this._player = g_playerData.players[playerId];
         this.reset();
     },

@@ -91,12 +91,10 @@ var g_game = null;
 var g_player = null;
 var g_worldmap = null;
 var g_titlescreen = true;
-var g_enemies = null;
 var g_textDisplay = new TextDisplay();
 var g_menu = new MainMenu();
 var g_shop = new Shop();
 var g_battle = null;
-var g_chest = null;
 var g_fullscreen = false;
 var g_progress = new Progress();
 
@@ -120,6 +118,25 @@ function loadXml(xmlUrl, callback) {
             alert('error:' + b);
         }
     });
+}
+
+// Process the g_imageData JSON and start loading the images
+function loadImages() {
+    for (imgRef in g_imageData.images) {
+        var ref = g_imageData.images[imgRef];
+        var url = ref.url;
+        var img = new Image();
+        ref.img = img;
+        g_progress.addResource(url, img);
+        img.onload = (function(ref1, url1) {
+            return function() {
+                g_progress.setLoaded(url1);
+                if (!!ref1.load)
+                    ref1.load();
+            };
+        })(ref, url);
+        img.src = url;
+    }
 }
 
 // Utility function to print a message to user

@@ -42,12 +42,11 @@
  * url: url of the image
  * img: Image object in javascript. */
 var Tileset = Class.extend({
-    _init: function(width, height, url, img) {
+    _init: function(width, height, imgRef) {
         this._width = width;
         this._height = height;
-        this._url = url;
-        this._img = img;
-        
+        this._url = g_imageData.images[imgRef].url;
+        this._img = g_imageData.images[imgRef].img;
     },
     
     /* draws a single layer for a single tile on the map canvas */

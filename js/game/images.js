@@ -36,58 +36,36 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* Class representing a treasure chest */
-var Chest = Sprite.extend({
-    _init: function(x, y, imgRef, subMapId, flagName) {
-        this._super(x, y, TILE_WIDTH, TILE_HEIGHT, imgRef, subMapId);
-        this._flagName = flagName;
-        this._open = false;
-        
-        var chest = this;
-        g_game.addLoadFunction(function() {
-            if (g_game.isFlagSet(chest._flagName))
-                chest._open = true;
-            else
-                chest._open = false;
-        });
-    },
-    
-    isOpen: function() {
-        return this._open;
-    },
-    
-    open: function() {
-        this.clear();
-        this._open = true;
-        g_game.setFlag(this._flagName);
-        this.plot();
-    },
-    
-    plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
-        
-        var newSourceOffsetX = 0;
-        if (this._open)
-            newSourceOffsetX = TILE_WIDTH;
-            
-        this._super(newSourceOffsetX, 0, destOffsetX, destOffsetY);
-    },
-    
-    onOpenFindItem: function(msg, itemId, amt) {
-        if (!this.isOpen()) {
-            this.open();
-            g_player.addToInventory(itemId, amt);
-            g_textDisplay.displayText(msg);
-        }
-    },
-    
-    onOpenLearnSpell: function(spellId) {
-        if (!this.isOpen()) {
-            this.open();
-            g_player.learnSpell(spellId);
-            var msg = "You found a spell book.\n";
-            var spellName = g_spellData.spells[spellId].name;
-            msg += "You learned " + spellName + ".";
-            g_textDisplay.displayText(msg);
+var g_imageData = {
+    "images": {
+        "world": {
+            "url": "images/World3.png"
+        }, "trevor": {
+            "url": "images/Trevor.png"
+        }, "meadow": {
+            "url": "images/meadow.png"
+        }, "InqCastle": {
+            "url": "images/InqCastle.png"
+        }, "forest": {
+            "url": "images/Elfwood_Forest.png"
+        }, "enemies": {
+            "url": "images/enemies-t2.png"
+        }, "chest": {
+            "url": "images/Chest2.png"
+        }, "soldier": {
+            "url": "images/Soldier2.png"
+        }, "InqIndoors": {
+            "url": "images/Inq_XP_Medieval_Indoors.png"
+        }, "man1": {
+            "url": "images/Man1.png"
+        }, "man2": {
+            "url": "images/Man2.png"
+        }, "woman1": {
+            "url": "images/Woman1.png"
+        }, "woman2": {
+            "url": "images/Woman2.png"
+        }, "boy": {
+            "url": "images/Boy.png"
         }
     }
-});
+};
