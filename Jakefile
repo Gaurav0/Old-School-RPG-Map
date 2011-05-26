@@ -3,10 +3,11 @@ var fs = require('fs');
 var sys = require('sys');
 var uglify = require('uglify-js');
 
-task('default', ['js/rpg.min.js', 'js/includes.js'], function() {});
+task('default', ['js/rpg.min.js', 'js/includes.js', 'updatemanifests'], function() {});
 
 var rpgSourceFiles = [
     'js/engine/Animation.js',
+    'js/engine/Progress.js',
     'js/engine/MapSquare.js',
     'js/engine/SubMap.js',
     'js/engine/WorldMap.js',
@@ -57,3 +58,15 @@ file('js/includes.js', includeSourceFiles, function() {
     var out = fs.openSync('js/includes.js', 'w+');
     fs.writeSync(out, code);
 });
+
+task('updatemanifests', [], function() {
+    updateManifest('index.manifest');
+    updateManifest('index-dev.manifest');
+});
+
+function updateManifest(filename) {
+    var code = "";
+    code += fs.readFileSync(filename);
+    code = code.replace(/updated[^\n]+/, "updated " + new Date().toString());
+    fs.writeFileSync(filename, code);
+}

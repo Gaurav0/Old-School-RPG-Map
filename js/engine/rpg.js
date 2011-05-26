@@ -72,6 +72,9 @@ var BATTLE_FREQ = 0.14;
 // How long to wait in ms between writing lines
 var MESSAGE_DELAY = 500;
 
+// How long to wait in ms before showing an error message that loading failed
+var LOAD_TIMEOUT = 10000;
+
 /* Globals */
 
 // 4 Canvases and counting
@@ -95,6 +98,7 @@ var g_shop = new Shop();
 var g_battle = null;
 var g_chest = null;
 var g_fullscreen = false;
+var g_progress = new Progress();
 
 var g_elements = [
     mapCanvas,
@@ -196,7 +200,7 @@ function handleKeyUp() {
 }
 
 function handleKey(key, event) {
-    if (g_worldmap && g_player) {
+    if (g_progress.isLoadComplete()) {
         if (g_worldmap.isAnimating()) {
             keyBuffer = key;
             event.preventDefault();

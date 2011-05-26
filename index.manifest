@@ -1,5 +1,4 @@
 CACHE MANIFEST
-# updated 20110522
 index.html
 rpgdemo.css
 http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js
@@ -10,6 +9,7 @@ xml/Castle1.tmx.xml
 xml/CastleShops.tmx.xml
 xml/Forest1.tmx.xml
 xml/WorldMap1.tmx.xml
+images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png
 images/Elfwood_Forest.png
@@ -26,3 +26,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
+# updated Thu May 26 2011 11:40:26 GMT+0000 (EST)

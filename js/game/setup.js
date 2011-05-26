@@ -35,6 +35,8 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+ 
+ var setupFunctions = 0;
 
 /* Main Game setup code */
 $(document).ready(function() {
@@ -46,24 +48,51 @@ $(document).ready(function() {
     // src set must be after onload function set due to bug in IE9
     titlescreen.src = "images/titlescreen.png";
     
+    // What to do after loading is complete
+    g_progress.onComplete = function() {
+        document.getElementById("loaded").innerHTML = "Loading Complete!";
+    };
+    
+    g_progress.onFail = function() {
+        var html = "One or more resource(s) was not loaded:<br>";
+        var list = g_progress.getList();
+        for (var i = 0; i < list.length; ++i)
+            html += list[i] + "<br>"
+        document.getElementById("loaded").innerHTML = html;
+    };
+    
     g_game = new Game(titlescreen);
     var url = "images/World3.png"; // url of worlmap's tileset
     var img = new Image();
     var worldTileset = new Tileset(256, 1152, url, img);
-    img.src = url;
+    g_progress.addResource(url, img);
+    var worldmapUrl = "xml/WorldMap1.tmx.xml";
+    g_progress.addResource(worldmapUrl);
     img.onload = function() {
-        loadXml("xml/WorldMap1.tmx.xml", function(mapXml) {
+        g_progress.setLoaded(url);
+        loadXml(worldmapUrl, function(mapXml) {
+            g_progress.setLoaded(worldmapUrl);
             g_worldmap = new WorldMap(mapXml, worldTileset);
-            var img = new Image();
-            g_player = new Player(23, 13, img, 0, FACING_DOWN, PLAYER_TREVOR);
+            var img1 = new Image();
+            var url1 = "images/Trevor.png";
+            g_progress.addResource(url1, img1);
+            g_player = new Player(23, 13, img1, 0, FACING_DOWN, PLAYER_TREVOR);
             g_menu.setOnNewGame(function() {
                 g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
             });
-            img.src = "images/Trevor.png";
+            img1.onload = function() {
+                g_progress.setLoaded(url1);
+            };
+            img1.src = url1;
             
             // Temporary background
             var meadow = new Image();
-            meadow.src = "images/meadow.png";
+            var meadowUrl = "images/meadow.png";
+            g_progress.addResource(meadowUrl, meadow);
+            meadow.onload = function() {
+                g_progress.setLoaded(meadowUrl);
+            };
+            meadow.src = meadowUrl;
             
             
             // Setup random encounters
@@ -85,28 +114,55 @@ $(document).ready(function() {
 
             var url2 = "images/InqCastle.png";
             var img2 = new Image();
+            g_progress.addResource(url2, img2);
             var tileset2 = new Tileset(256, 2304, url2, img2);
-            img2.src = url2;
+            var castleMapUrl = "xml/Castle1.tmx.xml";
+            g_progress.addResource(castleMapUrl);
             img2.onload = function() {
-                loadXml("xml/Castle1.tmx.xml", function(mapXml) {
+                g_progress.setLoaded(url2);
+                loadXml(castleMapUrl, function(mapXml) {
+                    g_progress.setLoaded(castleMapUrl);
                     setupCastleMap(mapXml, tileset2);
                 });
             };
+            img2.src = url2;
             
             var url3 = "images/Elfwood_Forest.png";
             var img3 = new Image();
+            g_progress.addResource(url3, img3);
             var tileset3 = new Tileset(256, 576, url3, img3);
-            img3.src = url3;
+            var forestMapUrl = "xml/Forest1.tmx.xml";
+            g_progress.addResource(forestMapUrl);
             img3.onload = function() {
-                loadXml("xml/Forest1.tmx.xml", function(mapXml) {
+                g_progress.setLoaded(url3);
+                loadXml(forestMapUrl, function(mapXml) {
+                    g_progress.setLoaded(forestMapUrl);
                     setupForestMap(mapXml, tileset3);
                 });
             };
+            img3.src = url3;
         });
     };
+    img.src = url;
     
     g_enemies = new Image();
-    g_enemies.src = "images/enemies-t2.png";
+    var enemiesUrl = "images/enemies-t2.png";
+    g_progress.addResource(enemiesUrl, g_enemies);
+    g_enemies.onload = function() {
+        g_progress.setLoaded(enemiesUrl);
+    };
+    g_enemies.src = enemiesUrl;
+    
+    g_chest = new Image();
+    var chestUrl = "images/Chest2.png";
+    g_progress.addResource(chestUrl, g_chest);
+    g_chest.onload = function() {
+        g_progress.setLoaded(chestUrl);
+    };
+    g_chest.src = chestUrl;
+    
+    if (++setupFunctions == 4)
+        g_progress.finishSetup();
 });
 
 /* Castle submap setup code */
@@ -137,8 +193,13 @@ function setupCastleMap(mapXml, tileset) {
     
     // Soldier NPCs
     var img = new Image();
+    var url = "images/Soldier2.png";
+    g_progress.addResource(url, img);
+    img.onload = function() {
+        g_progress.setLoaded(url);
+    };
+    img.src = url;
     var soldier1 = new Character(10, 14, img, mapId, FACING_DOWN);
-    img.src = "images/Soldier2.png";
     soldier1.action = function() {
         this.facePlayer();
         g_textDisplay.displayText("You may enter the castle now.");
@@ -154,13 +215,21 @@ function setupCastleMap(mapXml, tileset) {
     // Submap of this submap
     var url4 = "images/Inq_XP_Medieval_Indoors.png";
     var img4 = new Image();
+    g_progress.addResource(url4, img4);
     var tileset4 = new Tileset(256, 8704, url4, img4);
-    img4.src = url4;
+    var castleShopsUrl = "xml/CastleShops.tmx.xml";
+    g_progress.addResource(castleShopsUrl);
     img4.onload = function() {
+        g_progress.setLoaded(url4);
         loadXml("xml/CastleShops.tmx.xml", function(mapXml) {
+            g_progress.setLoaded(castleShopsUrl);
             setupCastleShopsMap(mapXml, tileset4, mapId);
         });
     };
+    img4.src = url4;
+    
+    if (++setupFunctions == 4)
+        g_progress.finishSetup();
 }
 
 /* Castle Shops submap setup code */
@@ -192,8 +261,13 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         
     // NPCs
     var img1 = new Image();
+    var url1 = "images/Man1.png";
+    g_progress.addResource(url1, img1);
+    img1.onload = function() {
+        g_progress.setLoaded(url1);
+    };
+    img1.src = url1;
     var npc1 = new Character(1, 8, img1, mapId, FACING_RIGHT);
-    img1.src = "images/Man1.png";
     npc1.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([
@@ -206,9 +280,15 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         g_textDisplay.displayText("Welcome to the weapon shop.");
     };
     map.addSprite(npc1);
+    
     var img2 = new Image();
+    var url2 = "images/Man2.png";
+    g_progress.addResource(url2, img2);
+    img2.onload = function() {
+        g_progress.setLoaded(url2);
+    };
+    img2.src = url2;
     var npc2 = new Character(18, 8, img2, mapId, FACING_LEFT);
-    img2.src = "images/Man2.png";
     npc2.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([
@@ -226,9 +306,15 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         g_textDisplay.displayText("Welcome to the armor shop.");
     };
     map.addSprite(npc2);
+    
     var img3 = new Image();
+    var url3 = "images/Woman2.png"
+    g_progress.addResource(url3, img3);
+    img3.onload = function() {
+        g_progress.setLoaded(url3);
+    };
+    img3.src = url3;
     var npc3 = new Character(1, 12, img3, mapId, FACING_RIGHT);
-    img3.src = "images/Woman2.png";
     npc3.action = function() {
         g_textDisplay.setCallback(function() {
             g_shop.displayShop([ITEM_POTION, ITEM_BOMB, ITEM_ETHER], true);
@@ -236,17 +322,29 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         g_textDisplay.displayText("Welcome to the item shop.");
     };
     map.addSprite(npc3);
+    
     var img4 = new Image();
+    var url4 = "images/Woman1.png";
+    g_progress.addResource(url4, img4);
+    img4.onload = function() {
+        g_progress.setLoaded(url4);
+    };
+    img4.src = url4;
     var npc4 = new Character(10, 12, img4, mapId, FACING_DOWN);
-    img4.src = "images/Woman1.png";
     npc4.action = function() {
         this.facePlayer();
         g_textDisplay.displayText("Welcome to the castle's tavern.");
     };
     map.addSprite(npc4);
+    
     var img5 = new Image();
+    var url5 = "images/Boy.png";
+    g_progress.addResource(url5, img5);
+    img5.onload = function() {
+        g_progress.setLoaded(url5);
+    };
+    img5.src = url5;
     var npc5 = new Character(16, 17, img5, mapId, FACING_LEFT);
-    img5.src = "images/Boy.png";
     npc5.action = function() {
         this.facePlayer();
         var msg = "Whenever I return to the castle,\n";
@@ -268,6 +366,9 @@ function setupCastleShopsMap(mapXml, tileset, parentMapId) {
         if (g_player.getDir() == FACING_LEFT)
             npc3.action();
     };
+    
+    if (++setupFunctions == 4)
+        g_progress.finishSetup();
 }
 
 /* Forest submap setup code */
@@ -280,7 +381,12 @@ function setupForestMap(mapXml, tileset) {
     
     // Temporary background
     var meadow = new Image();
-    meadow.src = "images/meadow.png";
+    var meadowUrl = "images/meadow.png";
+    g_progress.addResource(meadowUrl, meadow);
+    meadow.onload = function() {
+        g_progress.setLoaded(meadowUrl);
+    };
+    meadow.src = meadowUrl;
     
     // Setup random encounters
     for (var x = 0; x < xLimit; ++x)
@@ -316,8 +422,6 @@ function setupForestMap(mapXml, tileset) {
     };
     
     // Treasure chests
-    g_chest = new Image();
-    g_chest.src = "images/Chest2.png";
     var chest1 = new Chest(3, 27, mapId, "fc1");
     chest1.action = function() {
         this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
@@ -365,4 +469,7 @@ function setupForestMap(mapXml, tileset) {
             map.removeSprite(boss);
         }
     });
+    
+    if (++setupFunctions == 4)
+        g_progress.finishSetup();
 }
