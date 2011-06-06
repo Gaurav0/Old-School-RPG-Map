@@ -113,6 +113,7 @@ function loadXml(xmlUrl, callback) {
         type: "GET",
         url: xmlUrl,
         dataType: "xml",
+        async: false,
         success: callback,
         error: function(a,b,c) {
             alert('error:' + b);
@@ -135,9 +136,198 @@ function loadImages() {
                     ref1.load();
             };
         })(ref, url);
+        
+        // src set must be after onload function set due to bug in IE9
         img.src = url;
     }
 }
+
+// In non ES5 browsers, Object.keys may not be defined:
+if (!Object.keys) {
+    Object.keys = function(obj) {
+        var keys = new Array();
+        for (k in obj) if (obj.hasOwnProperty(k)) keys.push(k);
+        return keys;
+    };
+}
+
+// Process the g_mapData JSON and start loading the maps and tilesets
+function loadMaps() {
+    var setupFunctions = 0;
+    var numSubmaps = Object.keys(g_mapData.submaps).length;
+
+    for (var i = 0; i < numSubmaps; ++i) {
+        var mapData = g_mapData.submaps[i];
+        var mapId = mapData.id;
+        var tileset = new Tileset(mapData.tileset.width, mapData.tileset.height, mapData.tileset.imgRef);
+        var xmlUrl = mapData.xmlUrl;
+        g_progress.addResource(xmlUrl);
+        loadXml(xmlUrl, (function(mapData, mapId, tileset, xmlUrl) {
+            return function(mapXml) {
+                g_progress.setLoaded(xmlUrl);
+                var map = null;
+                if (mapId == 0) {
+                    g_worldmap = new WorldMap(mapXml, tileset);
+                    map = g_worldmap.getSubMap(0);
+                } else {
+                    map = new SubMap(mapXml, tileset, mapData.overworld);
+                    g_worldmap.addSubMap(mapId, map);
+                }
+                if (!!mapData.load)
+                    mapData.load();
+                
+                // Setup Random Encounters
+                var defaultZone = mapData.zone;
+                if (mapData.randomEncounters) {
+                    for (var x = 0; x < map.getXLimit(); ++x) {
+                        for (var y = 0; y < map.getYLimit(); ++y) {
+                            var square = map.getSquareAt(x, y);
+                            if (square.passable()) {
+                                square.onEnter = function() {
+                                    if (Math.random() < BATTLE_FREQ) {
+                                        keyBuffer = 0;
+                                        g_battle = new Battle();
+                                        var zone = this.getZone();
+                                        if (!zone)
+                                            zone = defaultZone;
+                                        g_battle.setupRandomEncounter(zone, mapData.background);
+                                        g_battle.draw();
+                                    }
+                                };
+                            }
+                        }
+                    }
+                }
+                
+                // Entrances to other maps
+                var submap = g_worldmap.getSubMap(mapId);
+                if (mapData.entrances) {
+                    for (var i = 0; i < mapData.entrances.length; ++i) {
+                        var entrance = mapData.entrances[i];
+                        var square = submap.getSquareAt(entrance.fromX, entrance.fromY);
+                        square.onEnter = (function(entrance) {
+                            return function() {
+                                g_worldmap.goToMap(g_player,
+                                    entrance.toMapId,
+                                    entrance.toX,
+                                    entrance.toY,
+                                    entrance.toScrollX,
+                                    entrance.toScrollY,
+                                    entrance.facing);
+                                if (!!entrance.onEnter)
+                                    entrance.onEnter();
+                            };
+                        })(entrance);
+                    }
+                }
+                
+                // Exits
+                if (mapData.exit) {
+                    function doExit() {
+                        g_worldmap.goToMap(g_player,
+                            mapData.exit.toMapId,
+                            mapData.exit.toX,
+                            mapData.exit.toY,
+                            mapData.exit.toScrollX,
+                            mapData.exit.toScrollY,
+                            mapData.exit.facing);
+                    }
+                    
+                    var xLimit = map.getXLimit();
+                    var yLimit = map.getYLimit();
+                    if (mapData.exit.at == "edges") {
+                        for (var x = 0; x < xLimit; x++)
+                            for (var y = 0; y < yLimit; y++)
+                                if (x == 0 || y == 0 || x == xLimit - 1 || y == yLimit - 1) {
+                                    submap.getSquareAt(x, y).onEnter = doExit;
+                                }
+                    } else if (mapData.exit.at == "bottom") {
+                        var y = yLimit - 1;
+                        for (var x = 0; x < xLimit; x++)
+                            submap.getSquareAt(x, y).onEnter = doExit;
+                    }
+                }
+                
+                // NPCs
+                if (mapData.npcs) {
+                    for (var i = 0; i < mapData.npcs.length; ++i) {
+                        var npcData = mapData.npcs[i];
+                        var npc = new Character(npcData.locX,
+                            npcData.locY,
+                            npcData.imgRef,
+                            mapId,
+                            npcData.facing);
+                        npc.action = (function(npcData) {
+                            return function() {
+                                this.facePlayer();
+                                if (!!npcData.callback)
+                                    g_textDisplay.setCallback(npcData.callback);
+                                g_textDisplay.displayText(npcData.displayText);
+                            };
+                        })(npcData);
+                        map.addSprite(npc);
+                        npcData.npc = npc;
+                    }
+                }
+                
+                // Actions
+                if (mapData.actions) {
+                    for (var i = 0; i < mapData.actions.length; ++i) {
+                        var actionData = mapData.actions[i];
+                        var square = submap.getSquareAt(actionData.locX, actionData.locY);
+                        square.onAction = (function(actionData) {
+                            return function() {
+                                if (!actionData.dir || actionData.dir == g_player.getDir())
+                                    actionData.onAction();
+                            };
+                        })(actionData);
+                    }
+                }
+                
+                // Treasure Chests
+                if (mapData.chests) {
+                    for (var i = 0; i < mapData.chests.length; ++i) {
+                        var chestData = mapData.chests[i];
+                        var chest = new Chest(chestData.locX,
+                            chestData.locY,
+                            chestData.imgRef,
+                            mapId,
+                            chestData.event);
+                        chest.action = chestData.action;
+                        map.addSprite(chest);
+                    }
+                }
+                
+                if (++setupFunctions == numSubmaps)
+                    g_progress.finishSetup();
+            };
+        })(mapData, mapId, tileset, xmlUrl));
+    }
+}
+
+/* Main Game setup code */
+$(document).ready(function() {
+    
+    // What to do after loading is complete
+    g_progress.onComplete = function() {
+        document.getElementById("loaded").innerHTML = "Loading Complete!";
+    };
+    
+    // What to do if loading fails
+    g_progress.onFail = function() {
+        var html = "One or more resource(s) was not loaded:<br>";
+        var list = g_progress.getList();
+        for (var i = 0; i < list.length; ++i)
+            html += list[i] + "<br>"
+        document.getElementById("loaded").innerHTML = html;
+    };
+    
+    g_game = new Game("titlescreen");
+    
+    loadImages();
+    
+    loadMaps();
+});
 
 // Utility function to print a message to user
 // regardless of whether in battle or on map

@@ -126,9 +126,9 @@ var Battle = Class.extend({
     },
     
     /* Setup scripted encounter (for boss monsters, etc.) */
-    setupEncounter: function(name, aryMonsters, background) {
+    setupEncounter: function(name, aryMonsters, backgroundRef) {
         
-        this._background = background;
+        this._background = g_imageData.images[backgroundRef].img;
         
         // Create encounter object
         this._encounter = {

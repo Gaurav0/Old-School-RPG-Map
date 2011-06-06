@@ -36,12 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-/* Maps */
-var SUBMAP_WORLD_MAP = 0;
-var SUBMAP_CASTLE_EXTERIOR = 1;
-var SUBMAP_CASTLE_TAVERN = 2;
-var SUBMAP_FOREST_DUNGEON = 3;
-
 /* Spells */
 var SPELLTYPE_HEAL_ONE = 1;
 // var SPELLTYPE_HEAL_ALL = 2;

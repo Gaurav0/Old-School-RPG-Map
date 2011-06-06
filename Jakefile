@@ -23,8 +23,8 @@ var rpgSourceFiles = [
     'js/engine/Game.js',
     'js/engine/Battle.js',
     'js/engine/rpg.js',
-    'js/game/setup.js',
     'js/game/images.js',
+    'js/game/maps.js',
     'js/game/items.js',
     'js/game/monsters.js',
     'js/game/misc.js'

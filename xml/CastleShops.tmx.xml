@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Inq XP MI- Medieval Indoors" tilewidth="32" tileheight="32">
-  <image source="images/Inq XP MI- Medieval Indoors.png"/>
+  <image source="../images/Inq_XP_Medieval_Indoors.png"/>
  </tileset>
  <layer name="Base" width="20" height="20">
   <data>

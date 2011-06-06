@@ -38,7 +38,12 @@
 
 var g_imageData = {
     "images": {
-        "world": {
+        "titlescreen": {
+            "url": "images/titlescreen.png",
+            "load": function() {
+                g_game.showTitleScreen();
+            }
+        }, "world": {
             "url": "images/World3.png"
         }, "trevor": {
             "url": "images/Trevor.png"

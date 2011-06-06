@@ -41,8 +41,8 @@
  * game, and maintains a list of functions to call
  * whenever a game is loaded */
 var Game = Class.extend({
-    _init: function(titlescreenImg) {
-        this._titlescreenImg = titlescreenImg;
+    _init: function(titlescreenImgRef) {
+        this._titlescreenImgRef = titlescreenImgRef;
         this._flags = {};
         this._loadFunctions = [];
     },
@@ -93,7 +93,7 @@ var Game = Class.extend({
     },
     
     showTitleScreen: function() {
-        mapCtx.drawImage(this._titlescreenImg, 0, 0);
+        mapCtx.drawImage(g_imageData.images[this._titlescreenImgRef].img, 0, 0);
     },
     
     hasSaveInfo: function(slot) {

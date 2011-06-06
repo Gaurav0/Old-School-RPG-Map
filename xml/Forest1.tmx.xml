@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="20" height="30" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Elfwood Forest" tilewidth="32" tileheight="32">
-  <image source="images/Elfwood Forest.png"/>
+  <image source="../images/Elfwood_Forest.png"/>
  </tileset>
  <layer name="Base" width="20" height="30">
   <data>
