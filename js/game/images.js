@@ -52,7 +52,7 @@ var g_imageData = {
         }, "InqCastle": {
             "url": "images/InqCastle.png"
         }, "forest": {
-            "url": "images/Elfwood_Forest.png"
+            "url": "images/Dark_Forest.png"
         }, "enemies": {
             "url": "images/enemies-t2.png"
         }, "chest": {
