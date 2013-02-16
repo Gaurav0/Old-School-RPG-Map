@@ -418,19 +418,21 @@ var Battle = Class.extend({
     
     /* Draws an arrow next to the current menu item in battle menu */
     drawArrow: function() {
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 20px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
         var drawHeight = this._lineHeight[this._currentAction % 4];        
-        textCtx.fillText(arrowChar, 20, drawHeight);
+        // textCtx.fillText(arrowChar, 20, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 16, drawHeight + 2);
         this._arrow = true;
     },
     
     /* Erases the arrow next to the current menu item in battle menu */
     clearArrow: function() {
         var drawHeight = this._lineHeight[this._currentAction % 4];
-        textCtx.clearRect(19, drawHeight, 16, 20);
+        textCtx.clearRect(15, drawHeight + 2, 18, 11);
         this._arrow = false;
     },
     
@@ -439,18 +441,20 @@ var Battle = Class.extend({
         var monster = this._monsterList[this._monsterSelection];
         var loc = monster.getLoc();
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, loc - 10, 3 * TILE_HEIGHT);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 20px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        // textCtx.fillText(arrowChar, loc - 10, 3 * TILE_HEIGHT);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, loc - 10, 3 * TILE_HEIGHT);
     },
     
     /* Erases the arrow next to currently selected enemy */
     clearMonsterSelection: function() {
         var monster = this._monsterList[this._monsterSelection];
         var loc = monster.getLoc();
-        textCtx.clearRect(loc - 11, 3 * TILE_HEIGHT, 16, 20);
+        textCtx.clearRect(loc - 11, 3 * TILE_HEIGHT, 18, 11);
     },
     
     /* Display items in inventory for selection during battle */
@@ -481,16 +485,20 @@ var Battle = Class.extend({
     /* Draws an arrow next to currently selected item */
     drawItemSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 16px sans-serif";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 154, this._textHeight[this._itemSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 16px sans-serif";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._textHeight[this._itemSelection];
+        // textCtx.fillText(arrowChar, 154, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 154, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected item */
     clearItemSelection: function() {
-        textCtx.clearRect(153, this._textHeight[this._itemSelection], 16, 15);
+        var drawHeight = this._textHeight[this._itemSelection];
+        textCtx.clearRect(153, drawHeight + 2, 18, 11);
     },
     
     /* Display spells known by player character for selection during battle */
@@ -515,16 +523,20 @@ var Battle = Class.extend({
     /* Draws an arrow next to currently selected spell */
     drawSpellSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 16px sans-serif";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 154, this._textHeight[this._spellSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 16px sans-serif";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._textHeight[this._spellSelection];
+        // textCtx.fillText(arrowChar, 154, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 154, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected spell */
     clearSpellSelection: function() {
-        textCtx.clearRect(153, this._textHeight[this._spellSelection], 16, 15);
+        var drawHeight = this._textHeight[this._spellSelection];
+        textCtx.clearRect(153, drawHeight + 2, 18, 11);
     },
     
     /* Handles input while battling for up, down, left, and right arrow keys */
