@@ -130,14 +130,14 @@ var MainMenu = Class.extend({
     },
     
     displayTitleScreenMenu: function() {
-        drawBox(menuCtx, 0, 0, 150, 90, 25, 4);
+        drawBox(menuCtx, 0, 0, 175, 90, 25, 4);
         
         // Draw Text
         textCtx.font = "bold 18px monospace";
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        textCtx.fillText("New Game", 34, this._lineHeight[0]);
-        textCtx.fillText("Load Game", 34, this._lineHeight[1]);
+        textCtx.fillText("New Game", 44, this._lineHeight[0]);
+        textCtx.fillText("Load Game", 44, this._lineHeight[1]);
         
         this._currentMenu = TITLESCREEN_MENU;
         this._currentAction = TITLESCREEN_MENU_NEW_GAME;
@@ -395,113 +395,137 @@ var MainMenu = Class.extend({
     
     /* Draws an arrow next to the current menu item in main menu */
     drawArrow: function() {
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
+        //var arrowChar = "\u25ba";
+        //textCtx.font = "bold 20px monospace";
+        //textCtx.fillStyle = "white";
+        //textCtx.textBaseline = "top";
         var drawHeight = this._lineHeight[this._currentAction % NUM_MAIN_MENU_ACTIONS];        
-        textCtx.fillText(arrowChar, 26, drawHeight);
+        //textCtx.fillText(arrowChar, 26, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 24, drawHeight + 5);
         this._arrow = true;
     },
     
     /* Erases the arrow next to the current menu item in main menu */
     clearArrow: function() {
         var drawHeight = this._lineHeight[this._currentAction % NUM_MAIN_MENU_ACTIONS];
-        textCtx.clearRect(25, drawHeight, 16, 20);
+        textCtx.clearRect(24, drawHeight + 5, 16, 11);
         this._arrow = false;
     },
     
     /* Draws an arrow next to the current titlescreen action */
     drawTitleScreenAction: function() {
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 18px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 18px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
         var drawHeight = this._lineHeight[this._currentAction];        
-        textCtx.fillText(arrowChar, 20, drawHeight);
+        // textCtx.fillText(arrowChar, 20, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 24, drawHeight + 2);
         this._arrow = true;
     },
     
     /* Erases the arrow next to the current titlescreen action */
     clearTitleScreenAction: function() {
         var drawHeight = this._lineHeight[this._currentAction];
-        textCtx.clearRect(19, drawHeight, 15, 19);
+        textCtx.clearRect(24, drawHeight + 2, 16, 11);
         this._arrow = false;
     },
     
     /* Draws an arrow next to currently selected item */
     drawItemSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 166, this._lineHeight[this._itemSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 20px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._itemSelection];
+        // textCtx.fillText(arrowChar, 166, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 170, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected item */
     clearItemSelection: function() {
-        textCtx.clearRect(165, this._lineHeight[this._itemSelection], 21, 20);
+        var drawHeight = this._lineHeight[this._itemSelection];
+        textCtx.clearRect(169, drawHeight + 2, 16, 11);
     },
     
     /* Draws an arrow next to currently selected spell */
     drawSpellSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 166, this._lineHeight[this._spellSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 20px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._lineHeight[this._spellSelection];
+        // textCtx.fillText(arrowChar, 166, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 170, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected spell */
     clearSpellSelection: function() {
-        textCtx.clearRect(165, this._lineHeight[this._spellSelection], 21, 20);
+        var drawHeight = this._lineHeight[this._spellSelection];
+        textCtx.clearRect(169, drawHeight + 2, 16, 11);
     },
     
     /* Draws an arrow next to currently selected equipment selection */
     drawEquipSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 18px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 176, this._equipHeight[this._equipSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 18px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._equipHeight[this._equipSelection];
+        // textCtx.fillText(arrowChar, 176, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 180, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected equipment selection */
     clearEquipSelection: function() {
-        textCtx.clearRect(175, this._equipHeight[this._equipSelection], 19, 18);
+        var drawHeight = this._equipHeight[this._equipSelection];
+        textCtx.clearRect(179, drawHeight + 2, 16, 11);
     },
     
     /* Draws an arrow next to currently selected equipment selection */
     drawEquipOptionSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 16px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 176, this._equipSubHeight[this._equipOptionSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 16px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._equipSubHeight[this._equipOptionSelection];
+        // textCtx.fillText(arrowChar, 176, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 180, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected equipment selection */
     clearEquipOptionSelection: function() {
-        textCtx.clearRect(175, this._equipSubHeight[this._equipOptionSelection], 17, 16);
+        var drawHeight = this._equipSubHeight[this._equipOptionSelection];
+        textCtx.clearRect(179, drawHeight + 2, 16, 11);
     },
     
     /* Draws an arrow next to currently selected save slot */
     drawSaveSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 18px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 176, this._saveHeight[this._saveSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 18px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._saveHeight[this._saveSelection];
+        // textCtx.fillText(arrowChar, 176, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 179, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected save slot */
     clearSaveSelection: function() {
-        textCtx.clearRect(175, this._saveHeight[this._saveSelection], 19, 18);
+        var drawHeight = this._saveHeight[this._saveSelection];
+        textCtx.clearRect(179, drawHeight + 2, 16, 11);
     },
     
     /* Handles arrow key input for main menu */

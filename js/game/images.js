@@ -43,6 +43,8 @@ var g_imageData = {
             "load": function() {
                 g_game.showTitleScreen();
             }
+        }, "pointer": {
+            "url": "images/pointer.png"
         }, "world": {
             "url": "images/World3.png"
         }, "trevor": {
