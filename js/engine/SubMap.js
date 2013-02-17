@@ -53,6 +53,7 @@ var SubMap = Class.extend({
         this._animation = new Animation();
         
         // Create mapSquares table used to cache passable / zone info.
+        var waterTiles = $(mapXml).find('layer[name="Water"]').find('tile');
         var baseTiles = $(mapXml).find('layer[name="Base"]').find('tile');
         var impassableTiles = $(mapXml).find('layer[name="Impassable"]').find('tile');
         var zoneTiles = $(mapXml).find('layer[name="Zones"]');
@@ -64,7 +65,7 @@ var SubMap = Class.extend({
                 var idx = y * this._xLimit + x;
                 
                 // passable if base layer has water tile or Impassable layer has any tile
-                var passable = parseInt(baseTiles.eq(idx).attr('gid')) != 87;
+                var passable = (parseInt(waterTiles.eq(idx).attr('gid')) == 0);
                 passable = passable && (parseInt(impassableTiles.eq(idx).attr('gid')) == 0);
                 
                 // zone tiles
