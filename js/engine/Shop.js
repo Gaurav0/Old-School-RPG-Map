@@ -98,6 +98,7 @@ var Shop = Class.extend({
         g_textDisplay.displayText("Thank you for your business.\nPlease come again.");
     },
     
+    /* Displays the amount of gold you have in bottom while shopping */
     displayGold: function() {
         drawBox(menuCtx, 0, 120, 100, 40, 10, 2);
         
@@ -270,6 +271,7 @@ var Shop = Class.extend({
         textCtx.clearRect(135, this._drawHeight[this._sellSelection], 15, 14);
     },
     
+    /* Increase the quantity that the user will buy */
     increaseQuantity: function() {
         if (this._quantity < this._maxQuantity)
             this._quantity++;
@@ -278,6 +280,7 @@ var Shop = Class.extend({
         textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * this._price + "G", 120, 266);
     },
     
+    /* Decrease the quantity that the user will buy */
     decreaseQuantity: function() {
         if (this._quantity > 1)
             this._quantity--;
@@ -286,6 +289,7 @@ var Shop = Class.extend({
         textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * this._price + "G", 120, 266);
     },
     
+    /* Handles arrow key input while any shop is being displayed */
     handleInput: function(key) {
         if (this._quantityDisplayed) {
             switch(key) {
@@ -349,6 +353,7 @@ var Shop = Class.extend({
         }
     },
     
+    /* Handle if enter is pressed while shop is being displayed */
     handleEnter: function() {
         if (this._quantityDisplayed) {
             if (this._currentMenu == BUY_MENU)
@@ -380,6 +385,7 @@ var Shop = Class.extend({
         }
     },
     
+    /* Handle ESC key pressed while shop is being displayed */
     handleEsc: function() {
         if (this._quantityDisplayed)
             this.clearQuantityDialog();
@@ -389,6 +395,7 @@ var Shop = Class.extend({
             this.clearSubMenu();
     },
     
+    /* Called when user tries to complete purchase of single item. */
     buyItem: function() {
         this.clearSubMenu();
         
@@ -409,6 +416,7 @@ var Shop = Class.extend({
         }
     },
     
+    /* Called when user tries to complete purchase of multiple items. */
     buyItems: function() {
         this.clearQuantityDialog();
         this.clearSubMenu();
@@ -431,6 +439,7 @@ var Shop = Class.extend({
         }
     },
     
+    /* Called when user tries to complete sale of single item. */
     sellItem: function() {
         this.clearSubMenu();
         
@@ -445,6 +454,7 @@ var Shop = Class.extend({
         g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
     },
     
+    /* Called when user tries to complete sale of multiple items. */
     sellItems: function() {
         this.clearQuantityDialog();
         this.clearSubMenu();

@@ -270,6 +270,7 @@ var WorldMap = Class.extend({
             this._runAfterAnimation = callback;
     },
     
+    // Create object containing any worldmap data to be saved
     createSaveData: function() {
         return {
             scrollX: this._scrollX,
@@ -277,6 +278,7 @@ var WorldMap = Class.extend({
         };
     },
 
+    // Load any data saved using createSaveData
     loadSaveData: function(worldMapData) {
         this._scrollX = worldMapData.scrollX;
         this._scrollY = worldMapData.scrollY;

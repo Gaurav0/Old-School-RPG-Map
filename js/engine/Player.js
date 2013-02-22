@@ -232,6 +232,7 @@ var Player = Character.extend({
             callback(spellId);
     },
     
+    /* Create an object containing all info about player state */
     createSaveData: function() {
         return {
             exp: this._exp,
@@ -256,7 +257,6 @@ var Player = Character.extend({
         };
     },
 
-    /* load save data */
     loadSaveData: function(playerData) {
         this._exp = playerData.exp;
         this._gold = playerData.gold;

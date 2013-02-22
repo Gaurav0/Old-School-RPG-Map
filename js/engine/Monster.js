@@ -38,6 +38,8 @@
 
 /* Class representing an enemy in battles */
 var Monster = Class.extend({
+
+    // Parameter from g_monsterData
     _init: function(monster) {
         this._monster = monster;
         this._maxHP = monster.hp;
@@ -63,6 +65,7 @@ var Monster = Class.extend({
         return this._hp <= 0;
     },
     
+    /* loc=0 means first monster in encounter, etc. */
     getLoc: function() {
         return this._loc;
     },

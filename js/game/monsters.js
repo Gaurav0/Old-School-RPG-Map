@@ -319,6 +319,8 @@ var g_monsterData = {
         "width": 32,
         "height": 33,
         "special": function(source) {
+        
+            // Mage will try to heal the weakest monster in encounter
             var lowId = -1;
             var lowHP = 9999;
             g_battle.writeMsg("The " + source.getName() + " casts Heal.");

@@ -48,11 +48,13 @@ var Progress = Class.extend({
         }, LOAD_TIMEOUT);
     },
     
+    /* Any resource to be loaded during game start */
     addResource: function(url, res) {
         this._resources[url] = new Resource(url, res);
         this._count++;
     },
     
+    /* Must call this in order to complete loading */
     finishSetup: function() {
         this._setupFinished = true;
         if (this.isLoadComplete()) {
@@ -61,6 +63,7 @@ var Progress = Class.extend({
         }
     },
     
+    /* Must call this on each resource as it loads */
     setLoaded: function(url) {
         this._resources[url].setLoaded();
         this._loaded++;
@@ -70,10 +73,12 @@ var Progress = Class.extend({
         }
     },
     
+    /* Returns true if all resources have been loaded and finishSetup() called */
     isLoadComplete: function() {
         return this._setupFinished && this._count == this._loaded;
     },
     
+    /* Really dumb, doesn't take into account sizes of each resource */
     getPercentLoaded: function() {
         return this._loaded / this._count;
     },

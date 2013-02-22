@@ -70,7 +70,7 @@ var Sprite = Class.extend({
     },
     
     /* Draws the sprite onto the map (unless its position is offscreen,
-     * or on a different map):*/
+     * or on a different map): */
     plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
         if (g_worldmap.getCurrentSubMapId() != this._subMap) {
             return;

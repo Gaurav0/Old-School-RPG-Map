@@ -43,6 +43,7 @@ var TextDisplay = Class.extend({
         this._callback = null;
     },
     
+    // Set function to be called after text is cleared
     setCallback: function(callback) {
         this._callback = callback;
     },

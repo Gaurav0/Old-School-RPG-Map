@@ -406,6 +406,7 @@ function handleKeyUp() {
         g_battle.handleKeyUp();
 }
 
+// Send a key event to an appropriate function given game state
 function handleKey(key, event) {
     if (g_progress.isLoadComplete()) {
         if (g_worldmap.isAnimating()) {
@@ -495,6 +496,8 @@ function handleKey(key, event) {
     }
 }
 
+// Called after an animation is over or game is otherwise
+// no longer busy. Handle the key saved in the buffer.
 function handleBufferedKey() {
     if (keyBuffer && !g_battle && !g_worldmap.isAnimating()) {
         var key = keyBuffer;
@@ -529,6 +532,7 @@ else
     $(window).keydown(handleKeyPress);
 $(window).keyup(handleKeyUp);
 
+/* Handle onscreen gamepad */
 $(document).ready(function() {
     var showpad = document.getElementById("showpad");
     showpad.onclick = function() {

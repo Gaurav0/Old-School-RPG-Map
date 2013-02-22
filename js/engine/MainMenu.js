@@ -220,7 +220,7 @@ var MainMenu = Class.extend({
         textCtx.font = "bold 20px monospace";
         textCtx.textBaseline = "top";
         
-        // Display items in inventory
+        // Display spells user can use
         this._spellId = [];
         this._canUseSpell = [];
         var numSpells = 0;
@@ -298,6 +298,7 @@ var MainMenu = Class.extend({
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
         
+        // Display equipment that can be used instead of selected equip
         this._equipOptionId = [];
         var menu = this;
         var numEquipOptions = 0;
@@ -645,6 +646,7 @@ var MainMenu = Class.extend({
         }
     },
     
+    /* Called when enter key is pressed and main menu has focus */
     handleEnter: function() {
         if (this._currentMenu == MAIN_MENU) {
             this.clearArrow();
@@ -725,6 +727,7 @@ var MainMenu = Class.extend({
         }
     },
     
+    /* Called when ESC key is pressed and main menu has focus */
     handleEsc: function() {
         switch (this._currentMenu) {
             case MAIN_MENU:
@@ -751,6 +754,8 @@ var MainMenu = Class.extend({
         }
     },
     
+    /* changes equipment to that selected from equip menu,
+       determine which equipment to unload based on equip type */
     changeEquip: function() {
         var currentlyEquippedItemId;
         var toEquipItemId = this._equipOptionId[this._equipOptionSelection];
@@ -776,12 +781,13 @@ var MainMenu = Class.extend({
         g_player.addToInventory(currentlyEquippedItemId);
     },
     
+    /* Load previously saved game from slot selected from Load menu. */
     loadGame: function() {
         var slot = this._saveSelection + 1;
         try {
             g_game.load(slot);
             spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-            g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(), g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
+            g_worldmap.goToMap(g_player, g_player.getSubMap(), g_player.getX(), g_player.getY(),    g_worldmap.getScrollX(), g_worldmap.getScrollY(), g_player.getDir());
         } catch (e) {
             if (e instanceof NoSaveException)
                 g_textDisplay.displayText("There is no saved game in slot" + slot + ".");

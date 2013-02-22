@@ -44,6 +44,8 @@ var Chest = Sprite.extend({
         this._open = false;
         
         var chest = this;
+        
+        // Determine if chest is open when game is loaded
         g_game.addLoadFunction(function() {
             if (g_game.isFlagSet(chest._flagName))
                 chest._open = true;
@@ -52,10 +54,12 @@ var Chest = Sprite.extend({
         });
     },
     
+    /* is the treasure chest open? */
     isOpen: function() {
         return this._open;
     },
     
+    /* Open the treasure chest */
     open: function() {
         this.clear();
         this._open = true;
@@ -63,6 +67,7 @@ var Chest = Sprite.extend({
         this.plot();
     },
     
+    /* Draw the treasure chest */
     plot: function(sourceOffsetX, sourceOffsetY, destOffsetX, destOffsetY) {
         
         var newSourceOffsetX = 0;
@@ -72,6 +77,9 @@ var Chest = Sprite.extend({
         this._super(newSourceOffsetX, 0, destOffsetX, destOffsetY);
     },
     
+    /* called from action method of chests section of g_mapData,
+       used to indicate what item(s) user will receive upon
+       opening the chest */
     onOpenFindItem: function(msg, itemId, amt) {
         if (!this.isOpen()) {
             this.open();
@@ -80,6 +88,10 @@ var Chest = Sprite.extend({
         }
     },
     
+    
+    /* called from action method of chests section of g_mapData,
+       used to indicate what spell(s) character will learn upon
+       opening the chest */
     onOpenLearnSpell: function(spellId) {
         if (!this.isOpen()) {
             this.open();
