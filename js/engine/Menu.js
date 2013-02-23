@@ -54,6 +54,7 @@ var Menu = Class.extend({
         this._textLeft = args.textLeft;
         this._heights = args.heights;
         this._texts = args.texts;
+        this._flags = args.flags;
         this._font = args.font;
         this._callbacks = args.callbacks;
         this._canESC = args.canESC;
@@ -68,12 +69,18 @@ var Menu = Class.extend({
         
         /* Draw Text */
         textCtx.font = this._font;
-        textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
-        for (var i = 0; i < this._num; ++i)
-            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
+        for (var i = 0; i < this._num; ++i) {
         
-        this.drawPointer();
+            // Determine if text should be selectable
+            textCtx.fillStyle = this._flags ? (this._flags[i] ? "gray" : "white") : "white";
+            
+            // Draw the text
+            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
+        }
+        
+        if (this._num > 0)
+            this.drawPointer();
         
         this._displayed = true;
     },
@@ -138,7 +145,11 @@ var Menu = Class.extend({
     /* Handle Enter Key Input: Call appropriate callback */
     handleEnter: function() {
         if (this._displayed) {
-            this._callbacks[this._current]();
+            if (this._flags && this._flags[this._current]) {
+                // not selectable
+            } else {                
+                this._callbacks[this._current]();
+            }
         }
     },
     

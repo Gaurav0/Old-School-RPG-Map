@@ -19,6 +19,7 @@ var rpgSourceFiles = [
     'js/engine/Tileset.js',
     'js/engine/TextDisplay.js',
     'js/engine/Menu.js',
+    'js/engine/ItemMenu.js',
     'js/engine/MainMenu.js',
     'js/engine/Shop.js',
     'js/engine/Game.js',
