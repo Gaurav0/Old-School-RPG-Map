@@ -116,19 +116,21 @@ var Shop = Class.extend({
     
     /* Draws an arrow next to the current shop action in shop menu */
     drawArrow: function() {
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 20px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
         var drawHeight = this._lineHeight[this._currentAction % 3];        
-        textCtx.fillText(arrowChar, 15, drawHeight);
+        // textCtx.fillText(arrowChar, 15, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 13, drawHeight + 2);
         this._arrow = true;
     },
     
     /* Erases the arrow next to the current shop action in shop menu */
     clearArrow: function() {
         var drawHeight = this._lineHeight[this._currentAction % 3];
-        textCtx.clearRect(14, drawHeight, 16, 20);
+        textCtx.clearRect(13, drawHeight + 2, 16, 11);
         this._arrow = false;
     },
     
@@ -244,31 +246,39 @@ var Shop = Class.extend({
     /* Draws an arrow next to currently selected item to buy */
     drawBuySelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 16px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 128, this._drawHeight[this._buySelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 16px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._drawHeight[this._buySelection];
+        // textCtx.fillText(arrowChar, 128, drawHeight);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 124, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected item to buy*/
     clearBuySelection: function() {
-        textCtx.clearRect(127, this._drawHeight[this._buySelection], 17, 16);
+        var drawHeight = this._drawHeight[this._buySelection];
+        textCtx.clearRect(124, drawHeight + 2, 16, 11);
     },
     
     /* Draws an arrow next to currently selected item to buy */
     drawSellSelection: function() {
         
-        var arrowChar = "\u25ba";
-        textCtx.font = "bold 14px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(arrowChar, 136, this._drawHeight[this._sellSelection]);
+        // var arrowChar = "\u25ba";
+        // textCtx.font = "bold 14px monospace";
+        // textCtx.fillStyle = "white";
+        // textCtx.textBaseline = "top";
+        var drawHeight = this._drawHeight[this._sellSelection];
+        // textCtx.fillText(arrowChar, 136, drawHeight + 2);
+        var img = g_imageData.images["pointer"].img;
+        textCtx.drawImage(img, 128, drawHeight + 2);
     },
     
     /* Erases the arrow next to currently selected item to buy*/
     clearSellSelection: function() {
-        textCtx.clearRect(135, this._drawHeight[this._sellSelection], 15, 14);
+        var drawHeight = this._drawHeight[this._sellSelection];
+        textCtx.clearRect(128, drawHeight + 2, 16, 11);
     },
     
     /* Increase the quantity that the user will buy */
