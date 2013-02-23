@@ -20,6 +20,7 @@ var rpgSourceFiles = [
     'js/engine/TextDisplay.js',
     'js/engine/Menu.js',
     'js/engine/ItemMenu.js',
+    'js/engine/SpellMenu.js',
     'js/engine/MainMenu.js',
     'js/engine/Shop.js',
     'js/engine/Game.js',

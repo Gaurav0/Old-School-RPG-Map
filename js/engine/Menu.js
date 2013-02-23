@@ -146,7 +146,7 @@ var Menu = Class.extend({
     handleEnter: function() {
         if (this._displayed) {
             if (this._flags && this._flags[this._current]) {
-                // not selectable
+                // not useable
             } else {                
                 this._callbacks[this._current]();
             }
