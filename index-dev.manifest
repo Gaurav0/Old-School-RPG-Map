@@ -17,6 +17,7 @@ js/engine/Player.js
 js/engine/Monster.js
 js/engine/Tileset.js
 js/engine/TextDisplay.js
+js/engine/Menu.js
 js/engine/MainMenu.js
 js/engine/Shop.js
 js/engine/Game.js
@@ -49,4 +50,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-#updated Sat Feb 23 2013 11:54:50 GMT+0000 (EST)
+#updated Sat Feb 23 2013 21:31:40 GMT+0000 (EST)
