@@ -204,8 +204,10 @@ var EquipSubMenu = Menu.extend({
     _createCallbacks: function() {
         var callbacks = [];
         for (var i = 0; i < this._items.length; ++i)
-            callbacks[i] = function() {
-                callback(i);
-            };
+            callbacks[i] = (function(i) {
+                return function() {
+                    callback(i);
+                };
+            })(i);
     }
 });
