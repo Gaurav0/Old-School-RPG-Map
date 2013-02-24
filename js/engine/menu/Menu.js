@@ -166,5 +166,19 @@ var Menu = Class.extend({
                 this.clear();
                 this._afterClear();
             }
+    },
+    
+    /* For subclasses that would prefer a single callback function
+     * Expects there to exist a function callback, taking a single
+     * argument, the index of the currently selected option from the
+     * menu. */
+    createCallbacks: function(num) {
+        var callbacks = [];
+        for (var i = 0; i < num; ++i)
+            callbacks[i] = (function(i) {
+                return function() {
+                    callback(i);
+                };
+            })(i);
     }
 });

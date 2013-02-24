@@ -55,7 +55,7 @@ var SpellMenu = Menu.extend({
         var numSpells = this._getSpells();
         var texts = this._getTexts();
         var flags = this._getFlags();
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(numSpells);
         this._super({
             numberSelections: numSpells,
             drawBox: true,
@@ -119,15 +119,5 @@ var SpellMenu = Menu.extend({
         } else {
             g_textDisplay.displayText("You do not have enough mp to use " + spell.name + ".");
         }
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < this._spells.length; ++i)
-            callbacks[i] = (function(i) {
-                return function() {
-                    callback(i);
-                };
-            })(i);
     }
 });

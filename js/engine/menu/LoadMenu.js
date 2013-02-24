@@ -52,7 +52,7 @@ var TITLESCREEN_MENU = 9;
 
 var LoadMenu = Menu.extend({
     _init: function(mainMenu) {
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
         this._super({
             numberSelections: NUM_SAVE_SLOTS,
             drawBox: true,
@@ -95,16 +95,6 @@ var LoadMenu = Menu.extend({
         this.loadGame(i + 1);
         if (g_titlescreen)
             g_titlescreen = false;
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < NUM_SAVE_SLOTS; ++i)
-            callbacks[i] = (function(i) {
-                return function() {
-                    callback(i);
-                };
-            })(i);
     },
     
     loadGame: function(slot) {

@@ -54,7 +54,7 @@ var NUM_SAVE_SLOTS = 4;
 
 var SaveMenu = Menu.extend({
     _init: function(mainMenu) {
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
         this._super({
             numberSelections: NUM_SAVE_SLOTS,
             drawBox: true,
@@ -97,15 +97,5 @@ var SaveMenu = Menu.extend({
         var slot = i + 1;
         g_game.save(slot);
         g_textDisplay.displayText("Game saved to slot " + slot + ".");
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < NUM_SAVE_SLOTS; ++i)
-            callbacks[i] = (function(i) {
-                return function() {
-                    callback(i);
-                };
-            })(i);
     }
 });

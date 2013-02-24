@@ -55,7 +55,7 @@ var ItemMenu = Menu.extend({
         var numItems = this._getItems();
         var texts = this._getTexts();
         var flags = this._getFlags();
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(numItems);
         this._super({
             numberSelections: numItems,
             drawBox: true,
@@ -119,15 +119,5 @@ var ItemMenu = Menu.extend({
         var theItem = g_itemData.items[item.id];
         theItem.use(g_player);
         g_player.removeFromInventory(item.id);
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < this._items.length; ++i)
-            callbacks[i] = (function(i) {
-                return function() {
-                    callback(i);
-                };
-            })(i);
     }
 });

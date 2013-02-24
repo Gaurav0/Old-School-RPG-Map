@@ -59,7 +59,7 @@ var EQUIP_SHIELD = 3;
 
 var EquipMenu = Menu.extend({
     _init: function(mainMenu) {
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(NUM_EQUIP_TYPES);
         this._super({
             numberSelections: NUM_EQUIP_TYPES,
             drawBox: true,
@@ -199,15 +199,5 @@ var EquipSubMenu = Menu.extend({
         }
         g_player.removeFromInventory(toEquipItemId);
         g_player.addToInventory(currentlyEquippedItemId);
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < this._items.length; ++i)
-            callbacks[i] = (function(i) {
-                return function() {
-                    callback(i);
-                };
-            })(i);
     }
 });
