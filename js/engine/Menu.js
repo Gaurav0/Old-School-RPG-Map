@@ -70,14 +70,7 @@ var Menu = Class.extend({
         /* Draw Text */
         textCtx.font = this._font;
         textCtx.textBaseline = "top";
-        for (var i = 0; i < this._num; ++i) {
-        
-            // Determine if text should be selectable
-            textCtx.fillStyle = this._flags ? (this._flags[i] ? "gray" : "white") : "white";
-            
-            // Draw the text
-            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
-        }
+        this.drawText();
         
         if (this._num > 0)
             this.drawPointer();
@@ -119,6 +112,18 @@ var Menu = Class.extend({
         textCtx.clearRect(this._pointerLeft, drawHeight + 2, 16, 11);
         
         this._pointer = false;
+    },
+    
+    /* Override this to draw text differently */
+    drawText: function() {
+        for (var i = 0; i < this._num; ++i) {
+        
+            // Determine if text should be selectable
+            textCtx.fillStyle = this._flags ? (this._flags[i] ? "gray" : "white") : "white";
+            
+            // Draw the text
+            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
+        }
     },
     
     /* Handle Arrow Key Input */

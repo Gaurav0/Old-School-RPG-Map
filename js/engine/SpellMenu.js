@@ -73,7 +73,7 @@ var SpellMenu = Menu.extend({
             font: "bold 20px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.drawPointer(); }
+            afterClear: function() { mainMenu.returnTo(); }
         });
         this._mainMenu = mainMenu;
     },
@@ -127,5 +127,5 @@ var SpellMenu = Menu.extend({
             callbacks[i] = function() {
                 callback(i);
             };
-    },
+    }
 });

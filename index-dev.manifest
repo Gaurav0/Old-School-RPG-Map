@@ -21,6 +21,7 @@ js/engine/TextDisplay.js
 js/engine/Menu.js
 js/engine/ItemMenu.js
 js/engine/SpellMenu.js
+js/engine/EquipMenu.js
 js/engine/MainMenu.js
 js/engine/Shop.js
 js/engine/Game.js
@@ -53,4 +54,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-#updated Sat Feb 23 2013 23:38:14 GMT+0000 (EST)
+#updated Sun Feb 24 2013 03:30:28 GMT+0000 (EST)
