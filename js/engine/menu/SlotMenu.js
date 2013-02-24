@@ -37,15 +37,13 @@
  * ***** END LICENSE BLOCK ***** */
 
 
+var NUM_SAVE_SLOTS = 4;
 
-var SpellMenu = Menu.extend({
+var SlotMenu = Menu.extend({
     _init: function(mainMenu) {
-        var numSpells = this._getSpells();
-        var texts = this._getTexts();
-        var flags = this._getFlags();
-        var callbacks = this.createCallbacks(numSpells);
+        var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
         this._super({
-            numberSelections: numSpells,
+            numberSelections: NUM_SAVE_SLOTS,
             drawBox: true,
             left: 150,
             top: 0,
@@ -54,11 +52,9 @@ var SpellMenu = Menu.extend({
             radius: 25,
             thickness: 4,
             pointerLeft: 170,
-            textLeft: 186,
-            heights: [ 20, 48, 76, 104, 132, 160 ],
-            texts: texts,
-            flags: flags,
-            font: "bold 20px monospace",
+            textLeft: 195,
+            heights: [ 20, 60, 100, 140 ],
+            font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
             afterClear: function() { mainMenu.returnTo(); }
@@ -66,46 +62,19 @@ var SpellMenu = Menu.extend({
         this._mainMenu = mainMenu;
     },
     
-    _getSpells: function() {
-        this._spells = [];
-        var numSpells = 0;
-        g_player.forEachSpell(function(spellId) {
-            var spell = {};
-            spell.name = g_spellData.spells[spellId].name;
-            spell.type = g_spellData.spells[spellId].type;
-            spell.id = spellId;
-            spell.canUse = (spellType == SPELLTYPE_HEAL_ONE);
-            this._spells.push(spell);
-            numSpells++;
-        });
-        
-        return numSpells;
-    },
-    
-    _getTexts: function() {
-        var texts = [];
-        for (var i = 0; i < this._spells.length; ++i) {
-            var spell = this._spells[i];
-            texts[i] = spell.name;
-        }
-    },
-    
-    _getFlags: function() {
-        return _.map(this._spells, function(spell, index) {
-            return !spell.canUse;
-        });
-    },
+    drawText: function() {
 
-    callback: function(i) {
-        var spell = this._spell[i];
-        this.clear();
-        this._mainMenu.clear();
-        var theSpell = g_spellData.items[spell.id];
-        if (g_player.getMP() >= theSpell.mpCost) {
-            theSpell.use(g_player);
-            g_player.useMP(theSpell.mpCost);
-        } else {
-            g_textDisplay.displayText("You do not have enough mp to use " + spell.name + ".");
+        // Show Save Slot data
+        for (var i = 1; i <= NUM_SAVE_SLOTS; ++i) {
+            textCtx.font = "bold 16px monospace";
+            textCtx.fillText("Save Slot " + i + ":", this._textLeft, this._heights[i - 1]);
+            if (g_game.hasSaveInfo(i)) {
+                textCtx.font = "bold 14px monospace";
+                textCtx.fillText(g_game.getSaveInfo(i), this._textLeft + 15, this._heights[i - 1] + 20);
+            } else {
+                textCtx.font = "italic 14px serif";
+                textCtx.fillText("Empty", this._textLeft + 15, this._heights[i - 1] + 20);
+            }
         }
     }
 });

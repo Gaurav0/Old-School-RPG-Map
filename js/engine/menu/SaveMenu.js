@@ -37,58 +37,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-/*
-var MAIN_MENU = 0;
-var ITEM_MENU = 1;
-var SPELL_MENU = 2;
-var EQUIP_MENU = 3;
-var STATUS_MENU = 4;
-var SAVE_MENU = 5;
-var LOAD_MENU = 6;
-var NOT_IMPLEMENTED_MENU = 7;
-var EQUIP_SUBMENU = 8;
-var TITLESCREEN_MENU = 9;
-*/
-
-var NUM_SAVE_SLOTS = 4;
-
-var SaveMenu = Menu.extend({
+var SaveMenu = SlotMenu.extend({
     _init: function(mainMenu) {
-        var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
-        this._super({
-            numberSelections: NUM_SAVE_SLOTS,
-            drawBox: true,
-            left: 150,
-            top: 0,
-            width: 250,
-            height: 200,
-            radius: 25,
-            thickness: 4,
-            pointerLeft: 170,
-            textLeft: 195,
-            heights: [ 20, 60, 100, 140 ],
-            font: "bold 16px monospace",
-            callbacks: callbacks,
-            canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
-        });
-        this._mainMenu = mainMenu;
-    },
-    
-    drawText: function() {
-
-        // Show Save Slot data
-        for (var i = 1; i <= NUM_SAVE_SLOTS; ++i) {
-            textCtx.font = "bold 16px monospace";
-            textCtx.fillText("Save Slot " + i + ":", this._textLeft, this._heights[i - 1]);
-            if (g_game.hasSaveInfo(i)) {
-                textCtx.font = "bold 14px monospace";
-                textCtx.fillText(g_game.getSaveInfo(i), this._textLeft + 15, this._heights[i - 1] + 20);
-            } else {
-                textCtx.font = "italic 14px serif";
-                textCtx.fillText("Empty", this._textLeft + 15, this._heights[i - 1] + 20);
-            }
-        }
+        this._super(mainMenu);
     },
 
     callback: function(i) {

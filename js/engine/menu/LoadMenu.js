@@ -37,19 +37,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-/*
-var MAIN_MENU = 0;
-var ITEM_MENU = 1;
-var SPELL_MENU = 2;
-var EQUIP_MENU = 3;
-var STATUS_MENU = 4;
-var SAVE_MENU = 5;
-var LOAD_MENU = 6;
-var NOT_IMPLEMENTED_MENU = 7;
-var EQUIP_SUBMENU = 8;
-var TITLESCREEN_MENU = 9;
-*/
-
 var LoadMenu = Menu.extend({
     _init: function(mainMenu) {
         var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
