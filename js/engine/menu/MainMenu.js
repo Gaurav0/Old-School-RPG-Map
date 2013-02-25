@@ -94,7 +94,8 @@ var MainMenu = Menu.extend({
         } else {
             this._currentMenuType = MAIN_MENU;
             this._currentMenu = this;            
-        },
+        }
+    },
     
     /* Get the current menu */
     getCurrentMenu: function() {
@@ -141,7 +142,7 @@ var MainMenu = Menu.extend({
         this._currentMenu = menu;
     },
     
-    displayEquipMenu: function() {{
+    displayEquipMenu: function() {
         var menu = new EquipMenu();
         menu.display();
         this._currentMenuType = EQUIP_MENU;

@@ -381,6 +381,12 @@ function drawBox(ctx, x, y, width, height, radius, lineWidth) {
     ctx.shadowColor = "transparent";
 }
 
+// forward setOnNewGame to titleScreenMenu if available
+function setOnNewGame(callback) {
+    if (g_titlescreen)
+        g_menu.getCurrentMenu().setOnNewGame(callback);
+}
+
 /* Input Handling */
 var DOWN_ARROW = 40;
 var UP_ARROW = 38;

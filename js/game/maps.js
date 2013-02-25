@@ -56,7 +56,7 @@ var g_mapData = {
             overWorld: true,
             load: function() {
                 g_player = new Player(23, 13, "trevor", 0, FACING_DOWN, PLAYER_TREVOR);
-                g_menu.setOnNewGame(function() {
+                setOnNewGame(function() {
                     g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
                 });
             },
