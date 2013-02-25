@@ -41,6 +41,25 @@ var LoadMenu = SlotMenu.extend({
     _init: function(mainMenu) {
         this._super(mainMenu);
     },
+    
+    drawText: function() {
+        // Show Save Slot data
+        for (var i = 1; i <= NUM_SAVE_SLOTS; ++i) {
+            if (g_game.hasSaveInfo(i)) {
+                textCtx.font = "bold 16px monospace";
+                textCtx.fillStyle = "white";
+                textCtx.fillText("Save Slot " + i + ":", 195, 40 * i - 20);
+                textCtx.font = "bold 14px monospace";
+                textCtx.fillText(g_game.getSaveInfo(i), 210, 40 * i);
+            } else {
+                textCtx.font = "bold 16px monospace";
+                textCtx.fillStyle = "gray";
+                textCtx.fillText("Save Slot " + i + ":", 195, 40 * i - 20);
+                textCtx.font = "italic 14px serif";
+                textCtx.fillText("Empty", 210, 40 * i);
+            }
+        }
+    },
 
     callback: function(i) {        
         this.clear();
