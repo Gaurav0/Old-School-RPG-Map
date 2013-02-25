@@ -181,8 +181,9 @@ var MainMenu = Menu.extend({
     
     /* Handles arrow key input for main menu */
     handleKey: function(key) {
+        console.log("MainMenu.handleKey");
         if (this._currentMenu == this)
-           this._super();
+           this._super(key);
         else
            this._currentMenu.handleKey(key);
     },

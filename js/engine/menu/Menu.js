@@ -50,6 +50,7 @@ var Menu = AbstractMenu.extend({
     
     /* Draw the pointer at the current selection */
     drawPointer: function() {
+        console.log("Menu.drawPointer:" + this._current);
 
         // Get the height at which the pointer should be
         var drawHeight = this._heights[this._current % this._num];
@@ -63,6 +64,7 @@ var Menu = AbstractMenu.extend({
     
     /* Clear the pointer at the current selection */
     clearPointer: function() {
+        console.log("Menu.clearPointer:" + this._current);
 
         // Get the height at which the pointer should be
         var drawHeight = this._heights[this._current % this._num];
@@ -87,6 +89,7 @@ var Menu = AbstractMenu.extend({
     
     /* Handle Arrow Key Input */
     handleKey: function(key) {
+        console.log("Menu.handleKey:" + key + this._displayed);
         if (this._displayed) {
             this.clearPointer();
             switch(key) {

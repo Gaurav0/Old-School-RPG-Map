@@ -116,15 +116,16 @@ var TitleScreenMenu = Menu.extend({
         this._currentMenu = menu;
     },
     
-    /* Handles arrow key input for main menu */
+    /* Handles arrow key input for title screen */
     handleKey: function(key) {
+        console.log("TitleScreenMenu.handleKey");
         if (this._currentMenu == this)
-           this._super();
+           this._super(key);
         else
            this._currentMenu.handleKey(key);
     },
     
-    /* Called when enter key is pressed and main menu has focus */
+    /* Called when enter key is pressed and title screen has focus */
     handleEnter: function() {
         console.log("TitleScreenMenu.handleEnter");
         if (this._currentMenu == this)
@@ -133,7 +134,7 @@ var TitleScreenMenu = Menu.extend({
            this._currentMenu.handleEnter();
     },
     
-    /* Called when ESC key is pressed and main menu has focus */
+    /* Called when ESC key is pressed and title screen has focus */
     handleESC: function() {
         if (this._currentMenu == this)
            this._super();
