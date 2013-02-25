@@ -89,7 +89,7 @@ var MainMenu = Menu.extend({
     
         if (g_titlescreen) {
             this._currentMenuType = TITLESCREEN_MENU;
-            this._currentMenu = new TitleScreenMenu();
+            this._currentMenu = new TitleScreenMenu(this);
             this._titleScreenMenu = this._currentMenu;
         } else {
             this._currentMenuType = MAIN_MENU;
@@ -109,8 +109,12 @@ var MainMenu = Menu.extend({
         this.drawPointer();
     },
     
+    setDisplayed: function(displayed) {
+        this._displayed = displayed;
+    },
+    
     displayTitleScreenMenu: function() {
-        var menu = this._titleScreenMenu ? this._titleScreenMenu : new TitleScreenMenu();
+        var menu = this._titleScreenMenu ? this._titleScreenMenu : new TitleScreenMenu(this);
         menu.display();
         this._currentMenuType = TITLESCREEN_MENU;
         this._currentMenu = menu;
@@ -180,6 +184,7 @@ var MainMenu = Menu.extend({
     
     /* Called when enter key is pressed and main menu has focus */
     handleEnter: function() {
+        console.log("MainMenu.handleEnter");
         if (this._currentMenu == this)
            this._super();
         else

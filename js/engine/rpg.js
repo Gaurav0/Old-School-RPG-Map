@@ -419,8 +419,10 @@ function handleKey(key, event) {
             keyBuffer = key;
             event.preventDefault();
         } else {
+            console.log(key);
             switch (key) {
                 case DOWN_ARROW:
+                    console.log("down arrow");
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
@@ -432,6 +434,7 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case UP_ARROW:
+                    console.log("up arrow");
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
@@ -443,6 +446,7 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
+                    console.log("right arrow");
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
@@ -454,6 +458,7 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
+                    console.log("left arrow");
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
@@ -466,6 +471,8 @@ function handleKey(key, event) {
                     break;
                 case SPACEBAR:
                 case ENTER:
+                    console.log("enter");
+                    console.log(g_menu.isDisplayed());
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
                     else if (g_menu.isDisplayed())
@@ -481,6 +488,7 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case ESC:
+                    console.log("esc");
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
                     else if (g_menu.isDisplayed())

@@ -81,7 +81,7 @@ var Menu = AbstractMenu.extend({
             textCtx.fillStyle = this._flags ? (this._flags[i] ? "gray" : "white") : "white";
             
             // Draw the text
-            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
+            textCtx.fillText(this._texts[i], this._textLeft, this._heights[i]);
         }
     },
     
@@ -108,10 +108,13 @@ var Menu = AbstractMenu.extend({
     
     /* Handle Enter Key Input: Call appropriate callback */
     handleEnter: function() {
+        console.log("Menu.handleEnter");
         if (this._displayed) {
             if (this._flags && this._flags[this._current]) {
+                console.log("flags");
                 // not useable
-            } else {                
+            } else {
+                console.log("callbacks:" + this._current);                
                 this._callbacks[this._current]();
             }
         }

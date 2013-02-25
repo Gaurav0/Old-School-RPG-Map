@@ -44,8 +44,9 @@ var TITLESCREEN_MENU_LOAD_GAME = 1;
 
 /* Class for the initial menu shown on the title screen */ 
 var TitleScreenMenu = Menu.extend({
-    _init: function() {
+    _init: function(mainMenu) {
         var menu = this;
+        this._mainMenu = mainMenu;
     
         this._super({
             numberSelections: NUM_TITLESCREEN_MENU_ACTIONS,
@@ -63,8 +64,8 @@ var TitleScreenMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                menu.onNewGame,
-                menu.displayLoadMenu
+                function() { menu.onNewGame(); },
+                function() { menu.displayLoadMenu(); }
             ],
             canESC: true,
             afterClear: function() { g_menu.clearTitleScreenMenu(); }
@@ -75,7 +76,19 @@ var TitleScreenMenu = Menu.extend({
         this._currentMenu = this;
     },
     
+    display: function() {
+        this._mainMenu.setDisplayed(true);
+        this._super();
+    },
+    
+    clear: function() {
+        this._mainMenu.setDisplayed(false);
+        this._super();
+    },
+    
+    // runs when a new game is started.
     onNewGame: function() {
+        console.log(this instanceof Class);
         this.clear();
         g_titlescreen = false;
         this._onNewGame();
@@ -110,6 +123,7 @@ var TitleScreenMenu = Menu.extend({
     
     /* Called when enter key is pressed and main menu has focus */
     handleEnter: function() {
+        console.log("TitleScreenMenu.handleEnter");
         if (this._currentMenu == this)
            this._super();
         else
