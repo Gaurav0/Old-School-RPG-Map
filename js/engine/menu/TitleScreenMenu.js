@@ -134,7 +134,7 @@ var TitleScreenMenu = Menu.extend({
     },
     
     /* Called when ESC key is pressed and main menu has focus */
-    handleEsc: function() {
+    handleESC: function() {
         if (this._currentMenu == this)
            this._super();
         else

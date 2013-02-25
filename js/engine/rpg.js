@@ -493,7 +493,7 @@ function handleKey(key, event) {
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
                     else if (g_menu.isDisplayed())
-                        g_menu.handleEsc();
+                        g_menu.handleESC();
                     else if (g_shop.shopDisplayed())
                         g_shop.handleEsc();
                     else if (g_battle)

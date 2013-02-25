@@ -197,8 +197,8 @@ var MainMenu = Menu.extend({
     },
     
     /* Called when ESC key is pressed and main menu has focus */
-    handleEsc: function() {
-        console.log("MainMenu.handleESC");
+    handleESC: function() {
+        console.log("MainMenu.handleESC: " + (this instanceof MainMenu) + (typeof(this._super)));
         if (this._currentMenu == this)
            this._super();
         else
