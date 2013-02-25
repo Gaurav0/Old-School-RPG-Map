@@ -73,6 +73,11 @@ var AbstractMenu = Class.extend({
         this._displayed = true;
     },
     
+    /* true if menu is currently being displayed */
+    isDisplayed: function() {
+        return this._displayed;
+    },
+    
     /* Completely clear the menu */
     clear: function() {
         if (this._drawBox)

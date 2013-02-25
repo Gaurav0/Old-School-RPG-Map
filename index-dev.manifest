@@ -26,6 +26,7 @@ js/engine/menu/EquipMenu.js
 js/engine/menu/SlotMenu.js
 js/engine/menu/SaveMenu.js
 js/engine/menu/LoadMenu.js
+js/engine/menu/TitleScreenMenu.js
 js/engine/menu/MainMenu.js
 js/engine/Shop.js
 js/engine/Game.js

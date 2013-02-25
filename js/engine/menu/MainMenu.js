@@ -56,13 +56,10 @@ var MAIN_MENU_LOAD = 5;
 
 var NUM_MAIN_MENU_ACTIONS = 6;
 
-var TITLESCREEN_MENU_NEW_GAME = 0;
-var TITLESCREEN_MENU_LOAD_GAME = 1;
-
 /* Class for main menu */
 var MainMenu = Menu.extend({
     _init: function() {
-    
+        var menu = this;
         this._super({
             numberSelections: NUM_MAIN_MENU_ACTIONS,
             drawBox: true,
@@ -79,21 +76,29 @@ var MainMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                displayItemMenu,
-                displaySpellMenu,
-                displayEquipMenu,
-                displayStatusMenu,
-                displaySaveMenu,
-                displayLoadMenu
+                menu.displayItemMenu,
+                menu.displaySpellMenu,
+                menu.displayEquipMenu,
+                menu.displayStatusMenu,
+                menu.displaySaveMenu,
+                menu.displayLoadMenu
             ],
             canESC: true,
             // afterClear: function() { mainMenu.returnTo(); }
-        });
+        });    
     
+        if (g_titlescreen) {
+            this._currentMenuType = TITLESCREEN_MENU;
+            this._currentMenu = new TitleScreenMenu();
+            this._titleScreenMenu = this._currentMenu;
+        } else {
+            this._currentMenuType = MAIN_MENU;
+            this._currentMenu = this;            
+        },
     
-        this._currentMenuType = MAIN_MENU;
-        this._currentMenu = this;
-        this._onNewGame = null;
+    /* Get the current menu */
+    getCurrentMenu: function() {
+        return this._currentMenu;
     },
     
     // Called after one of the submenus is cleared
@@ -103,25 +108,16 @@ var MainMenu = Menu.extend({
         this.drawPointer();
     },
     
-    // set function to call when new game is started.
-    setOnNewGame: function(callback) {
-        this._onNewGame = callback;
+    displayTitleScreenMenu: function() {
+        var menu = this._titleScreenMenu ? this._titleScreenMenu : new TitleScreenMenu();
+        menu.display();
+        this._currentMenuType = TITLESCREEN_MENU;
+        this._currentMenu = menu;
+        this._displayed = true;
     },
     
-    displayTitleScreenMenu: function() {
-        drawBox(menuCtx, 0, 0, 175, 90, 25, 4);
-        
-        // Draw Text
-        textCtx.font = "bold 18px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText("New Game", 44, this._lineHeight[0]);
-        textCtx.fillText("Load Game", 44, this._lineHeight[1]);
-        
-        this._currentMenu = TITLESCREEN_MENU;
-        this._currentAction = TITLESCREEN_MENU_NEW_GAME;
-        this.drawTitleScreenAction();        
-        this._menuDisplayed = true;
+    clearTitleScreenMenu: function() {
+        this._displayed = false;
     },
     
     displayNotImplementedMenu: function() {

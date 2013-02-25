@@ -415,8 +415,8 @@ function handleKey(key, event) {
         } else {
             switch (key) {
                 case DOWN_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
                         g_shop.handleInput(key);
                     else if (g_battle)
@@ -426,8 +426,8 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case UP_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
                         g_shop.handleInput(key);
                     else if (g_battle)
@@ -437,8 +437,8 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
                         g_shop.handleInput(key);
                     else if (g_battle)
@@ -448,8 +448,8 @@ function handleKey(key, event) {
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
                         g_shop.handleInput(key);
                     else if (g_battle)
@@ -462,10 +462,8 @@ function handleKey(key, event) {
                 case ENTER:
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
-                    else if (g_menu.menuDisplayed())
+                    else if (g_menu.isDisplayed())
                         g_menu.handleEnter();
-                    else if (g_titlescreen)
-                        g_menu.displayTitleScreenMenu();
                     else if (g_shop.shopDisplayed())
                         g_shop.handleEnter();
                     else if (g_battle)
@@ -479,16 +477,14 @@ function handleKey(key, event) {
                 case ESC:
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
-                    else if (g_menu.menuDisplayed())
+                    else if (g_menu.isDisplayed())
                         g_menu.handleEsc();
                     else if (g_shop.shopDisplayed())
                         g_shop.handleEsc();
                     else if (g_battle)
                         g_battle.handleEsc();
-                    else if (g_titlescreen)
-                        g_menu.displayTitleScreenMenu();
                     else
-                        g_menu.displayMenu();
+                        g_menu.getCurrentMenu().display();
                     event.preventDefault();
                     break;
             }
