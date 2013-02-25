@@ -106,11 +106,12 @@ var TitleScreenMenu = Menu.extend({
     returnTo: function() {
         this._currentMenuType = MAIN_MENU;
         this._currentMenu = this;
+        this.display();
         this.drawPointer();
     },
     
     displayLoadMenu: function() {
-        var menu = new LoadMenu();
+        var menu = new LoadMenu(this);
         menu.display();
         this._currentMenuType = LOAD_MENU;
         this._currentMenu = menu;

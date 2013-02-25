@@ -111,6 +111,7 @@ var MainMenu = Menu.extend({
     returnTo: function() {
         this._currentMenuType = MAIN_MENU;
         this._currentMenu = this;
+        this.display();
         this.drawPointer();
     },
     
@@ -166,14 +167,14 @@ var MainMenu = Menu.extend({
     },
     
     displaySaveMenu: function() {
-        var menu = new SaveMenu();
+        var menu = new SaveMenu(this);
         menu.display();
         this._currentMenuType = SAVE_MENU;
         this._currentMenu = menu;
     },
     
     displayLoadMenu: function() {
-        var menu = new LoadMenu();
+        var menu = new LoadMenu(this);
         menu.display();
         this._currentMenuType = LOAD_MENU;
         this._currentMenu = menu;
