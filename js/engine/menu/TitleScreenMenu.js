@@ -76,11 +76,13 @@ var TitleScreenMenu = Menu.extend({
         this._currentMenu = this;
     },
     
+    // display needs to update mainMenu._displayed
     display: function() {
         this._mainMenu.setDisplayed(true);
         this._super();
     },
-    
+
+    // clear needs to update mainMenu._displayed    
     clear: function() {
         this._mainMenu.setDisplayed(false);
         this._super();
@@ -90,8 +92,9 @@ var TitleScreenMenu = Menu.extend({
     onNewGame: function() {
         console.log(this instanceof Class);
         this.clear();
-        g_titlescreen = false;
         this._onNewGame();
+        g_titlescreen = false;
+        this._mainMenu.setCurrentMenu(this._mainMenu);
     },
     
     // set function to call when new game is started.

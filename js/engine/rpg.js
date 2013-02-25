@@ -489,6 +489,7 @@ function handleKey(key, event) {
                     break;
                 case ESC:
                     console.log("esc");
+                    console.log(g_menu._currentMenu instanceof MainMenu);
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
                     else if (g_menu.isDisplayed())

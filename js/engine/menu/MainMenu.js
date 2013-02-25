@@ -76,12 +76,12 @@ var MainMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                menu.displayItemMenu,
-                menu.displaySpellMenu,
-                menu.displayEquipMenu,
-                menu.displayStatusMenu,
-                menu.displaySaveMenu,
-                menu.displayLoadMenu
+                function() { menu.displayItemMenu(); },
+                function() { menu.displaySpellMenu(); },
+                function() { menu.displayEquipMenu(); },
+                function() { menu.displayStatusMenu(); },
+                function() { menu.displaySaveMenu(); },
+                function() { menu.displayLoadMenu(); },
             ],
             canESC: true,
             // afterClear: function() { mainMenu.returnTo(); }
@@ -100,6 +100,11 @@ var MainMenu = Menu.extend({
     /* Get the current menu */
     getCurrentMenu: function() {
         return this._currentMenu;
+    },
+    
+    /* Set the current menu */
+    setCurrentMenu: function(menu) {
+        this._currentMenu = menu;
     },
     
     // Called after one of the submenus is cleared
@@ -193,6 +198,7 @@ var MainMenu = Menu.extend({
     
     /* Called when ESC key is pressed and main menu has focus */
     handleEsc: function() {
+        console.log("MainMenu.handleESC");
         if (this._currentMenu == this)
            this._super();
         else
