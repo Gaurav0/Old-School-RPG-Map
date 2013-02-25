@@ -55,19 +55,19 @@ var MAIN_MENU_SAVE = 4;
 var MAIN_MENU_LOAD = 5;
 
 var NUM_MAIN_MENU_ACTIONS = 6;
-var NUM_SAVE_SLOTS = 4;
-
-var EQUIP_WEAPON = 0;
-var EQUIP_ARMOR = 1;
-var EQUIP_HELMET = 2;
-var EQUIP_SHIELD = 3;
 
 var TITLESCREEN_MENU_NEW_GAME = 0;
 var TITLESCREEN_MENU_LOAD_GAME = 1;
 
 /* Class for main menu */
-var MainMenu = Class.extend({
+var MainMenu = Menu.extend({
     _init: function() {
+    
+        this._super({
+             
+        });
+    
+    
         this._menuDisplayed = false;
         this._currentMenu = MAIN_MENU;
         this._currentAction = MAIN_MENU_ITEM;
@@ -796,5 +796,65 @@ var MainMenu = Class.extend({
             else
                 throw e;
         }
+    }
+});
+
+
+/* Class for Not Implemented Menu */
+var NotImplementedMenu = AbstractMenu.extend({
+
+    _init: function(mainMenu) {
+        this._super({
+            numberSelections: 0,
+            drawBox: true,
+            left: 150,
+            top: 0,
+            width: 250,
+            height: 200,
+            radius: 25,
+            thickness: 4,
+            textLeft: 170,
+            heights: [],
+            texts: [],
+            font: "bold 20px monospace",
+            afterClear: function() { mainMenu.returnTo(); }
+        });
+    }
+});
+
+
+/* Class for Status Menu */
+var StatusMenu = AbstractMenu.extend({
+
+    _init: function(mainMenu) {
+        var texts = this._getTexts();
+        this._super({
+            numberSelections: 7,
+            drawBox: true,
+            left: 150,
+            top: 0,
+            width: 250,
+            height: 200,
+            radius: 25,
+            thickness: 4,
+            textLeft: 180,
+            heights: [ 18, 36, 54, 72, 90, 108, 126 ],
+            texts: texts,
+            font: "bold 14px monospace",
+            afterClear: function() { mainMenu.returnTo(); }
+        });
+    },
+    
+    _getTexts: function() {
+        var texts = [];
+        
+        // Properties of g_player
+        texts[0] = "HP:      " + g_player.getHP() + "/" + g_player.getMaxHP();
+        texts[1] = "MP:      " + g_player.getMP() + "/" + g_player.getMaxMP();
+        texts[2] = "Attack:  " + g_player.getAttack();
+        texts[3] = "Defense: " + g_player.getDefense();
+        texts[4] = "Level:   " + g_player.getLevel();
+        texts[5] = "Exp:     " + g_player.getExp() + "/" + g_player.getNextExp();
+        texts[6] = "Gold:    " + g_player.getGold();
     }
 });

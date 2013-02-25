@@ -37,56 +37,15 @@
  * ***** END LICENSE BLOCK ***** */
 
 /* Class for a menu */
-var Menu = Class.extend({
+var Menu = AbstractMenu.extend({
     _init: function(args) {
-        this._displayed = false;
-        this._num = args.numberSelections;
+        this._super(args);
         this._current = 0;
         this._pointer = false;
-        this._drawBox = args.drawBox;
-        this._left = args.left;
-        this._top = args.top;
-        this._width = args.width;
-        this._height = args.height;
-        this._radius = args.radius;
-        this._thickness = args.thickness;
         this._pointerLeft = args.pointerLeft;
-        this._textLeft = args.textLeft;
-        this._heights = args.heights;
-        this._texts = args.texts;
         this._flags = args.flags;
-        this._font = args.font;
         this._callbacks = args.callbacks;
         this._canESC = args.canESC;
-        this._beforeClear = (args.beforeClear) ? args.beforeClear : function() {};
-        this._afterClear = (args.afterClear) ? args.afterClear : function() {};
-    },
-    
-    /* Display the menu */
-    display: function() {
-        if (this._drawBox)
-            drawBox(menuCtx, this._left, this._top, this._width, this._height, this._radius, this._thickness);
-        
-        /* Draw Text */
-        textCtx.font = this._font;
-        textCtx.textBaseline = "top";
-        this.drawText();
-        
-        if (this._num > 0)
-            this.drawPointer();
-        
-        this._displayed = true;
-    },
-    
-    /* Completely clear the menu */
-    clear: function() {
-        if (this._drawBox)
-            menuCtx.clearRect(this._left, this._top, this._width, this._height);
-        
-        textCtx.clearRect(this._left, this._top, this._width, this._height);
-        
-        this._displayed = false;
-        this._pointer = false;
     },
     
     /* Draw the pointer at the current selection */
@@ -158,26 +117,17 @@ var Menu = Class.extend({
         }
     },
     
-    /* Handle ESC Key Input */
-    handleESC: function() {
-        if (this._displayed)
-            if (this._canESC) {
-                this._beforeClear();
-                this.clear();
-                this._afterClear();
-            }
-    },
-    
     /* For subclasses that would prefer a single callback function
      * Expects there to exist a function callback, taking a single
      * argument, the index of the currently selected option from the
      * menu. */
     createCallbacks: function(num) {
         var callbacks = [];
+        var menu = this;
         for (var i = 0; i < num; ++i)
             callbacks[i] = (function(i) {
                 return function() {
-                    callback(i);
+                    menu.callback(i);
                 };
             })(i);
     }

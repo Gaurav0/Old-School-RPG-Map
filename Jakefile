@@ -18,6 +18,7 @@ var rpgSourceFiles = [
     'js/engine/Monster.js',
     'js/engine/Tileset.js',
     'js/engine/TextDisplay.js',
+    'js/engine/menu/AbstractMenu.js',
     'js/engine/menu/Menu.js',
     'js/engine/menu/ItemMenu.js',
     'js/engine/menu/SpellMenu.js',

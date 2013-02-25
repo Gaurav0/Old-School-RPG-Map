@@ -37,43 +37,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-var LoadMenu = Menu.extend({
+var LoadMenu = SlotMenu.extend({
     _init: function(mainMenu) {
-        var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
-        this._super({
-            numberSelections: NUM_SAVE_SLOTS,
-            drawBox: true,
-            left: 150,
-            top: 0,
-            width: 250,
-            height: 200,
-            radius: 25,
-            thickness: 4,
-            pointerLeft: 170,
-            textLeft: 195,
-            heights: [ 20, 60, 100, 140 ],
-            font: "bold 16px monospace",
-            callbacks: callbacks,
-            canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
-        });
-        this._mainMenu = mainMenu;
-    },
-    
-    drawText: function() {
-
-        // Show Save Slot data
-        for (var i = 1; i <= NUM_SAVE_SLOTS; ++i) {
-            textCtx.font = "bold 16px monospace";
-            textCtx.fillText("Save Slot " + i + ":", this._textLeft, this._heights[i - 1]);
-            if (g_game.hasSaveInfo(i)) {
-                textCtx.font = "bold 14px monospace";
-                textCtx.fillText(g_game.getSaveInfo(i), this._textLeft + 15, this._heights[i - 1] + 20);
-            } else {
-                textCtx.font = "italic 14px serif";
-                textCtx.fillText("Empty", this._textLeft + 15, this._heights[i - 1] + 20);
-            }
-        }
+        this._super(mainMenu);
     },
 
     callback: function(i) {        
