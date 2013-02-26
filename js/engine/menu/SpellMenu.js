@@ -41,6 +41,7 @@
 var SpellMenu = Menu.extend({
     _init: function(mainMenu) {
         this._mainMenu = mainMenu;
+        this._spells = [];
         var numSpells = this._getSpells();
         var texts = this._getTexts();
         var flags = this._getFlags();
@@ -69,15 +70,15 @@ var SpellMenu = Menu.extend({
     },
     
     _getSpells: function() {
-        this._spells = [];
         var numSpells = 0;
+        var menu = this;
         g_player.forEachSpell(function(spellId) {
             var spell = {};
             spell.name = g_spellData.spells[spellId].name;
             spell.type = g_spellData.spells[spellId].type;
             spell.id = spellId;
-            spell.canUse = (spellType == SPELLTYPE_HEAL_ONE);
-            this._spells.push(spell);
+            spell.canUse = (spell.type == SPELLTYPE_HEAL_ONE);
+            menu._spells.push(spell);
             numSpells++;
         });
         
@@ -90,6 +91,7 @@ var SpellMenu = Menu.extend({
             var spell = this._spells[i];
             texts[i] = spell.name;
         }
+        return texts;
     },
     
     _getFlags: function() {
@@ -99,7 +101,7 @@ var SpellMenu = Menu.extend({
     },
 
     callback: function(i) {
-        var spell = this._spell[i];
+        var spell = this._spells[i];
         this.clear();
         this._mainMenu.clear();
         var theSpell = g_spellData.items[spell.id];

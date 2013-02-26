@@ -40,6 +40,7 @@
 var ItemMenu = Menu.extend({
     _init: function(mainMenu) {
         this._mainMenu = mainMenu;
+        this._items = [];
         var numItems = this._getItems();
         var texts = this._getTexts();
         var flags = this._getFlags();
@@ -68,8 +69,8 @@ var ItemMenu = Menu.extend({
     },
     
     _getItems: function() {
-        this._items = [];
         var numItems = 0;
+        var itemMenu = this;
         g_player.forEachItemInInventory(function(itemId, amt) {
             if (amt > 0) {
                 var item = {};
@@ -77,8 +78,8 @@ var ItemMenu = Menu.extend({
                 item.type = g_itemData.items[itemId].type;
                 item.amt = amt;
                 item.id = itemId;
-                item.canUse = (itemType == ITEMTYPE_HEAL_ONE);
-                this._items.push(item);
+                item.canUse = (item.type == ITEMTYPE_HEAL_ONE);
+                itemMenu._items.push(item);
                 numItems++;
             }
         });
@@ -93,6 +94,7 @@ var ItemMenu = Menu.extend({
             var amt2 = (item.amt < 10) ? " " + item.amt : item.amt;
             texts[i] = item.name + ":" + amt2;
         }
+        return texts;
     },
     
     _getFlags: function() {
@@ -102,7 +104,7 @@ var ItemMenu = Menu.extend({
     },
 
     callback: function(i) {
-        var item = this._item[i];
+        var item = this._items[i];
         this.clear();
         this._mainMenu.clear();
         var theItem = g_itemData.items[item.id];

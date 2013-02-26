@@ -104,7 +104,7 @@ var TitleScreenMenu = Menu.extend({
     
     // Called after one of the submenus is cleared
     returnTo: function() {
-        this._currentMenuType = MAIN_MENU;
+        this._currentMenuType = TITLESCREEN_MENU;
         this._currentMenu = this;
         this.display();
         this.drawPointer();

@@ -47,7 +47,7 @@ var LoadMenu = SlotMenu.extend({
                 g_menu.setCurrentMenu(g_menu);
                 g_menu.setCurrentMenuType(MAIN_MENU);
             } else {
-                g_menu.setCurrentMenu(menu);
+                g_menu.setCurrentMenu(mainMenu);
             }
         };
     },
