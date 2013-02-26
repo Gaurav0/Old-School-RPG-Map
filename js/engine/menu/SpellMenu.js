@@ -63,6 +63,7 @@ var SpellMenu = Menu.extend({
             font: "bold 20px monospace",
             callbacks: callbacks,
             canESC: true,
+            afterCallback: function() { menu._mainMenu.setCurrentMenu(menu._mainMenu); },
             afterClear: function() { menu._mainMenu.returnTo(); }
         });
     },

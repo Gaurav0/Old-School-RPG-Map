@@ -119,6 +119,7 @@ var Menu = AbstractMenu.extend({
             } else {
                 console.log("callbacks:" + this._current);                
                 this._callbacks[this._current]();
+                this._afterCallback();
             }
         }
     },

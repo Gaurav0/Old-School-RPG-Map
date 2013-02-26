@@ -256,6 +256,7 @@ var StatusMenu = AbstractMenu.extend({
             heights: [ 18, 36, 54, 72, 90, 108, 126 ],
             texts: texts,
             font: "bold 14px monospace",
+            afterCallback: function() { menu._mainMenu.setCurrentMenu(menu._mainMenu); },
             afterClear: function() { menu._mainMenu.returnTo(); }
         });
     },

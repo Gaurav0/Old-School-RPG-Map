@@ -119,6 +119,7 @@ var EquipSubMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
+            afterCallback: function() { menu._mainMenu.setCurrentMenu(menu._mainMenu); },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
