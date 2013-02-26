@@ -41,7 +41,9 @@ var NUM_SAVE_SLOTS = 4;
 
 var SlotMenu = Menu.extend({
     _init: function(mainMenu) {
+        this._mainMenu = mainMenu;
         var callbacks = this.createCallbacks(NUM_SAVE_SLOTS);
+        var menu = this;
         this._super({
             numberSelections: NUM_SAVE_SLOTS,
             drawBox: true,
@@ -57,8 +59,7 @@ var SlotMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
+            afterClear: function() { menu._mainMenu.returnTo(); }
         });
-        this._mainMenu = mainMenu;
     }
 });

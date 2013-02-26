@@ -136,5 +136,6 @@ var Menu = AbstractMenu.extend({
                     menu.callback(i);
                 };
             })(i);
+        return callbacks;
     }
 });

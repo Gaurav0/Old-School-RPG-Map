@@ -40,10 +40,12 @@
 
 var SpellMenu = Menu.extend({
     _init: function(mainMenu) {
+        this._mainMenu = mainMenu;
         var numSpells = this._getSpells();
         var texts = this._getTexts();
         var flags = this._getFlags();
         var callbacks = this.createCallbacks(numSpells);
+        var menu = this;
         this._super({
             numberSelections: numSpells,
             drawBox: true,
@@ -61,9 +63,8 @@ var SpellMenu = Menu.extend({
             font: "bold 20px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
+            afterClear: function() { menu._mainMenu.returnTo(); }
         });
-        this._mainMenu = mainMenu;
     },
     
     _getSpells: function() {

@@ -46,7 +46,9 @@ var EQUIP_SHIELD = 3;
 
 var EquipMenu = Menu.extend({
     _init: function(mainMenu) {
+        this._mainMenu = mainMenu;
         var callbacks = this.createCallbacks(NUM_EQUIP_TYPES);
+        var menu = this;
         this._super({
             numberSelections: NUM_EQUIP_TYPES,
             drawBox: true,
@@ -62,9 +64,8 @@ var EquipMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
+            afterClear: function() { menu._mainMenu.returnTo(); }
         });
-        this._mainMenu = mainMenu;
     },
     
     drawText: function() {
@@ -79,32 +80,29 @@ var EquipMenu = Menu.extend({
     },
     
     callback: function(equipType) {
+        console.log("Equip callback");
         var equipSubMenu = new EquipSubMenu(this._mainMenu, this, equipType);
         equipSubMenu.display();
-    },
-    
-    _createCallbacks: function() {
-        var callbacks = [];
-        for (var i = 0; i < NUM_EQUIP_TYPES; ++i)
-            callbacks[i] = function() {
-                callback(i);
-            };
+        this._mainMenu.setCurrentMenu(equipSubMenu);
     },
     
     returnTo: function() {
+        console.log("EquipMenu.returnTo");
         this.clear();
-        this._callbacks = this._createCallbacks();
+        this._mainMenu.setCurrentMenu(this);
         this.display();
     }
 });
 
 var EquipSubMenu = Menu.extend({
     _init: function(mainMenu, parent, equipType) {
+        this._mainMenu = mainMenu;
         this._equipType = equipType;
         this._parent = parent;
         var numItems = this._getItems();
         var texts = this._getTexts();
-        var callbacks = this._createCallbacks();
+        var callbacks = this.createCallbacks(numItems);
+        var menu = this;
         this._super({
             numberSelections: numItems,
             drawBox: true,
@@ -121,9 +119,8 @@ var EquipSubMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
+            afterClear: function() { menu._parent.returnTo(); }
         });
-        this._mainMenu = mainMenu;
     },
     
     _getItems: function() {

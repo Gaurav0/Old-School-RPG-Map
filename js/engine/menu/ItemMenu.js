@@ -39,10 +39,12 @@
 
 var ItemMenu = Menu.extend({
     _init: function(mainMenu) {
+        this._mainMenu = mainMenu;
         var numItems = this._getItems();
         var texts = this._getTexts();
         var flags = this._getFlags();
         var callbacks = this.createCallbacks(numItems);
+        var menu = this;
         this._super({
             numberSelections: numItems,
             drawBox: true,
@@ -60,9 +62,8 @@ var ItemMenu = Menu.extend({
             font: "bold 20px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { mainMenu.returnTo(); }
+            afterClear: function() { menu._mainMenu.returnTo(); }
         });
-        this._mainMenu = mainMenu;
     },
     
     _getItems: function() {
