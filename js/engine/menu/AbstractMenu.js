@@ -104,7 +104,7 @@ var AbstractMenu = Class.extend({
         for (var i = 0; i < this._num; ++i) {
             
             // Draw the text
-            textCtx.fillText(this._texts[i], this._textLeft, this_heights[i]);
+            textCtx.fillText(this._texts[i], this._textLeft, this._heights[i]);
         }
     },
     

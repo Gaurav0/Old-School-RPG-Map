@@ -202,7 +202,7 @@ var MainMenu = Menu.extend({
     
     /* Called when ESC key is pressed and main menu has focus */
     handleESC: function() {
-        console.log("MainMenu.handleESC: " + (this instanceof MainMenu) + (typeof(this._super)));
+        console.log("MainMenu.handleESC: " + (this instanceof MainMenu) + " " + (this._currentMenu == this));
         if (this._currentMenu == this)
            this._super();
         else
@@ -271,5 +271,7 @@ var StatusMenu = AbstractMenu.extend({
         texts[4] = "Level:   " + g_player.getLevel();
         texts[5] = "Exp:     " + g_player.getExp() + "/" + g_player.getNextExp();
         texts[6] = "Gold:    " + g_player.getGold();
+        
+        return texts;
     }
 });
