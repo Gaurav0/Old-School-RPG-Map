@@ -40,6 +40,16 @@
 var LoadMenu = SlotMenu.extend({
     _init: function(mainMenu) {
         this._super(mainMenu);
+        var menu = this;
+        this._afterCallback = function() {
+            if (g_titlescreen) {
+                g_titlescreen = false;
+                g_menu.setCurrentMenu(g_menu);
+                g_menu.setCurrentMenuType(MAIN_MENU);
+            } else {
+                g_menu.setCurrentMenu(menu);
+            }
+        };
     },
     
     drawText: function() {
@@ -64,9 +74,8 @@ var LoadMenu = SlotMenu.extend({
     callback: function(i) {        
         this.clear();
         this._mainMenu.clear();
+        console.log("LoadMenu callback slot:" + i + 1);
         this.loadGame(i + 1);
-        if (g_titlescreen)
-            g_titlescreen = false;
     },
     
     loadGame: function(slot) {

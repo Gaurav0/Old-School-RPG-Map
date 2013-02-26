@@ -141,5 +141,28 @@ var TitleScreenMenu = Menu.extend({
            this._super();
         else
            this._currentMenu.handleESC();
-    }
+    },
+    
+    /* Get the current menu */
+    getCurrentMenu: function() {
+        return this._mainMenu.getCurrentMenu();
+    },
+    
+    /* Set the current menu */
+    setCurrentMenu: function(menu) {
+        this._mainMenu.setCurrentMenu(menu);
+    },
+    
+    // Called after one of the submenus is cleared
+    returnTo: function() {
+        console.log("TitleScreenMenu.returnTo");
+        this._mainMenu.setCurrentMenuType(TITLESCREEN_MENU);
+        this._mainMenu.setCurrentMenu(this);
+        this.display();
+        this.drawPointer();
+    },
+    
+    setDisplayed: function(displayed) {
+        this._displayed = displayed;
+    },
  });

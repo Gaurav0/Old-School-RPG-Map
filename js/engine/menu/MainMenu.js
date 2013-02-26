@@ -83,8 +83,7 @@ var MainMenu = Menu.extend({
                 function() { menu.displaySaveMenu(); },
                 function() { menu.displayLoadMenu(); },
             ],
-            canESC: true,
-            // afterClear: function() { mainMenu.returnTo(); }
+            canESC: true
         });    
     
         if (g_titlescreen) {
@@ -105,6 +104,16 @@ var MainMenu = Menu.extend({
     /* Set the current menu */
     setCurrentMenu: function(menu) {
         this._currentMenu = menu;
+    },
+    
+    /* Get the current menu type */
+    getCurrentMenuType: function() {
+        return this._currentMenuType;
+    },
+    
+    /* Set the current menu type */
+    setCurrentMenuType: function(menuType) {
+        this._currentMenuType = menuType;
     },
     
     // Called after one of the submenus is cleared
