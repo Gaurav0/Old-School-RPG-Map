@@ -105,7 +105,7 @@ var SpellMenu = Menu.extend({
         var spell = this._spells[i];
         this.clear();
         this._mainMenu.clear();
-        var theSpell = g_spellData.items[spell.id];
+        var theSpell = g_spellData.spells[spell.id];
         if (g_player.getMP() >= theSpell.mpCost) {
             theSpell.use(g_player);
             g_player.useMP(theSpell.mpCost);
