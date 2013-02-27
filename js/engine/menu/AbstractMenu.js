@@ -39,6 +39,7 @@
 /* Class for an abstract "menu" with no implementation */
 var AbstractMenu = Class.extend({
     _init: function(args) {
+        this._type = args.type;
         this._displayed = false;
         this._num = args.numberSelections;
         this._drawBox = args.drawBox;
@@ -88,6 +89,11 @@ var AbstractMenu = Class.extend({
         textCtx.clearRect(this._left, this._top, this._width, this._height);
         
         this._displayed = false;
+    },
+    
+    /* Get the type of the menu */
+    getType: function() {
+        return this._type;
     },
     
     /* Override this to draw pointer */

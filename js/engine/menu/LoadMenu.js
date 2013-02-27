@@ -40,12 +40,12 @@
 var LoadMenu = SlotMenu.extend({
     _init: function(mainMenu) {
         this._super(mainMenu);
+        this._type = LOAD_MENU;
         var menu = this;
         this._afterCallback = function() {
             if (g_titlescreen) {
                 g_titlescreen = false;
                 g_menu.setCurrentMenu(g_menu);
-                g_menu.setCurrentMenuType(MAIN_MENU);
             } else {
                 g_menu.setCurrentMenu(mainMenu);
             }

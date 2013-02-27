@@ -40,6 +40,7 @@
 var SaveMenu = SlotMenu.extend({
     _init: function(mainMenu) {
         this._super(mainMenu);
+        this._type = SAVE_MENU;
     },
     
     drawText: function() {

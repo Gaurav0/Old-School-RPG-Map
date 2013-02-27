@@ -61,6 +61,7 @@ var MainMenu = Menu.extend({
     _init: function() {
         var menu = this;
         this._super({
+            type: MAIN_MENU,
             numberSelections: NUM_MAIN_MENU_ACTIONS,
             drawBox: true,
             left: 0,
@@ -87,11 +88,9 @@ var MainMenu = Menu.extend({
         });    
     
         if (g_titlescreen) {
-            this._currentMenuType = TITLESCREEN_MENU;
             this._currentMenu = new TitleScreenMenu(this);
             this._titleScreenMenu = this._currentMenu;
         } else {
-            this._currentMenuType = MAIN_MENU;
             this._currentMenu = this;            
         }
     },
@@ -106,20 +105,9 @@ var MainMenu = Menu.extend({
         this._currentMenu = menu;
     },
     
-    /* Get the current menu type */
-    getCurrentMenuType: function() {
-        return this._currentMenuType;
-    },
-    
-    /* Set the current menu type */
-    setCurrentMenuType: function(menuType) {
-        this._currentMenuType = menuType;
-    },
-    
     // Called after one of the submenus is cleared
     returnTo: function() {
         console.log("MainMenu.returnTo");
-        this._currentMenuType = MAIN_MENU;
         this._currentMenu = this;
         this.display();
         this.drawPointer();
@@ -132,7 +120,6 @@ var MainMenu = Menu.extend({
     displayTitleScreenMenu: function() {
         var menu = this._titleScreenMenu ? this._titleScreenMenu : new TitleScreenMenu(this);
         menu.display();
-        this._currentMenuType = TITLESCREEN_MENU;
         this._currentMenu = menu;
         this._displayed = true;
     },
@@ -144,49 +131,42 @@ var MainMenu = Menu.extend({
     displayNotImplementedMenu: function() {
         var menu = new NotImplementedMenu(this);
         menu.display();
-        this._currentMenuType = NOT_IMPLEMENTED_MENU;
         this._currentMenu = menu;
     },
     
     displayItemMenu: function() {
         var menu = new ItemMenu(this);
         menu.display();
-        this._currentMenuType = ITEM_MENU;
         this._currentMenu = menu;
     },
     
     displaySpellMenu: function() {
         var menu = new SpellMenu(this);
         menu.display();
-        this._currentMenuType = SPELL_MENU;
         this._currentMenu = menu;
     },
     
     displayEquipMenu: function() {
         var menu = new EquipMenu(this);
         menu.display();
-        this._currentMenuType = EQUIP_MENU;
         this._currentMenu = menu;
     },
     
     displayStatusMenu: function() {
         var menu = new StatusMenu(this);
         menu.display();
-        this._currentMenuType = STATUS_MENU;
         this._currentMenu = menu;
     },
     
     displaySaveMenu: function() {
         var menu = new SaveMenu(this);
         menu.display();
-        this._currentMenuType = SAVE_MENU;
         this._currentMenu = menu;
     },
     
     displayLoadMenu: function() {
         var menu = new LoadMenu(this);
         menu.display();
-        this._currentMenuType = LOAD_MENU;
         this._currentMenu = menu;
     },
     
@@ -202,7 +182,7 @@ var MainMenu = Menu.extend({
     /* Called when enter key is pressed and main menu has focus */
     handleEnter: function() {
         console.log("MainMenu.handleEnter");
-        console.log("current menu: " + this._currentMenuType);
+        console.log("current menu: " + this._currentMenu.getType());
         if (this._currentMenu == this)
            this._super();
         else
@@ -227,6 +207,7 @@ var NotImplementedMenu = AbstractMenu.extend({
         this._mainMenu = mainMenu;
         var menu = this;
         this._super({
+            type: NOT_IMPLEMENTED_MENU,
             numberSelections: 0,
             drawBox: true,
             left: 150,
@@ -253,6 +234,7 @@ var StatusMenu = AbstractMenu.extend({
         var texts = this._getTexts();
         var menu = this;
         this._super({
+            type: STATUS_MENU,
             numberSelections: 7,
             drawBox: true,
             left: 150,

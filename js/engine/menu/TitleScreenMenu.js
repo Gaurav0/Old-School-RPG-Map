@@ -49,6 +49,7 @@ var TitleScreenMenu = Menu.extend({
         this._mainMenu = mainMenu;
     
         this._super({
+            type: TITLESCREEN_MENU,
             numberSelections: NUM_TITLESCREEN_MENU_ACTIONS,
             drawBox: true,
             left: 0,
@@ -72,7 +73,6 @@ var TitleScreenMenu = Menu.extend({
         });
         
         this._onNewGame = null;
-        this._currentMenuType = TITLESCREEN_MENU;
         this._currentMenu = this;
     },
     
@@ -104,7 +104,6 @@ var TitleScreenMenu = Menu.extend({
     
     // Called after one of the submenus is cleared
     returnTo: function() {
-        this._currentMenuType = TITLESCREEN_MENU;
         this._currentMenu = this;
         this.display();
         this.drawPointer();
@@ -113,7 +112,6 @@ var TitleScreenMenu = Menu.extend({
     displayLoadMenu: function() {
         var menu = new LoadMenu(this);
         menu.display();
-        this._currentMenuType = LOAD_MENU;
         this._currentMenu = menu;
     },
     
@@ -156,7 +154,6 @@ var TitleScreenMenu = Menu.extend({
     // Called after one of the submenus is cleared
     returnTo: function() {
         console.log("TitleScreenMenu.returnTo");
-        this._mainMenu.setCurrentMenuType(TITLESCREEN_MENU);
         this._mainMenu.setCurrentMenu(this);
         this.display();
         this.drawPointer();

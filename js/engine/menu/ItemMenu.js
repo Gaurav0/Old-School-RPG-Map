@@ -47,6 +47,7 @@ var ItemMenu = Menu.extend({
         var callbacks = this.createCallbacks(numItems);
         var menu = this;
         this._super({
+            type: ITEM_MENU,
             numberSelections: numItems,
             drawBox: true,
             left: 150,

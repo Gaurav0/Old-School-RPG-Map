@@ -50,6 +50,7 @@ var EquipMenu = Menu.extend({
         var callbacks = this.createCallbacks(NUM_EQUIP_TYPES);
         var menu = this;
         this._super({
+            type: EQUIP_MENU,
             numberSelections: NUM_EQUIP_TYPES,
             drawBox: true,
             left: 150,
@@ -89,8 +90,8 @@ var EquipMenu = Menu.extend({
     returnTo: function() {
         console.log("EquipMenu.returnTo");
         this.clear();
-        this._mainMenu.setCurrentMenu(this);
         this.display();
+        this._mainMenu.setCurrentMenu(this);
     }
 });
 
@@ -104,6 +105,7 @@ var EquipSubMenu = Menu.extend({
         var callbacks = this.createCallbacks(numItems);
         var menu = this;
         this._super({
+            type: EQUIP_SUBMENU,
             numberSelections: numItems,
             drawBox: true,
             left: 150,
@@ -119,29 +121,46 @@ var EquipSubMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
-            afterCallback: function() { menu._mainMenu.setCurrentMenu(menu._mainMenu); },
+            afterCallback: function() {
+                // menu._mainMenu.setCurrentMenu(menu._mainMenu);
+            },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
     
+    _getEquivType: function(equipType) {
+        switch(equipType) {
+            case EQUIP_WEAPON:
+                return ITEMTYPE_WEAPON;
+            case EQUIP_ARMOR:
+                return ITEMTYPE_ARMOR;
+            case EQUIP_HELMET:
+                return ITEMTYPE_HELMET;
+            case EQUIP_SHIELD:
+                return ITEMTYPE_SHIELD;
+        }
+    },
+    
     _getItems: function() {
+        var equivType = this._getEquivType(this._equipType);
         this._items = [];
         var numItems = 0;
+        var itemMenu = this;
         g_player.forEachItemInInventory(function(itemId, amt) {
             if (amt > 0) {
-                var type = g_itemData.items[itemId].type;
-                if (type == this._equipType) {
+                var itemType = g_itemData.items[itemId].type;
+                if (itemType == equivType) {
                     var item = {};
                     item.name = g_itemData.items[itemId].name;
-                    item.type = g_itemData.items[itemId].type;
+                    item.type = itemType;
                     item.amt = amt;
                     item.id = itemId;
-                    this._items.push(item);
+                    itemMenu._items.push(item);
                     numItems++;
                 }
             }
         });
-        
+        console.log("EquipSubMenu numItems: " + numItems);
         return numItems;
     },
     
@@ -151,6 +170,7 @@ var EquipSubMenu = Menu.extend({
             var item = this._items[i];
             texts[i] = item.name;
         }
+        return texts;
     },
 
     callback: function(i) {

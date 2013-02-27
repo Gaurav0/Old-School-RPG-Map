@@ -48,6 +48,7 @@ var SpellMenu = Menu.extend({
         var callbacks = this.createCallbacks(numSpells);
         var menu = this;
         this._super({
+            type: SPELL_MENU,
             numberSelections: numSpells,
             drawBox: true,
             left: 150,
