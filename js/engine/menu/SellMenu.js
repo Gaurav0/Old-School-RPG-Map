@@ -64,6 +64,7 @@ var BuyMenu = Menu.extend({
             font: "bold 14px monospace",
             callbacks: callbacks,
             canESC: true,
+            beforeCallback: function() { menu.clear(); },
             afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
@@ -75,10 +76,11 @@ var BuyMenu = Menu.extend({
         g_player.forEachItemInInventory(function(itemId, amt) {
             if (amt > 0) {
                 var item = {};
+                item.id = itemId;
                 item.name = g_itemData.items[itemId].name;
                 item.amt = amt;
                 item.cost = g_itemData.items[itemId].cost;
-                item.sellPrice = Math.floor(itemCost * 0.75);
+                item.sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
                 itemMenu._items.push(item);
                 numItems++;
             }
