@@ -29,6 +29,7 @@ var rpgSourceFiles = [
     'js/engine/menu/TitleScreenMenu.js',
     'js/engine/menu/MainMenu.js',
     'js/engine/menu/BuyMenu.js',
+    'js/engine/menu/SellMenu.js',
     'js/engine/menu/ShopMenu.js',
     'js/engine/Shop.js',
     'js/engine/Game.js',
