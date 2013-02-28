@@ -54,6 +54,7 @@ var AbstractMenu = Class.extend({
         this._texts = args.texts;
         this._font = args.font;
         this._canESC = true;
+        this._beforeCallback = (args.beforeCallback) ? args.beforeCallback : function() {};
         this._afterCallback = (args.afterCallback) ? args.afterCallback : function() {};
         this._beforeClear = (args.beforeClear) ? args.beforeClear : function() {};
         this._afterClear = (args.afterClear) ? args.afterClear : function() {};
@@ -122,6 +123,7 @@ var AbstractMenu = Class.extend({
     
     /* Handle Enter Key Input */
     handleEnter: function() {
+        this._beforeCallback();
         this.handleESC();
         this._afterCallback();
     },

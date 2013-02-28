@@ -38,17 +38,16 @@
  
  
 var BuyMenu = Menu.extend({
-    _init: function(parent, shop, itemList) {
+    _init: function(parent, shop) {
         this._parent = parent;
         this._shop = shop;
-        this._itemList = itemList;
         this._items = [];
         var numItems = this._getItems();
         var texts = this._getTexts();
         // var flags = this._getFlags();
         var callbacks = this.createCallbacks(numItems);
         this._super({
-            type: BUY_MENU,
+            type: SELL_MENU,
             numberSelections: numItems,
             drawBox: true,
             left: 100,
@@ -62,10 +61,9 @@ var BuyMenu = Menu.extend({
             heights: [ 35, 55, 75, 95, 115, 135, 155, 175, 195, 215 ],
             texts: texts,
             // flags: flags,
-            font: "bold 16px monospace",
+            font: "bold 14px monospace",
             callbacks: callbacks,
             canESC: true,
-            beforeCallback: function() { menu.clear(); },
             afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
@@ -74,16 +72,17 @@ var BuyMenu = Menu.extend({
     _getItems: function() {
         var numItems = 0;
         var itemMenu = this;
-        for (var i = 0; i < this._itemList.length; ++i) {
-            var itemId = this._itemList[i];
-            var item = {};
-            item.name = g_itemData.items[itemId].name;
-            item.type = g_itemData.items[itemId].type;
-            item.cost = g_itemData.items[itemId].cost;
-            item.id = itemId;
-            itemMenu._items.push(item);
-            numItems++;
-        }
+        g_player.forEachItemInInventory(function(itemId, amt) {
+            if (amt > 0) {
+                var item = {};
+                item.name = g_itemData.items[itemId].name;
+                item.amt = amt;
+                item.cost = g_itemData.items[itemId].cost;
+                item.sellPrice = Math.floor(itemCost * 0.75);
+                itemMenu._items.push(item);
+                numItems++;
+            }
+        });
         
         return numItems;
     },
@@ -92,18 +91,23 @@ var BuyMenu = Menu.extend({
         var texts = [];
         for (var i = 0; i < this._items.length; ++i) {
             var item = this._items[i];
-            var itemText = item.name;
-            while (itemText.length < 15)
-                itemText += " ";
-            var itemCost = item.cost;
-            while (itemCost.length < 5)
-                itemCost = " " + itemCost;
-            texts[i] = itemText + itemCost;
+            var amt = item.amt;
+            var displayAmt = (amt >= 10) ? amt : " " + amt;
+            var displayPrice = item.sellPrice.toString();
+            while (displayPrice.length < 5)
+                displayPrice = " " + displayPrice;
+            var displayName = item.name;
+            while (displayName.length < 15)
+                displayName += " ";
+            if (numItems < 10)
+                textCtx.fillText(
+                    displayName + " " + displayAmt + " " + displayPrice + "G",
+                    150, shop._drawHeight[numItems]);
         }
         return texts;
     },
 
     callback: function(i) {
-        this._shop.handlePurchase(this._items[i]);
+        this._shop.handleSale(this._items[i]);
     }
 });

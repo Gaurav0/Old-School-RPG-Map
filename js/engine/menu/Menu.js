@@ -117,7 +117,8 @@ var Menu = AbstractMenu.extend({
                 console.log("flags");
                 // not useable
             } else {
-                console.log("callbacks:" + this._current);                
+                console.log("callbacks:" + this._current);
+                this._beforeCallback();                
                 this._callbacks[this._current]();
                 this._afterCallback();
             }
