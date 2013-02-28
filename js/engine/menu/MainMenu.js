@@ -109,6 +109,7 @@ var MainMenu = Menu.extend({
     returnTo: function() {
         console.log("MainMenu.returnTo");
         this._currentMenu = this;
+        this.clear();
         this.display();
         this.drawPointer();
     },

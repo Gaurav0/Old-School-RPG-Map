@@ -73,7 +73,7 @@ var ShopMenu = Menu.extend({
                 function() { menu.displaySellMenu(); },
                 function() { menu.handleESC(); }
             ],
-            afterClear: function() { menu.afterClear(); }
+            afterClear: function() { menu.afterClear(); },
             canESC: true
         });
         this._currentMenu = this;
@@ -81,6 +81,15 @@ var ShopMenu = Menu.extend({
     
     getShop: function() {
         return this._shop;
+    },
+    
+    // Called after one of the submenus is cleared
+    returnTo: function() {
+        console.log("ShopMenu.returnTo");
+        this._currentMenu = this;
+        this.clear();
+        this.display();
+        this.drawPointer();
     },
     
     /* Runs after the shop menu is cleared */
