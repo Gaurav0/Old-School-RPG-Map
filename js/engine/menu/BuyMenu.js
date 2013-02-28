@@ -39,6 +39,8 @@
  
 var BuyMenu = Menu.extend({
     _init: function(parent, shop, itemList) {
+        console.log("BuyMenu._init");
+        var menu = this;
         this._parent = parent;
         this._shop = shop;
         this._itemList = itemList;
@@ -65,8 +67,8 @@ var BuyMenu = Menu.extend({
             font: "bold 16px monospace",
             callbacks: callbacks,
             canESC: true,
-            beforeCallback: function() { menu.clear(); },
-            afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
+            // beforeCallback: function() { menu.clear(); },
+            // afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
@@ -85,6 +87,7 @@ var BuyMenu = Menu.extend({
             numItems++;
         }
         
+        console.log("BuyMenu._getItems: numItems: " + numItems);
         return numItems;
     },
     

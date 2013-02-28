@@ -116,11 +116,13 @@ var Menu = AbstractMenu.extend({
             if (this._flags && this._flags[this._current]) {
                 console.log("flags");
                 // not useable
-            } else {
+            } else if (this._num > 0) {
                 console.log("callbacks:" + this._current);
                 this._beforeCallback();                
                 this._callbacks[this._current]();
                 this._afterCallback();
+            } else {
+                this.handleESC();
             }
         }
     },

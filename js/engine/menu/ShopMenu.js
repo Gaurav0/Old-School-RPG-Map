@@ -125,6 +125,7 @@ var ShopMenu = Menu.extend({
     },
     
     displayBuyMenu: function() {
+        console.log("ShopMenu.displayBuyMenu: itemList length: " + this.getShop().getItemList().length);
         var menu = new BuyMenu(this, this.getShop(), this.getShop().getItemList());
         menu.display();
         this._currentMenu = menu;

@@ -37,8 +37,9 @@
  * ***** END LICENSE BLOCK ***** */
  
  
-var BuyMenu = Menu.extend({
+var SellMenu = Menu.extend({
     _init: function(parent, shop) {
+        var menu = this;
         this._parent = parent;
         this._shop = shop;
         this._items = [];
@@ -64,8 +65,8 @@ var BuyMenu = Menu.extend({
             font: "bold 14px monospace",
             callbacks: callbacks,
             canESC: true,
-            beforeCallback: function() { menu.clear(); },
-            afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
+            // beforeCallback: function() { menu.clear(); },
+            // afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
@@ -80,7 +81,8 @@ var BuyMenu = Menu.extend({
                 item.name = g_itemData.items[itemId].name;
                 item.amt = amt;
                 item.cost = g_itemData.items[itemId].cost;
-                item.sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
+                item.sellPrice = Math.floor(item.cost * SELL_PRICE_RATIO);
+                console.log("item.sellPrice: " + item.sellPrice);
                 itemMenu._items.push(item);
                 numItems++;
             }
@@ -101,10 +103,7 @@ var BuyMenu = Menu.extend({
             var displayName = item.name;
             while (displayName.length < 15)
                 displayName += " ";
-            if (numItems < 10)
-                textCtx.fillText(
-                    displayName + " " + displayAmt + " " + displayPrice + "G",
-                    150, shop._drawHeight[numItems]);
+            texts[i] = displayName + " " + displayAmt + " " + displayPrice + "G";
         }
         return texts;
     },

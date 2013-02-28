@@ -56,10 +56,15 @@ var Shop = Class.extend({
     },
     
     shopDisplayed: function() {
-        return this._menu && this._menu.isDisplayed;
+        return this._menu && this._menu.isDisplayed();
+    },
+    
+    getItemList: function() {
+        return this._itemList;
     },
     
     displayShop: function(itemList, toDisplayQty) {
+        this._itemList = itemList;
         this._toDisplayQuantity = toDisplayQty;
         this._menu = new ShopMenu(this);
         this._menu.display();
@@ -69,10 +74,10 @@ var Shop = Class.extend({
         this._quantity = 1;
         
         var price;
-        if (this._menu.getCurrentMenu() == BUY_MENU) {
+        if (this._menu.getCurrentMenu().getType() == BUY_MENU) {
             price = item.cost;
             this._maxQuantity = 99;
-        } else if (this._menu.getCurrentMenu() == SELL_MENU) {
+        } else if (this._menu.getCurrentMenu().getType() == SELL_MENU) {
             price = item.sellPrice;
             this._maxQuantity = item.amt;
         }
@@ -85,8 +90,10 @@ var Shop = Class.extend({
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
         
+        console.log("Shop.displayQuantityDialog: this._quantity: " + this._quantity + " price: " + price + " item.cost " + item.cost);
         textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * price + "G", 120, 266);
         
+        this._item = item;
         this._quantityDisplayed = true;
     },
     
@@ -116,7 +123,7 @@ var Shop = Class.extend({
     },
     
     /* Handles arrow key input while any shop is being displayed */
-    handleInput: function(key) {
+    handleKey: function(key) {
         if (this._quantityDisplayed) {
             switch(key) {
                 case UP_ARROW:
@@ -129,16 +136,18 @@ var Shop = Class.extend({
                     break;
             }
         } else if (this._menu.isDisplayed()) {
-            this._menu.handleInput(key);
+            this._menu.handleKey(key);
         }
     },
     
     /* Handle if enter is pressed while shop is being displayed */
     handleEnter: function() {
         if (this._quantityDisplayed) {
-            if (this._menu.getCurrentMenu() == BUY_MENU)
+            var menuType = this._menu.getCurrentMenu().getType();
+            this._menu.handleESC();
+            if (menuType == BUY_MENU)
                 this.buyItems();
-            else
+            else if (menuType == SELL_MENU)
                 this.sellItems();
         } else if (this._menu.isDisplayed()) {
             this._menu.handleEnter();
@@ -156,7 +165,7 @@ var Shop = Class.extend({
     
     /* if toDisplayQty, show Quantity Dialog, otherwise purchase one */
     handlePurchase: function(item) {
-        if (this._toDisplayQty)
+        if (this._toDisplayQuantity)
             this.displayQuantityDialog(item);
         else
             this.buyItem(item);
@@ -164,7 +173,7 @@ var Shop = Class.extend({
     
     /* if toDisplayQty, show Quantity Dialog, otherwise sell one */
     handleSale: function(item) {
-        if (this._toDisplayQty)
+        if (this._toDisplayQuantity)
             this.displayQuantityDialog(item);
         else
             this.sellItem(item);
@@ -191,15 +200,16 @@ var Shop = Class.extend({
     buyItems: function() {
         this.clearQuantityDialog();
         
+        var item = this._item;
         var gold = g_player.getGold();
         var totalCost = item.cost * this._quantity;
         if (gold >= totalCost) {
-            g_player.spendGold(item.cost * this._quantity);
+            g_player.spendGold(totalCost);
             g_player.addToInventory(item.id, this._quantity);
             g_textDisplay.displayText("You purchased " + this._quantity + " " +
                 item.name + "s for " + totalCost + "G.");
-            this.clearGold();
-            this.displayGold();
+            this._menu.clearGold();
+            this._menu.displayGold();
         } else {
             g_textDisplay.displayText("You do not have enough gold\nto buy " +
                 this._quantity + " " + item.name + "s.\nYou only have " + gold + "G.");
@@ -207,24 +217,25 @@ var Shop = Class.extend({
     },
     
     /* Called when user tries to complete sale of single item. */
-    sellItem: function() {
+    sellItem: function(item) {
     
         g_player.removeFromInventory(item.id);
         g_player.earnGold(item.sellPrice);
-        this.clearGold();
-        this.displayGold();
-        g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
+        this._menu.clearGold();
+        this._menu.displayGold();
+        g_textDisplay.displayText("You sold 1 " + item.name + " for " + item.sellPrice + "G.");
     },
     
     /* Called when user tries to complete sale of multiple items. */
     sellItems: function() {
         this.clearQuantityDialog();
+        var item = this._item;
         
         var totalCost = item.sellPrice * this._quantity;
-        g_player.removeFromInventory(itemId, this._quantity);
+        g_player.removeFromInventory(item.id, this._quantity);
         g_player.earnGold(totalCost);
-        this.clearGold();
-        this.displayGold();
+        this._menu.clearGold();
+        this._menu.displayGold();
         g_textDisplay.displayText("You sold " + this._quantity + " " + item.name + "s for " + totalCost + "G.");
     }
 });

@@ -426,7 +426,7 @@ function handleKey(key, event) {
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
@@ -438,7 +438,7 @@ function handleKey(key, event) {
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
@@ -450,7 +450,7 @@ function handleKey(key, event) {
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
@@ -462,7 +462,7 @@ function handleKey(key, event) {
                     if (g_menu.isDisplayed())
                         g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
                         g_battle.handleInput(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
@@ -495,7 +495,7 @@ function handleKey(key, event) {
                     else if (g_menu.isDisplayed())
                         g_menu.handleESC();
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleEsc();
+                        g_shop.handleESC();
                     else if (g_battle)
                         g_battle.handleEsc();
                     else
