@@ -33,8 +33,12 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
+ * 
  * ***** END LICENSE BLOCK ***** */
+
+ //Hello
+
+
 
 var SHOP_MENU = 0;
 var BUY_MENU = 1;
