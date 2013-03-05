@@ -111,8 +111,8 @@ var BattleMenu = Menu.extend({
     returnTo: function() {
         console.log("BattleMenu.returnTo");
         this._currentMenu = this;
-        this.clear();
-        this.display();
+        // this.clear();
+        // this.display();
         this.drawPointer();
     },
     
