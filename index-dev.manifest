@@ -32,6 +32,7 @@ js/engine/menu/BuyMenu.js
 js/engine/menu/SellMenu.js
 js/engine/menu/ShopMenu.js
 js/engine/menu/BattleItemMenu.js
+js/engine/menu/BattleSpellMenu.js
 js/engine/menu/BattleMenu.js
 js/engine/Shop.js
 js/engine/Game.js
@@ -64,4 +65,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-#updated Mon Mar 04 2013 15:02:45 GMT-0500 (Eastern Standard Time)
+#updated Wed Mar 06 2013 06:15:15 GMT-0500 (Eastern Standard Time)
