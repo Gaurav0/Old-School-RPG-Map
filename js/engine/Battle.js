@@ -36,13 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-var BATTLE_MENU_ATTACK = 0;
-var BATTLE_MENU_DEFEND = 1;
-var BATTLE_MENU_SPELL = 2;
-var BATTLE_MENU_ITEM = 3;
-var BATTLE_MENU_RUN = 4;
-var BATTLE_ATTACK_MENU = 0;
-var BATTLE_RUN_MENU = 1;
 
 /* Class representing a battle */
 var Battle = Class.extend({
@@ -51,43 +44,18 @@ var Battle = Class.extend({
         // Initialize properties
         this._background = null;
         this._encounter = null;
-        this._ignoringKeys = false;
         this._monsterList = null;
         this._currentAction = BATTLE_MENU_ATTACK;
-        this._currentMenu = BATTLE_ATTACK_MENU;
+        this._mainMenu = new BattleMenu(this);
         this._over = false;
         this._win = false;
         this._line = 0;
-        this._txt = "";
-        
-        var screenHeight = mapCanvas.height;
-        this._lineHeight = [
-            screenHeight - 130, 
-            screenHeight - 100, 
-            screenHeight - 70, 
-            screenHeight - 40
-        ];
-        this._textHeight = [
-            screenHeight - 132, 
-            screenHeight - 110, 
-            screenHeight - 86, 
-            screenHeight - 62,
-            screenHeight - 38
-        ];
-        
+        this._txt = "";        
         this._totalExp = 0;
         this._totalGold = 0;
-        this._selectingMonster = false;
-        this._monsterSelection = 0;
-        this._onMonsterSelect = null;
-        this._selectingItem = false;
-        this._itemSelection = 0;
-        this._itemId = [];
-        this._numItems = 0;
-        this._selectingSpell = false;
-        this._spellSelection = 0;
-        this._spellId = [];
-        this._numSpells = 0;
+        this._monsterWillAttack = true;
+        this._defending = false;
+        this._ignoringKeys = false;
         this._writing = false;
         this._delay = 0;
     },
@@ -164,15 +132,8 @@ var Battle = Class.extend({
         this.drawHealthBar();
         this.drawManaBar();
         this.drawMonsters();
-
-        // Draw boxes
-        drawBox(menuCtx, 0, screenHeight - 150, 140, 150, 15, 3);
-        drawBox(menuCtx, 133, screenHeight - 150, screenWidth - 133, 150, 15, 3);
-
-        this._currentMenu = BATTLE_ATTACK_MENU;
-        this.drawMenu();
-        this._currentAction = BATTLE_MENU_ATTACK;
-        this.drawArrow();
+        
+        this._mainMenu.display();
 
         textCtx.font = "bold 16px sans-serif";
         var txt = this._encounter.name + " appeared!";
@@ -320,30 +281,6 @@ var Battle = Class.extend({
         spriteCtx.strokeRect(x, y, w, h);
     },
     
-    /* Draws the battle menu on bottom left of battle screen */
-    drawMenu: function() {
-        
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        if (this._currentMenu == BATTLE_ATTACK_MENU) {
-            textCtx.fillText("Attack", 36, this._lineHeight[0]);
-            textCtx.fillText("Defend", 36, this._lineHeight[1]);
-            textCtx.fillText("Spell", 36, this._lineHeight[2]);
-            textCtx.fillText("Item", 36, this._lineHeight[3]);
-        } else {
-            textCtx.fillText("Run", 36, this._lineHeight[0]);
-        }
-    },
-    
-    /* Erases the battle menu on bottom left of battle screen */
-    clearMenu: function() {
-        textCtx.clearRect(36,
-            this._lineHeight[0],
-            150 - 36, 
-            textCanvas.height - this._lineHeight[0]);
-    },
-    
     /* Writes a message line on bottom right box of battle screen */
     writeMsg: function(msg) {
         this._writing = true;
@@ -416,332 +353,37 @@ var Battle = Class.extend({
         g_battle = null;
     },
     
-    /* Draws an arrow next to the current menu item in battle menu */
-    drawArrow: function() {
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 20px monospace";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._lineHeight[this._currentAction % 4];        
-        // textCtx.fillText(arrowChar, 20, drawHeight);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 16, drawHeight + 2);
-        this._arrow = true;
-    },
-    
-    /* Erases the arrow next to the current menu item in battle menu */
-    clearArrow: function() {
-        var drawHeight = this._lineHeight[this._currentAction % 4];
-        textCtx.clearRect(15, drawHeight + 2, 18, 11);
-        this._arrow = false;
-    },
-    
-    /* Draws an arrow next to currently selected enemy */
-    drawMonsterSelection: function() {
-        var monster = this._monsterList[this._monsterSelection];
-        var loc = monster.getLoc();
-        
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 20px monospace";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        // textCtx.fillText(arrowChar, loc - 10, 3 * TILE_HEIGHT);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, loc - 10, 3 * TILE_HEIGHT);
-    },
-    
-    /* Erases the arrow next to currently selected enemy */
-    clearMonsterSelection: function() {
-        var monster = this._monsterList[this._monsterSelection];
-        var loc = monster.getLoc();
-        textCtx.clearRect(loc - 11, 3 * TILE_HEIGHT, 18, 11);
-    },
-    
-    /* Display items in inventory for selection during battle */
-    displayItems: function() {
-        textCtx.font = "bold 16px sans-serif";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        
-        var numItems = 0;
-        var battle = this;
-        g_player.forEachItemInInventory(function(itemId, amt) {
-            if (amt > 0) {
-                var item = g_itemData.items[itemId];
-                if (item.usable) {
-                    var itemName = item.name;
-                    var amt2 = (amt < 10) ? " " + amt : amt;
-                    if (numItems <= 5)
-                        textCtx.fillText(itemName + ":" + amt2, 180, battle._textHeight[numItems]);
-                    battle._itemId[numItems] = itemId;
-                    numItems++;
-                }
-            }
-        });
-        
-        this._numItems = numItems;
-    },
-    
-    /* Draws an arrow next to currently selected item */
-    drawItemSelection: function() {
-        
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 16px sans-serif";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._textHeight[this._itemSelection];
-        // textCtx.fillText(arrowChar, 154, drawHeight);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 154, drawHeight + 2);
-    },
-    
-    /* Erases the arrow next to currently selected item */
-    clearItemSelection: function() {
-        var drawHeight = this._textHeight[this._itemSelection];
-        textCtx.clearRect(153, drawHeight + 2, 18, 11);
-    },
-    
-    /* Display spells known by player character for selection during battle */
-    displaySpells: function() {
-        textCtx.font = "bold 16px sans-serif";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        
-        var numSpells = 0;
-        var battle = this;
-        g_player.forEachSpell(function(spellId) {
-            var spellName = g_spellData.spells[spellId].name;
-            if (numSpells <= 5)
-                textCtx.fillText(spellName, 174, battle._textHeight[numSpells]);
-            battle._spellId[numSpells] = spellId;
-            numSpells++;
-        });
-        
-        this._numSpells = numSpells;
-    },
-    
-    /* Draws an arrow next to currently selected spell */
-    drawSpellSelection: function() {
-        
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 16px sans-serif";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._textHeight[this._spellSelection];
-        // textCtx.fillText(arrowChar, 154, drawHeight);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 154, drawHeight + 2);
-    },
-    
-    /* Erases the arrow next to currently selected spell */
-    clearSpellSelection: function() {
-        var drawHeight = this._textHeight[this._spellSelection];
-        textCtx.clearRect(153, drawHeight + 2, 18, 11);
-    },
-    
     /* Handles input while battling for up, down, left, and right arrow keys */
-    handleInput: function(key) {
-        if (!this._writing && !this._ignoringKeys) {
-            if (this._selectingMonster) {
-                this.clearMonsterSelection();
-                switch(key) {
-                    case RIGHT_ARROW:
-                    case DOWN_ARROW:
-                        do {
-                            this._monsterSelection++;
-                            if (this._monsterSelection >= this._monsterList.length)
-                                this._monsterSelection = 0;
-                        } while (this._monsterList[this._monsterSelection].isDead());
-                        break;
-                    case LEFT_ARROW:
-                    case UP_ARROW:
-                        do {
-                            this._monsterSelection--;
-                            if (this._monsterSelection < 0)
-                                this._monsterSelection = this._monsterList.length - 1;
-                        } while (this._monsterList[this._monsterSelection].isDead());
-                        break;
-                }
-                this.drawMonsterSelection();
-            } else if (this._selectingItem) {
-                this.clearItemSelection();
-                switch(key) {
-                    case RIGHT_ARROW:
-                    case DOWN_ARROW:
-                        this._itemSelection++;
-                        if (this._itemSelection >= this._numItems)
-                            this._itemSelection = 0;
-                        break;
-                    case LEFT_ARROW:
-                    case UP_ARROW:
-                        this._itemSelection--;
-                        if (this._itemSelection < 0)
-                            this._itemSelection = this._numItems - 1;
-                        break;
-                }
-                this.drawItemSelection();
-            } else if (this._selectingSpell) {
-                this.clearSpellSelection();
-                switch(key) {
-                    case RIGHT_ARROW:
-                    case DOWN_ARROW:
-                        this._spellSelection++;
-                        if (this._spellSelection >= this._numSpells)
-                            this._spellSelection = 0;
-                        break;
-                    case LEFT_ARROW:
-                    case UP_ARROW:
-                        this._spellSelection--;
-                        if (this._spellSelection < 0)
-                            this._spellSelection = this._numSpells - 1;
-                        break;
-                }
-                this.drawSpellSelection();
-            } else {
-                if (!this._over && !g_player.isDead()) {
-                    this.clearArrow();
-                    switch(key) {
-                        case DOWN_ARROW:
-                            if (this._currentMenu == BATTLE_ATTACK_MENU)
-                                this._currentAction = (this._currentAction + 1) % 4;
-                            break;
-                        case UP_ARROW:
-                            if (this._currentMenu == BATTLE_ATTACK_MENU) {
-                                this._currentAction--;
-                                if (this._currentAction < 0)
-                                    this._currentAction += 4;
-                            }
-                            break;
-                        case LEFT_ARROW:
-                        case RIGHT_ARROW:
-                            this._currentMenu = (this._currentMenu + 1) % 2;
-                            this.clearMenu();
-                            this.drawMenu();
-                            if (this._currentMenu == BATTLE_RUN_MENU)
-                                this._currentAction = BATTLE_MENU_RUN;
-                            else
-                                this._currentAction = BATTLE_MENU_ATTACK;
-                            break;
-                    }
-                    this.drawArrow();
-                }
-            }
+    handleKey: function(key) {
+        if (!this._writing && !this._ignoringKeys && !this.over && !g_player.isDead()) {
+            this._currentMenu.handleKey(key);
         }
     },
     
     /* Handles input of enter key or spacebar while battling */
     handleEnter: function() {
-        if (!this._writing) {
-            if (this._selectingMonster)  {
-
-                // Monster selection has been made, do it!
-                this.clearMonsterSelection();
-                this._selectingMonster = false;
-                this._onMonsterSelect(this._monsterSelection);
-            } else {
-                if (!g_player.isDead()) {
-                    if (this._over)
-                        this.end();
-                    else {
-                        var defending = false;
-                        var monsterWillAttack = true;
-                        if (this._selectingItem) {
-
-                            // Item selection has been made, use it!
-                            this.clearItemSelection();
-                            this._selectingItem = false;
-                            var wasUsed = this.useItem();
-                            if (!wasUsed) {
-                                monsterWillAttack = false;
-                                this.drawText();
-                            }
-                        } else if (this._selectingSpell) {
-                            
-                            // Spell selection has been made, throw it!
-                            this.clearSpellSelection();
-                            this._selectingSpell = false;
-                            var wasUsed = this.useSpell();
-                            if (!wasUsed) {
-                                monsterWillAttack = false;
-                                this.drawText();
-                            }
-                        } else {    
-
-                            switch(this._currentAction) {
-                                case BATTLE_MENU_ATTACK:
-                                    if (this._monsterList.length == 1)
-                                        this.attack(0);
-                                    else {
-
-                                        // There is more than one monster, enter selecting mode.
-                                        this._selectingMonster = true;
-                                        this.selectFirstLiveMonster();
-                                        var battle = this;
-                                        this._onMonsterSelect = function(id) {
-                                            battle.attack(id);
-                                            battle.finishTurn();
-                                        };
-                                        monsterWillAttack = false;
-                                        this.drawMonsterSelection();
-                                    }
-                                    break;
-                                case BATTLE_MENU_DEFEND:
-                                    this.writeMsg("You defended.");
-                                    defending = true;
-                                    break;
-                                case BATTLE_MENU_SPELL:
-                                    this._selectingSpell = true;
-                                    this.clearText();
-                                    this.displaySpells();
-                                    this.drawSpellSelection();
-                                    monsterWillAttack = false;
-                                    break;
-                                case BATTLE_MENU_ITEM:
-                                    this._selectingItem = true;
-                                    this.clearText();
-                                    this.displayItems();
-                                    this.drawItemSelection();
-                                    monsterWillAttack = false;
-                                    break;
-                                case BATTLE_MENU_RUN:
-                                    this.run();
-                                    monsterWillAttack = false;
-                                    break;
-                            }
-                        }
-
-                        // Monster's turn
-                        if (!this._over && monsterWillAttack)
-                            this.monsterTurn(defending);
-
-                        // Update Health Bar
-                        this.runAfterWriting(function() {
-                            g_battle.clearHealthBar();
-                            g_battle.clearManaBar();
-                            g_battle.drawHealthBar();
-                            g_battle.drawManaBar();
-                        });
-                    }
+        if (!this._writing && !g_player.isDead()) {
+            if (this._over)
+                this.end();
+            else {
+                this._defending = false;
+                this._monsterWillAttack = true;
+                this._currentMenu.handleEnter();
+                if (this._currentMenu.wasUsed && this_currentMenu.wasUsed() === false) {
+                    this._monsterWillAttack = false;
+                    this._drawText();
                 }
+                this.finishTurn();
             }
         }
     },
     
     /* handles input of ESC key while battling. */
-    handleEsc: function() {
-        if (this._selectingMonster) {
-            this.clearMonsterSelection();
-            this._selectingMonster = false;
-        } else if (this._selectingItem) {
-            this.clearItemSelection();
-            this._selectingItem = false;
-            this.drawText();
-        } else if (this._selectingSpell) {
-            this.clearSpellSelection();
-            this._selectingSpell = false;
-            this.drawText();
-        } else if (this._over) {
+    handleESC: function() {
+        if (this._over) {
             this.end();
+        } else {
+            this._currentMenu.handleESC();
         }
     },
     
@@ -750,25 +392,44 @@ var Battle = Class.extend({
         this._ignoringKeys = false;
     },
     
-    /* Sets monster selection to the first living monster. */
-    selectFirstLiveMonster: function() {
-        for (var i = 0; i < this._monsterList.length; ++i)
-            if (!this._monsterList[i].isDead()) {
-                this._monsterSelection = i;
-                break;
-            }
+    /* called from battle menu to begin the attack of the monster */
+    function beginAttack() {
+        this._currentAction = BATTLE_MENU_ATTACK;
+        if (this._monsterList.length == 1) {
+            this.attack(0);
+            this.finishTurn();
+        } else {
+
+            // There is more than one monster, enter selecting mode.
+            this._currentMenu = new MonsterMenu(this._currentMenu, this, this._monsterList); 
+            this._currentMenu.selectFirstLiveMonster();
+            this._currentMenu.display();
+            this._monsterWillAttack = false;
+        }
+    },
+    
+    /* called from battle menu to begin defending */
+    defend: function() {
+        this._defending = true;
+        this.finishTurn();
     },
     
     /* Finish turn after selecting monster and performing action */
     finishTurn: function() {
-        if (!this._over)
+        
+        // Monster's turn
+        if (!this._over && this.monsterWillAttack)
             this.monsterTurn(false);
+        
+        // Update Health Bar
         this.runAfterWriting(function() {
             g_battle.clearHealthBar();
             g_battle.clearManaBar();
             g_battle.drawHealthBar();
             g_battle.drawManaBar();
         });
+        
+        this._defending = false;
     },
     
     /* Utility function to run callback function when writing is finished */
@@ -816,6 +477,27 @@ var Battle = Class.extend({
         this.clearArrow();
     },
     
+    doActionToMonster: function(id) {
+        switch (this.currentAction) {
+            case BATTLE_MENU_ATTACK:
+                this.attack(id);
+                this.finishTurn();
+                break;
+            case BATTLE_MENU_DEFEND:
+                this._defending = true;
+                break;
+            case BATTLE_MENU_ITEM:
+                // not implemented
+                break;
+            case BATTLE_MENU_SPELL:
+                // not implemented
+                break;
+            case BATTLE_MENU_RUN:
+                // not possible
+                break;
+        }
+    },
+    
     /* Player attacks monster with id provided */
     attack: function(id) {
         
@@ -844,7 +526,7 @@ var Battle = Class.extend({
     },
     
     /* Monsters attack the player */
-    monsterTurn: function(defending) {
+    monsterTurn: function() {
         for (var i = 0; i < this._monsterList.length; ++i) {
             var monster = this._monsterList[i];
             if (!monster.isDead()) {
@@ -861,7 +543,7 @@ var Battle = Class.extend({
                             this.writeMsg("Terrible Hit!");
                             damage = 2 * monster.getAttack() - g_player.getDefense();
                         }
-                        if (defending)
+                        if (this._defending)
                             damage = Math.floor(damage / 2.5);
                         if (damage < 1)
                             damage = 1;

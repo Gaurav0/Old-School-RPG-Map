@@ -428,7 +428,7 @@ function handleKey(key, event) {
                     else if (g_shop.shopDisplayed())
                         g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
@@ -440,7 +440,7 @@ function handleKey(key, event) {
                     else if (g_shop.shopDisplayed())
                         g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
@@ -452,7 +452,7 @@ function handleKey(key, event) {
                     else if (g_shop.shopDisplayed())
                         g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
@@ -464,7 +464,7 @@ function handleKey(key, event) {
                     else if (g_shop.shopDisplayed())
                         g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
@@ -497,7 +497,7 @@ function handleKey(key, event) {
                     else if (g_shop.shopDisplayed())
                         g_shop.handleESC();
                     else if (g_battle)
-                        g_battle.handleEsc();
+                        g_battle.handleESC();
                     else
                         g_menu.getCurrentMenu().display();
                     event.preventDefault();

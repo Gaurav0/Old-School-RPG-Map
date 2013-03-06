@@ -80,7 +80,7 @@ var BattleMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                function() { menu._battle.attack(); },
+                function() { menu._battle.beginAttack(); },
                 function() { menu._battle.defend(); },
                 function() { menu.displayItemMenu(); },
                 function() { menu.displaySpellMenu(); },
@@ -90,7 +90,6 @@ var BattleMenu = Menu.extend({
         });
         this._texts2 = [ "Run" ];
         this._currentMenu = this;
-        this._ignoringKeys = false;
     },
     
     /* Get the current menu */
@@ -101,11 +100,6 @@ var BattleMenu = Menu.extend({
     /* Set the current menu */
     setCurrentMenu: function(menu) {
         this._currentMenu = menu;
-    },
-    
-    /* Set if the menu is ignoring keys */
-    setIgnoringKeys: function(ignore) {
-        this._ignoringKeys = ignore;
     },
     
     // Called after one of the submenus is cleared
@@ -137,7 +131,7 @@ var BattleMenu = Menu.extend({
     handleKey: function(key) {
         console.log("BattleMenu.handleKey");
         if (this._currentMenu == this) {
-            if (!this._ignoringKeys && this._displayed) {
+            if (this._displayed) {
                 this.clearPointer();
                 switch(key) {
                     case DOWN_ARROW:

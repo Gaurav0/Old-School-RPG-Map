@@ -74,8 +74,12 @@ var BattleSpellMenu = Menu.extend({
             callbacks: callbacks,
             canESC: true,
             afterCallback: function() { menu._parent.returnTo(); },
-            afterClear: function() { menu._parent.returnTo(); }
+            afterClear: function() {
+                menu._spellUsed = false;
+                menu._parent.returnTo();
+            }
         });
+        this._spellUsed = false;
     },
     
     _getSpells: function() {
@@ -125,9 +129,15 @@ var BattleSpellMenu = Menu.extend({
                     break;
             }
             g_player.useMP(spell.mpCost);
+            this._spellUsed = true;
         } else {
             this._battle.writeMsg("You do not have enough MP");
             this._battle.writeMsg("to cast " + spell.name + ".");
+            this._spellUsed = false;
         }
+    },
+    
+    wasUsed: function() {
+        return this._spellUsed;
     }
 });

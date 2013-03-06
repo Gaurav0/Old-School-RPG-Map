@@ -38,10 +38,12 @@
  
  
  var MonsterMenu = HorizMenu.extend({
-    _init: function(parent, battle, numMonsters, monsterLefts) {
+    _init: function(parent, battle, numMonsters, monsterList) {
         this._parent = parent;
         this._battle = battle;
-        var callbacks = this.createCallbacks(numMonsters);
+        this._monsterList = monsterList;
+        var callbacks = this.createCallbacks(monsterList.length);
+        var monsterLefts = _.map(monsterList, function(monster) { monster.getLoc(); });
         var menu = this;
         this._super({
             type: BATTLE_MONSTER_MENU,
@@ -57,7 +59,7 @@
             texts: [ "", "", "" ],
             callbacks: callbacks,
             canESC: true,
-            afterClear: function() { menu._battle.returnTo(); }         
+            afterClear: function() { menu._parent.returnTo(); }         
         });
     },
     
@@ -67,5 +69,40 @@
     
     callback: function(i) {
         this._battle.doActionToMonster(i);
+    },
+    
+    /* Version of handleKey that goes to a live monster */
+    handleKey: function(key) {
+        console.log("Menu.handleKey:" + key + this._displayed);
+        if (this._displayed) {
+            this.clearPointer();
+            switch(key) {
+                case DOWN_ARROW:
+                case RIGHT_ARROW:
+                    do {
+                        this._current++;
+                        this._current %= this._num;
+                    } while (!this._monsterList[this._current].isDead());
+                    break;
+                case UP_ARROW:
+                case LEFT_ARROW:
+                    do {
+                        this._current--;
+                        if (this._current < 0)
+                            this._current += this._num;
+                    } while (!this._monsterList[this._current].isDead());
+                    break;
+            }
+            this.drawPointer();
+        }
+    },
+    
+    /* Select the first monster that is alive */
+    selectFirstLiveMonster: function() {
+        for (var i = 0; i < this._monsterList.length; ++i)
+            if (!this._monsterList[i].isDead()) {
+                this._current = i;
+                break;
+            }
     }
  });
