@@ -47,7 +47,7 @@ var HorizMenu = Menu.extend({
     
     /* Draw the pointer at the current selection */
     drawPointer: function() {
-        console.log("Menu.drawPointer:" + this._current);
+        console.log("HorizMenu.drawPointer:" + this._current);
 
         // Get the left at which the pointer should be
         var drawLeft = this._pointerLefts[this._current % this._num];
@@ -61,7 +61,7 @@ var HorizMenu = Menu.extend({
     
     /* Clear the pointer at the current selection */
     clearPointer: function() {
-        console.log("Menu.clearPointer:" + this._current);
+        console.log("HorizMenu.clearPointer:" + this._current);
 
         // Get the left at which the pointer should be
         var drawLeft = this._pointerLefts[this._current % this._num];

@@ -43,7 +43,7 @@
         this._battle = battle;
         this._monsterList = monsterList;
         var callbacks = this.createCallbacks(monsterList.length);
-        var monsterLefts = _.map(monsterList, function(monster) { monster.getLoc(); });
+        var monsterLefts = _.map(monsterList, function(monster) { return monster.getLoc(); });
         var menu = this;
         this._super({
             type: BATTLE_MONSTER_MENU,
@@ -73,7 +73,7 @@
     
     /* Version of handleKey that goes to a live monster */
     handleKey: function(key) {
-        console.log("Menu.handleKey:" + key + this._displayed);
+        console.log("MonsterMenu.handleKey: " + key + " " + this._displayed);
         if (this._displayed) {
             this.clearPointer();
             switch(key) {
@@ -82,7 +82,7 @@
                     do {
                         this._current++;
                         this._current %= this._num;
-                    } while (!this._monsterList[this._current].isDead());
+                    } while (this._monsterList[this._current].isDead());
                     break;
                 case UP_ARROW:
                 case LEFT_ARROW:
@@ -90,7 +90,7 @@
                         this._current--;
                         if (this._current < 0)
                             this._current += this._num;
-                    } while (!this._monsterList[this._current].isDead());
+                    } while (this._monsterList[this._current].isDead());
                     break;
             }
             this.drawPointer();

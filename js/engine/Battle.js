@@ -295,7 +295,7 @@ var Battle = Class.extend({
     /* Writes a message line on bottom right box of battle screen */
     writeMsg: function(msg) {
         this._writing = true;
-        this._mainMenu.clear();
+        this._mainMenu.clearPointer();
         window.setTimeout(function() {
             g_battle.drawText();
             var line = g_battle._line <= 4 ? g_battle._line : 4;
@@ -305,8 +305,8 @@ var Battle = Class.extend({
             g_battle._delay -= MESSAGE_DELAY;
             if (g_battle._delay == 0) {
                 g_battle._writing = false;
-                if (g_battle._arrow)
-                    g_battle.drawArrow();
+                if (!g_battle._over)
+                    g_battle._mainMenu.drawPointer();
             }
         }, this._delay);
         this._delay += MESSAGE_DELAY;
@@ -483,11 +483,11 @@ var Battle = Class.extend({
             this.writeMsg("You gained a level!");
         this._over = true;
         this._win = true;
-        this.clearArrow();
+        this._mainMenu.clearPointer();
     },
     
     doActionToMonster: function(id) {
-        switch (this.currentAction) {
+        switch (this._currentAction) {
             case BATTLE_MENU_ATTACK:
                 this.attack(id);
                 this.finishTurn();
@@ -509,6 +509,7 @@ var Battle = Class.extend({
     
     /* Player attacks monster with id provided */
     attack: function(id) {
+        console.log("attack(" + id + ")");
         
         // Basic battle system; determine damage from attack and defense
         var monster = this._monsterList[id];
@@ -576,7 +577,7 @@ var Battle = Class.extend({
                 if (g_player.isDead()) {
                     this.writeMsg("You died.");
                     this._over = true;
-                    this.clearArrow();
+                    this._mainMenu.clearPointer();
                     var battle = this;
                     this.runAfterWriting(function() {
                         battle.clearPlayer();
@@ -602,7 +603,7 @@ var Battle = Class.extend({
         
         this.writeMsg("You ran away.")
         this._over = true;
-        this.clearArrow();
+        this._mainMenu.clearPointer();
         var battle = this;
         this.runAfterWriting(function() {
             battle.clearPlayer();
