@@ -38,7 +38,7 @@
  
  
  var MonsterMenu = HorizMenu.extend({
-    _init: function(parent, battle, numMonsters, monsterList) {
+    _init: function(parent, battle, monsterList) {
         this._parent = parent;
         this._battle = battle;
         this._monsterList = monsterList;
@@ -47,11 +47,11 @@
         var menu = this;
         this._super({
             type: BATTLE_MONSTER_MENU,
-            numberSelections: numMonsters,
+            numberSelections: monsterList.length,
             drawBox: false,
             left: monsterLefts[0] - 10,
             top: 3 * TILE_HEIGHT,
-            width: monsterLefts[numMonsters - 1] + 6,
+            width: monsterLefts[monsterList.length - 1] + 6,
             height: 11,
             lineTop: 3 * TILE_HEIGHT,
             pointerLefts: _.map(monsterLefts, function(left) { return left - 10; }),

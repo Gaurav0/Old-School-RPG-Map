@@ -47,6 +47,7 @@ var Battle = Class.extend({
         this._monsterList = null;
         this._currentAction = BATTLE_MENU_ATTACK;
         this._mainMenu = new BattleMenu(this);
+        this._currentMenu = this._mainMenu;
         this._over = false;
         this._win = false;
         this._line = 0;
@@ -58,6 +59,15 @@ var Battle = Class.extend({
         this._ignoringKeys = false;
         this._writing = false;
         this._delay = 0;
+        
+        var screenHeight = mapCanvas.height;
+        this._textHeight = [
+            screenHeight - 132,
+            screenHeight - 110,
+            screenHeight - 86,
+            screenHeight - 62,
+            screenHeight - 38
+        ];
     },
     
     /* Setup random encounter */
@@ -134,6 +144,7 @@ var Battle = Class.extend({
         this.drawMonsters();
         
         this._mainMenu.display();
+        drawBox(menuCtx, 133, screenHeight - 150, screenWidth - 133, 150, 15, 3);
 
         textCtx.font = "bold 16px sans-serif";
         var txt = this._encounter.name + " appeared!";
@@ -284,9 +295,7 @@ var Battle = Class.extend({
     /* Writes a message line on bottom right box of battle screen */
     writeMsg: function(msg) {
         this._writing = true;
-        var temp = this._arrow;
-        this.clearArrow();
-        this._arrow = temp;
+        this._mainMenu.clear();
         window.setTimeout(function() {
             g_battle.drawText();
             var line = g_battle._line <= 4 ? g_battle._line : 4;
@@ -393,7 +402,7 @@ var Battle = Class.extend({
     },
     
     /* called from battle menu to begin the attack of the monster */
-    function beginAttack() {
+    beginAttack: function() {
         this._currentAction = BATTLE_MENU_ATTACK;
         if (this._monsterList.length == 1) {
             this.attack(0);

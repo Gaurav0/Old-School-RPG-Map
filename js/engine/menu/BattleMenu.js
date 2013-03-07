@@ -63,7 +63,7 @@ var BattleMenu = Menu.extend({
             numberSelections: NUM_BATTLE_MENU_ACTIONS_SHOWN,
             drawBox: true,
             left: 0,
-            top: screenheight - 150,
+            top: screenHeight - 150,
             width: 140,
             height: 150,
             radius: 15,
@@ -150,14 +150,14 @@ var BattleMenu = Menu.extend({
                             this._num = 1;
                             this._savedCurrent = this._current;
                             this._current = 0;
-                            this._clear();
-                            this._display();
+                            this.clear();
+                            this.display();
                         } else {
                             this._texts = this._texts1;
                             this._num = NUM_BATTLE_MENU_ACTIONS_SHOWN;
                             this._current = this._savedCurrent;
-                            this._clear();
-                            this._display();
+                            this.clear();
+                            this.display();
                         }
                         break;
                 }
