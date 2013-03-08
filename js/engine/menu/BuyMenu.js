@@ -96,9 +96,9 @@ var BuyMenu = Menu.extend({
         for (var i = 0; i < this._items.length; ++i) {
             var item = this._items[i];
             var itemText = item.name;
-            while (itemText.length < 15)
+            while (itemText.length < 16)
                 itemText += " ";
-            var itemCost = item.cost;
+            var itemCost = item.cost + "";
             while (itemCost.length < 5)
                 itemCost = " " + itemCost;
             texts[i] = itemText + itemCost;
