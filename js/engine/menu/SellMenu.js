@@ -65,8 +65,8 @@ var SellMenu = Menu.extend({
             font: "bold 14px monospace",
             callbacks: callbacks,
             canESC: true,
-            // beforeCallback: function() { menu.clear(); },
-            // afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
+            beforeCallback: function() { menu.clear(); },
+            afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
