@@ -420,6 +420,7 @@ var Battle = Class.extend({
     /* called from battle menu to begin defending */
     defend: function() {
         this._defending = true;
+        this.writeMsg("You defended.");
         this.finishTurn();
     },
     
