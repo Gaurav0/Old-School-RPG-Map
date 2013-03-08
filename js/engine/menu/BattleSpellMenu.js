@@ -74,12 +74,8 @@ var BattleSpellMenu = Menu.extend({
             callbacks: callbacks,
             canESC: true,
             afterCallback: function() { menu._parent.returnTo(); },
-            afterClear: function() {
-                menu._spellUsed = false;
-                menu._parent.returnTo();
-            }
+            afterClear: function() { menu._parent.returnTo(); }
         });
-        this._spellUsed = false;
     },
     
     _getSpells: function() {
@@ -122,22 +118,18 @@ var BattleSpellMenu = Menu.extend({
         if (g_player.getMP() >= theSpell.mpCost) {
             switch(spell.type) {
                 case SPELLTYPE_HEAL_ONE:
-                    spell.use(g_player);
+                    theSpell.use(g_player);
                     break;
                 case SPELLTYPE_ATTACK_ALL:
-                    spell.use();
+                    theSpell.use();
                     break;
             }
             g_player.useMP(spell.mpCost);
-            this._spellUsed = true;
+            g_battle.setMonsterWillAttack(true);
         } else {
             this._battle.writeMsg("You do not have enough MP");
             this._battle.writeMsg("to cast " + spell.name + ".");
-            this._spellUsed = false;
+            g_battle.setMonsterWillAttack(false);
         }
-    },
-    
-    wasUsed: function() {
-        return this._spellUsed;
     }
 });

@@ -378,10 +378,6 @@ var Battle = Class.extend({
                 this._defending = false;
                 this._monsterWillAttack = true;
                 this._currentMenu.handleEnter();
-                if (this._currentMenu.wasUsed && this_currentMenu.wasUsed() === false) {
-                    this._monsterWillAttack = false;
-                    this._drawText();
-                }
                 this.finishTurn();
             }
         }
@@ -399,6 +395,10 @@ var Battle = Class.extend({
     /* handles key up event */
     handleKeyUp: function() {
         this._ignoringKeys = false;
+    },
+    
+    setMonsterWillAttack: function(willAttack) {
+        this._monsterWillAttack = willAttack;
     },
     
     /* called from battle menu to begin the attack of the monster */

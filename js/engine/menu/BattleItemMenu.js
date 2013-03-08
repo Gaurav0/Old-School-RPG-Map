@@ -74,12 +74,8 @@ var BattleItemMenu = Menu.extend({
             callbacks: callbacks,
             canESC: true,
             afterCallback: function() { menu._parent.returnTo(); },
-            afterClear: function() { 
-                menu._itemUsed = false;
-                menu._parent.returnTo();
-            }
+            afterClear: function() { menu._parent.returnTo(); }
         });
-        this._itemUsed = false;
     },
     
     _getItems: function() {
@@ -125,9 +121,6 @@ var BattleItemMenu = Menu.extend({
         var theItem = g_itemData.items[item.id];
         theItem.use(g_player);
         g_player.removeFromInventory(item.id);
-    },
-    
-    wasUsed: function() {
-        return this._itemUsed;
+        g_battle.setMonsterWillAttack(true);
     }
 });

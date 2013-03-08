@@ -82,8 +82,8 @@ var BattleMenu = Menu.extend({
             callbacks: [
                 function() { menu._battle.beginAttack(); },
                 function() { menu._battle.defend(); },
-                function() { menu.displayItemMenu(); },
                 function() { menu.displaySpellMenu(); },
+                function() { menu.displayItemMenu(); },
                 function() { menu._battle.run(); }
             ],
             canESC: false
@@ -106,9 +106,9 @@ var BattleMenu = Menu.extend({
     returnTo: function() {
         console.log("BattleMenu.returnTo");
         this._currentMenu = this;
-        // this.clear();
-        // this.display();
         this.drawPointer();
+        this._battle.clearText();
+        this._battle.drawText();
     },
     
     setDisplayed: function(displayed) {
@@ -116,15 +116,21 @@ var BattleMenu = Menu.extend({
     },
     
     displayItemMenu: function() {
-        var menu = new BattleItemMenu(this);
+        console.log("displayItemMenu");
+        this._battle.clearText();
+        var menu = new BattleItemMenu(this, this._battle);
         menu.display();
         this._currentMenu = menu;
+        this._battle.setMonsterWillAttack(false);
     },
     
     displaySpellMenu: function() {
-        var menu = new BattleSpellMenu(this);
+        console.log("displaySpellMenu");
+        this._battle.clearText();
+        var menu = new BattleSpellMenu(this, this._battle);
         menu.display();
         this._currentMenu = menu;
+        this._battle.setMonsterWillAttack(false);
     },
     
     /* Handles arrow key input for battle menu */
@@ -170,11 +176,12 @@ var BattleMenu = Menu.extend({
     /* Called when enter key is pressed and battle menu has focus */
     handleEnter: function() {
         console.log("BattleMenu.handleEnter");
-        console.log("current menu: " + this._currentMenu.getType());
+        console.log("current menu: " + this._currentMenu.getType() + "," + this._current);
         if (this._currentMenu == this)
-            if (this._texts == this._texts1)         
+            if (this._texts == this._texts1) {
+                console.log("equal");
                 this._callbacks[this._current]();
-            else
+            } else
                 this._callbacks[BATTLE_MENU_RUN]();
         else
            this._currentMenu.handleEnter();
