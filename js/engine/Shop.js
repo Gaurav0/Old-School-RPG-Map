@@ -94,7 +94,6 @@ var Shop = Class.extend({
         textCtx.fillStyle = "white";
         textCtx.textBaseline = "top";
         
-        console.log("Shop.displayQuantityDialog: this._quantity: " + this._quantity + " price: " + price + " item.cost " + item.cost);
         textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * price + "G", 120, 266);
         
         this._item = item;

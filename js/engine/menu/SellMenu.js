@@ -82,7 +82,6 @@ var SellMenu = Menu.extend({
                 item.amt = amt;
                 item.cost = g_itemData.items[itemId].cost;
                 item.sellPrice = Math.floor(item.cost * SELL_PRICE_RATIO);
-                console.log("item.sellPrice: " + item.sellPrice);
                 itemMenu._items.push(item);
                 numItems++;
             }

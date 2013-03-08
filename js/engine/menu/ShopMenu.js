@@ -85,7 +85,6 @@ var ShopMenu = Menu.extend({
     
     // Called after one of the submenus is cleared
     returnTo: function() {
-        console.log("ShopMenu.returnTo");
         this._currentMenu = this;
         this.clear();
         this.display();
@@ -125,7 +124,6 @@ var ShopMenu = Menu.extend({
     },
     
     displayBuyMenu: function() {
-        console.log("ShopMenu.displayBuyMenu: itemList length: " + this.getShop().getItemList().length);
         var menu = new BuyMenu(this, this.getShop(), this.getShop().getItemList());
         menu.display();
         this._currentMenu = menu;
@@ -149,7 +147,6 @@ var ShopMenu = Menu.extend({
     
     /* Handles arrow key input for shop menu */
     handleKey: function(key) {
-        console.log("ShopMenu.handleKey");
         if (this._currentMenu == this)
            this._super(key);
         else
@@ -158,8 +155,6 @@ var ShopMenu = Menu.extend({
     
     /* Called when enter key is pressed and shop menu has focus */
     handleEnter: function() {
-        console.log("ShopMenu.handleEnter");
-        console.log("current menu: " + this._currentMenu.getType());
         if (this._currentMenu == this)
            this._super();
         else
@@ -168,7 +163,6 @@ var ShopMenu = Menu.extend({
     
     /* Called when ESC key is pressed and shop menu has focus */
     handleESC: function() {
-        console.log("ShopMenu.handleESC: " + (this instanceof ShopMenu) + " " + (this._currentMenu == this));
         if (this._currentMenu == this)
            this._super();
         else

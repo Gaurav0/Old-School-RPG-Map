@@ -62,7 +62,6 @@ var AbstractMenu = Class.extend({
     
     /* Display the menu */
     display: function() {
-        console.log("AbstractMenu.display");
         if (this._drawBox)
             drawBox(menuCtx, this._left, this._top, this._width, this._height, this._radius, this._thickness);
         

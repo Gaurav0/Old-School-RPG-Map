@@ -104,7 +104,6 @@ var BattleMenu = Menu.extend({
     
     // Called after one of the submenus is cleared
     returnTo: function(clear) {
-        console.log("BattleMenu.returnTo");
         this._currentMenu = this;
         this.drawPointer();
         if (clear) {
@@ -118,7 +117,6 @@ var BattleMenu = Menu.extend({
     },
     
     displayItemMenu: function() {
-        console.log("displayItemMenu");
         this._battle.clearText();
         var menu = new BattleItemMenu(this, this._battle);
         menu.display();
@@ -127,7 +125,6 @@ var BattleMenu = Menu.extend({
     },
     
     displaySpellMenu: function() {
-        console.log("displaySpellMenu");
         this._battle.clearText();
         var menu = new BattleSpellMenu(this, this._battle);
         menu.display();
@@ -137,7 +134,6 @@ var BattleMenu = Menu.extend({
     
     /* Handles arrow key input for battle menu */
     handleKey: function(key) {
-        console.log("BattleMenu.handleKey");
         if (this._currentMenu == this) {
             if (this._displayed) {
                 this.clearPointer();
@@ -177,11 +173,8 @@ var BattleMenu = Menu.extend({
     
     /* Called when enter key is pressed and battle menu has focus */
     handleEnter: function() {
-        console.log("BattleMenu.handleEnter");
-        console.log("current menu: " + this._currentMenu.getType() + "," + this._current);
         if (this._currentMenu == this)
             if (this._texts == this._texts1) {
-                console.log("equal");
                 this._callbacks[this._current]();
             } else
                 this._callbacks[BATTLE_MENU_RUN]();
@@ -191,7 +184,6 @@ var BattleMenu = Menu.extend({
     
     /* Called when ESC key is pressed and battle menu has focus */
     handleESC: function() {
-        console.log("BattleMenu.handleESC: " + (this instanceof BattleMenu) + " " + (this._currentMenu == this));
         if (this._currentMenu == this && this._canESC)
            this._super();
         else

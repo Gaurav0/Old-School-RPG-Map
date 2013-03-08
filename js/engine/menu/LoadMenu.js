@@ -74,7 +74,6 @@ var LoadMenu = SlotMenu.extend({
     callback: function(i) {        
         this.clear();
         this._mainMenu.clear();
-        console.log("LoadMenu callback slot:" + i + 1);
         this.loadGame(i + 1);
     },
     

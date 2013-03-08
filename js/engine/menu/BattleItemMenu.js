@@ -73,8 +73,8 @@ var BattleItemMenu = Menu.extend({
             font: "bold 16px sans-serif",
             callbacks: callbacks,
             canESC: true,
-            afterCallback: function() { menu._parent.returnTo(); },
-            afterClear: function() { menu._parent.returnTo(); }
+            afterCallback: function() { menu._parent.returnTo(true); },
+            afterClear: function() { menu._parent.returnTo(true); }
         });
     },
     

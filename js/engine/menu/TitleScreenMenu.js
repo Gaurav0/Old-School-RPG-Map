@@ -90,7 +90,6 @@ var TitleScreenMenu = Menu.extend({
     
     // runs when a new game is started.
     onNewGame: function() {
-        console.log(this instanceof Class);
         this.clear();
         this._onNewGame();
         g_titlescreen = false;
@@ -117,7 +116,6 @@ var TitleScreenMenu = Menu.extend({
     
     /* Handles arrow key input for title screen */
     handleKey: function(key) {
-        console.log("TitleScreenMenu.handleKey");
         if (this._currentMenu == this)
            this._super(key);
         else
@@ -126,7 +124,6 @@ var TitleScreenMenu = Menu.extend({
     
     /* Called when enter key is pressed and title screen has focus */
     handleEnter: function() {
-        console.log("TitleScreenMenu.handleEnter");
         if (this._currentMenu == this)
            this._super();
         else
@@ -153,7 +150,6 @@ var TitleScreenMenu = Menu.extend({
     
     // Called after one of the submenus is cleared
     returnTo: function() {
-        console.log("TitleScreenMenu.returnTo");
         this._mainMenu.setCurrentMenu(this);
         this.display();
         this.drawPointer();

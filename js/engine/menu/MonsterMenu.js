@@ -60,7 +60,7 @@
             callbacks: callbacks,
             canESC: true,
             afterCallback: function() { menu.clear(); },
-            afterClear: function() { menu._parent.returnTo(); }         
+            afterClear: function() { menu._parent.returnTo(false); }         
         });
     },
     
@@ -74,7 +74,6 @@
     
     /* Version of handleKey that goes to a live monster */
     handleKey: function(key) {
-        console.log("MonsterMenu.handleKey: " + key + " " + this._displayed);
         if (this._displayed) {
             this.clearPointer();
             switch(key) {

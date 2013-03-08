@@ -426,7 +426,6 @@ var Battle = Class.extend({
     
     /* Finish turn after selecting monster and performing action */
     finishTurn: function() {
-        console.log("Battle.finishTurn");
         
         // Monster's turn
         if (!this._over && this._monsterWillAttack)
@@ -518,7 +517,6 @@ var Battle = Class.extend({
     
     /* Player attacks monster with id provided */
     attack: function(id) {
-        console.log("attack(" + id + ")");
         
         // Basic battle system; determine damage from attack and defense
         var monster = this._monsterList[id];

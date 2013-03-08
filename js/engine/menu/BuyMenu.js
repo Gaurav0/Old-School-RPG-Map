@@ -39,7 +39,6 @@
  
 var BuyMenu = Menu.extend({
     _init: function(parent, shop, itemList) {
-        console.log("BuyMenu._init");
         var menu = this;
         this._parent = parent;
         this._shop = shop;
@@ -87,7 +86,6 @@ var BuyMenu = Menu.extend({
             numItems++;
         }
         
-        console.log("BuyMenu._getItems: numItems: " + numItems);
         return numItems;
     },
     

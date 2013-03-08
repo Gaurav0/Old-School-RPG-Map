@@ -81,14 +81,12 @@ var EquipMenu = Menu.extend({
     },
     
     callback: function(equipType) {
-        console.log("Equip callback");
         var equipSubMenu = new EquipSubMenu(this._mainMenu, this, equipType);
         equipSubMenu.display();
         this._mainMenu.setCurrentMenu(equipSubMenu);
     },
     
     returnTo: function() {
-        console.log("EquipMenu.returnTo");
         this.clear();
         this.display();
         this._mainMenu.setCurrentMenu(this);
@@ -160,7 +158,6 @@ var EquipSubMenu = Menu.extend({
                 }
             }
         });
-        console.log("EquipSubMenu numItems: " + numItems);
         return numItems;
     },
     
