@@ -440,7 +440,7 @@ var Battle = Class.extend({
                 g_battle.drawManaBar();
                 if (!g_battle._over) {
                     g_battle._currentMenu = g_battle._mainMenu;
-                    g_battle._mainMenu.returnTo();
+                    g_battle._mainMenu.returnTo(false);
                 }
             });
         }

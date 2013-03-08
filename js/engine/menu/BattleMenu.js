@@ -103,12 +103,14 @@ var BattleMenu = Menu.extend({
     },
     
     // Called after one of the submenus is cleared
-    returnTo: function() {
+    returnTo: function(clear) {
         console.log("BattleMenu.returnTo");
         this._currentMenu = this;
         this.drawPointer();
-        this._battle.clearText();
-        this._battle.drawText();
+        if (clear) {
+            this._battle.clearText();
+            this._battle.drawText();
+        }
     },
     
     setDisplayed: function(displayed) {
