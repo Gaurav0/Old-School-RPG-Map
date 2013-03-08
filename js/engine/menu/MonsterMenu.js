@@ -52,13 +52,14 @@
             left: monsterLefts[0] - 10,
             top: 3 * TILE_HEIGHT,
             width: monsterLefts[monsterList.length - 1] + 6,
-            height: 11,
+            height: 13,
             lineTop: 3 * TILE_HEIGHT,
             pointerLefts: _.map(monsterLefts, function(left) { return left - 10; }),
             textLefts: monsterLefts,
             texts: [ "", "", "" ],
             callbacks: callbacks,
             canESC: true,
+            afterCallback: function() { menu.clear(); },
             afterClear: function() { menu._parent.returnTo(); }         
         });
     },

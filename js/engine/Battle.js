@@ -425,20 +425,28 @@ var Battle = Class.extend({
     
     /* Finish turn after selecting monster and performing action */
     finishTurn: function() {
+        console.log("Battle.finishTurn");
         
         // Monster's turn
-        if (!this._over && this.monsterWillAttack)
+        if (!this._over && this._monsterWillAttack)
             this.monsterTurn(false);
         
         // Update Health Bar
-        this.runAfterWriting(function() {
-            g_battle.clearHealthBar();
-            g_battle.clearManaBar();
-            g_battle.drawHealthBar();
-            g_battle.drawManaBar();
-        });
+        if (this._monsterWillAttack) {
+            this.runAfterWriting(function() {
+                g_battle.clearHealthBar();
+                g_battle.clearManaBar();
+                g_battle.drawHealthBar();
+                g_battle.drawManaBar();
+                if (!g_battle._over) {
+                    g_battle._currentMenu = g_battle._mainMenu;
+                    g_battle._mainMenu.returnTo();
+                }
+            });
+        }
         
         this._defending = false;
+        this._monsterWillAttack = false;
     },
     
     /* Utility function to run callback function when writing is finished */
