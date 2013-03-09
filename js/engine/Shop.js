@@ -107,6 +107,10 @@ var Shop = Class.extend({
         this._quantityDisplayed = false;
     },
     
+    isQuantityDialogDisplayed: function() {
+        return this._quantityDisplayed;
+    },
+    
     /* Increase the quantity that the user will buy */
     increaseQuantity: function() {
         if (this._quantity < this._maxQuantity)
@@ -176,10 +180,12 @@ var Shop = Class.extend({
     
     /* if toDisplayQty, show Quantity Dialog, otherwise sell one */
     handleSale: function(item) {
-        if (this._toDisplayQuantity)
+        if (item.amt > 1)
             this.displayQuantityDialog(item);
-        else
+        else {
+            this._menu.getCurrentMenu().clear();
             this.sellItem(item);
+        }
     },
     
     /* Called when user tries to complete purchase of single item. */

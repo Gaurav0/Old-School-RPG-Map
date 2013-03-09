@@ -65,8 +65,6 @@ var SellMenu = Menu.extend({
             font: "bold 14px monospace",
             callbacks: callbacks,
             canESC: true,
-            beforeCallback: function() { menu.clear(); },
-            afterCallback: function() { menu._parent.setCurrentMenu(menu._parent); },
             afterClear: function() { menu._parent.returnTo(); }
         });
     },
@@ -109,5 +107,7 @@ var SellMenu = Menu.extend({
 
     callback: function(i) {
         this._shop.handleSale(this._items[i]);
+        if (!this._shop.isQuantityDialogDisplayed())
+            this._parent.setCurrentMenu(this._parent);
     }
 });
