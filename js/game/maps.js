@@ -129,7 +129,25 @@ var g_mapData = {
                     toScrollX: 3,
                     toScrollY: 6,
                     facing: FACING_UP
-              }
+              },
+              chests: [{
+                      imgRef: "chest",
+                      locX: 4,
+                      locY: 8,
+                      event: "fc5",
+                      action: function() {
+                        this.onOpenFindItem("You found 2 potions.", ITEM_POTION, 2);
+                      }
+            }, {
+                      imgRef: "chest",
+                      locX: 2,
+                      locY: 9,
+                      event: "fc6",
+                      action: function() {
+                      this.onOpenFindItem("You found 1 potion.", ITEM_POTION, 1);
+                }
+            }
+          ]
       }, 7: {
             id: SUBMAP_CASTLE_INFIRMARY,
             tileset: {
@@ -224,8 +242,47 @@ var g_mapData = {
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
-                }
-        },1: {
+        },
+        npcs: [{
+              imgRef: "soldier",
+              locX: 6,
+              locY: 16,
+              facing: FACING_DOWN,
+              displayText: "Welcome to the main floor.",
+              walks: false
+        }, {
+              imgRef: "soldier",
+              locX: 13,
+              locY: 16,
+              facing: FACING_DOWN,
+              displayText: "Feel free to have a look around.",
+              walks: false
+        }, {
+              imgRef: "soldier",
+              locX: 1,
+              locY: 5,
+              facing: FACING_DOWN,
+              displayText: "Help yourself to the items in the Armory.",
+              walks: false
+        }, {
+              imgRef: "soldier",
+              locX: 15,
+              locY: 5,
+              facing: FACING_RIGHT,
+              displayText: "The Infirmary gets more crowded day by \nday due to the monsters...",
+              walks: false
+        }, {
+              imgRef: "woman2",
+              locX: 11,
+              locY: 5,
+              facing: FACING_LEFT,
+              displayText: "There are so many books in the library,\nI could spend an eternity there!",
+              walks: false
+        }
+            
+
+        ]
+      }, 1: {
             id: SUBMAP_CASTLE_EXTERIOR,
             tileset: {
                 imgRef: "InqCastle",
