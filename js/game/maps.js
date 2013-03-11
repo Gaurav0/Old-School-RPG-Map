@@ -161,12 +161,41 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_CASTLE_ROOM,
-                toX: 2,
+                toX: 16,
                 toY: 5,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
-            }
+          },
+          npcs: [{ 
+                imgRef: "woman1",
+                locX: 18,
+                locY: 17,
+                facing: FACING_LEFT,
+                displayText: "Would you like to rest here?",
+                walks: false
+          }, {
+                imgRef: "soldier",
+                locX: 3,
+                locY: 8,
+                facing: FACING_UP,
+                displayText: "I want to challenge the Rat King again, \nbut I still can't move...",
+                walks: false
+          }, {
+                imgRef: "soldier",
+                locX: 13,
+                locY: 8,
+                facing: FACING_RIGHT,
+                displayText: "The King is looking for a powerful hero to \ndefeat the treacherous Rat King.",
+                walks: false
+          }, {
+                imgRef: "boy",
+                locX: 3,
+                locY: 17,
+                facing: FACING_RIGHT,
+                displayText: "If I was a little older, I would join the \nknights and make a difference.",
+                walks: false
+          }]
       }, 4:{
             id: SUBMAP_CASTLE_ROOM,
             tileset: {
@@ -448,6 +477,8 @@ var g_mapData = {
                     callback: function() {
                         g_shop.displayShop([
                             ITEM_POTION,
+                            ITEM_MAX_POTION,
+                            ITEM_ELIXER,
                             ITEM_BOMB,
                             ITEM_ETHER
                         ], true);
