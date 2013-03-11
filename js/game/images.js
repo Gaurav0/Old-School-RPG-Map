@@ -63,6 +63,8 @@ var g_imageData = {
             "url": "images/Soldier2.png"
         }, "InqIndoors": {
             "url": "images/Inq_XP_Medieval_Indoors.png"
+        }, "BrowserQuest": {
+            "url": "images/BrowserQuest.png"
         }, "man1": {
             "url": "images/Man1.png"
         }, "man2": {
@@ -76,3 +78,4 @@ var g_imageData = {
         }
     }
 };
+
