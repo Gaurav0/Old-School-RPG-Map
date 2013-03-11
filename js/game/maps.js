@@ -46,7 +46,7 @@ var SUBMAP_CASTLE_EXTERIOR = 1;
 var SUBMAP_CASTLE_TAVERN = 2;
 var SUBMAP_FOREST_DUNGEON = 3;
 var SUBMAP_CASTLE_ROOM = 4;
-var SUBMAP_TREASURE_ROOM = 5;
+var SUBMAP_CASTLE_ARMORY = 5;
 var SUBMAP_CASTLE_LIBRARY = 6;
 var SUBMAP_CASTLE_INFIRMARY = 7;
 
@@ -112,13 +112,13 @@ var g_mapData = {
                   facing: FACING_UP
               }
        }, 5: {
-              id: SUBMAP_TREASURE_ROOM,
+              id: SUBMAP_CASTLE_ARMORY,
               tileset: {
                   imgRef: "InqIndoors",
                   width: 256,
                   height: 8704
               },
-              xmlUrl: "xml/Treasure.tmx.xml",
+              xmlUrl: "xml/Armory.tmx.xml",
               randomEncounters: false,
               overWorld: false,
               exit: {
@@ -143,7 +143,7 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_CASTLE_ROOM,
-                toX: 16,
+                toX: 2,
                 toY: 5,
                 toScrollX: 4,
                 toScrollY: 9,
@@ -163,18 +163,18 @@ var g_mapData = {
             entrances: [{
                 fromX: 2, 
                 fromY: 4,
-                toMapId: SUBMAP_TREASURE_ROOM,
-                toX: 4,
-                toY: 9,
+                toMapId: SUBMAP_CASTLE_ARMORY,
+                toX: 9,
+                toY: 19,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
             }, {
                 fromX: 3,
                 fromY: 4,
-                toMapId: SUBMAP_TREASURE_ROOM,
-                toX: 4, 
-                toY: 9,
+                toMapId: SUBMAP_CASTLE_ARMORY,
+                toX: 10, 
+                toY: 14,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
