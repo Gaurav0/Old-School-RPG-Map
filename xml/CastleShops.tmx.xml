@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="Inq XP MI- Medieval Indoors" tilewidth="32" tileheight="32">
-  <image source="../images/Inq_XP_Medieval_Indoors.png"/>
+  <image source="../images/Inq_XP_Medieval_Indoors.png" width="256" height="8704"/>
  </tileset>
  <layer name="Base" width="20" height="20">
   <data>
@@ -314,6 +314,8 @@
    <tile gid="2018"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
+   <tile gid="639"/>
+   <tile gid="639"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
@@ -331,12 +333,10 @@
    <tile gid="2018"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
-   <tile gid="2018"/>
-   <tile gid="2018"/>
-   <tile gid="2018"/>
-   <tile gid="2018"/>
-   <tile gid="2018"/>
-   <tile gid="2018"/>
+   <tile gid="1453"/>
+   <tile gid="639"/>
+   <tile gid="639"/>
+   <tile gid="1453"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
    <tile gid="2018"/>
@@ -717,10 +717,10 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="638"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="638"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -737,10 +737,10 @@
    <tile gid="1910"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="638"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="638"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="1910"/>
