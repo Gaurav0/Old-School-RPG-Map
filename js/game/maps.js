@@ -110,7 +110,29 @@ var g_mapData = {
                   toScrollX: 4,
                   toScrollY: 9,
                   facing: FACING_UP
-              }
+         },
+         npcs: [ {
+                  imgRef: "man1",
+                  locX: 3,
+                  locY: 8,
+                  facing: FACING_UP,
+                  displayText: "Knowing when to flee can be crucial to \nfighting another day.",
+                  walks: false
+         },{
+                  imgRef: "boy",
+                  locX: 6,
+                  locY: 17,
+                  facing: FACING_LEFT,
+                  displayText: "Be sure to save often and watch your \nhealth.",
+                  walks: false
+         }, {
+                imgRef: "soldier",
+                locX: 16,
+                locY: 8,
+                facing: FACING_UP,
+                displayText: "Gaining experience will make you strong \nlike me! Bwahahaha! *cough* *wheeze*",
+                walks: false
+         } ]
        }, 5: {
               id: SUBMAP_CASTLE_ARMORY,
               tileset: {
@@ -145,7 +167,15 @@ var g_mapData = {
                       event: "fc6",
                       action: function() {
                       this.onOpenFindItem("You found 1 potion.", ITEM_POTION, 1);
-                }
+                      }
+            }, {
+                      imgRef: "chest",
+                      locX: 12,
+                      locY: 6,
+                      event: "fc7",
+                      action: function() {
+                        this.onOpenFindItem("You found 2 bombs.", ITEM_BOMB, 2);
+                      }
             }
           ]
       }, 7: {
@@ -387,17 +417,8 @@ var g_mapData = {
             overWorld: false,
             //Add entrances to SUBMAP_CASTLE_ROOM
             entrances: [ {
-                  fromX: 8,
-                  fromY: 16,
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 10,
-                  toY: 18,
-                  toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
-            }, {
                   fromX: 9,
-                  fromY: 16,
+                  fromY: 15,
                   toMapId: SUBMAP_CASTLE_ROOM,
                   toX: 10,
                   toY: 18,
@@ -406,7 +427,16 @@ var g_mapData = {
                   facing: FACING_UP
             }, {
                   fromX: 10,
-                  fromY: 16,
+                  fromY: 15,
+                  toMapId: SUBMAP_CASTLE_ROOM,
+                  toX: 10,
+                  toY: 18,
+                  toScrollX: 4,
+                  toScrollY: 9,
+                  facing: FACING_UP
+            }, {
+                  fromX: 11,
+                  fromY: 15,
                   toMapId: SUBMAP_CASTLE_ROOM,
                   toX: 10,
                   toY: 18,
@@ -414,8 +444,8 @@ var g_mapData = {
                   toScrollY: 9,
                   facing: FACING_UP
             }, { 
-                  fromX: 11,
-                  fromY: 16,
+                  fromX: 8,
+                  fromY: 15,
                   toMapId: SUBMAP_CASTLE_ROOM,
                   toX: 10,
                   toY: 18,
