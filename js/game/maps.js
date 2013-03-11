@@ -48,6 +48,7 @@ var SUBMAP_FOREST_DUNGEON = 3;
 var SUBMAP_CASTLE_ROOM = 4;
 var SUBMAP_TREASURE_ROOM = 5;
 var SUBMAP_CASTLE_LIBRARY = 6;
+var SUBMAP_CASTLE_INFIRMARY = 7;
 
 var g_mapData = {
     "submaps": {
@@ -129,6 +130,25 @@ var g_mapData = {
                     toScrollY: 6,
                     facing: FACING_UP
               }
+      }, 7: {
+            id: SUBMAP_CASTLE_INFIRMARY,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/Infirmary.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 16,
+                toY: 5,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }
       }, 4:{
             id: SUBMAP_CASTLE_ROOM,
             tileset: {
@@ -171,6 +191,24 @@ var g_mapData = {
                 fromX: 10,
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_LIBRARY,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 16,
+                fromY: 4,
+                toMapId: SUBMAP_CASTLE_INFIRMARY,
+                toX: 9,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 17,
+                fromY: 4,
+                toMapId: SUBMAP_CASTLE_INFIRMARY,
                 toX: 10,
                 toY: 18,
                 toScrollX: 4,
