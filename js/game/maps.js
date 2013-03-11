@@ -36,10 +36,17 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+ /*BrowserQuest Specs:
+    width: 320 pixels
+    height: 1568 pixels
+*/
+
 var SUBMAP_WORLD_MAP = 0;
 var SUBMAP_CASTLE_EXTERIOR = 1;
 var SUBMAP_CASTLE_TAVERN = 2;
 var SUBMAP_FOREST_DUNGEON = 3;
+var SUBMAP_CASTLE_ROOM = 4;
+var SUBMAP_TOWN = 5;
 
 var g_mapData = {
     "submaps": {
@@ -83,7 +90,26 @@ var g_mapData = {
                     facing: FACING_UP
                 }
             ]
-        }, 1: {
+        }, 4:{
+            id: SUBMAP_CASTLE_ROOM,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/CastleRoom.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_CASTLE_TAVERN,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+                }
+        },1: {
             id: SUBMAP_CASTLE_EXTERIOR,
             tileset: {
                 imgRef: "InqCastle",
@@ -157,7 +183,46 @@ var g_mapData = {
             xmlUrl: "xml/CastleShops.tmx.xml",
             randomEncounters: false,
             overWorld: false,
-            exit: {
+            //Add entrances to SUBMAP_CASTLE_ROOM
+            entrances: [ {
+                  fromX: 8,
+                  fromY: 16,
+                  toMapId: SUBMAP_CASTLE_ROOM,
+                  toX: 10,
+                  toY: 18,
+                  toScrollX: 4,
+                  toScrollY: 9,
+                  facing: FACING_UP
+            }, {
+                  fromX: 9,
+                  fromY: 16,
+                  toMapId: SUBMAP_CASTLE_ROOM,
+                  toX: 10,
+                  toY: 18,
+                  toScrollX: 4,
+                  toScrollY: 9,
+                  facing: FACING_UP
+            }, {
+                  fromX: 10,
+                  fromY: 16,
+                  toMapId: SUBMAP_CASTLE_ROOM,
+                  toX: 10,
+                  toY: 18,
+                  toScrollX: 4,
+                  toScrollY: 9,
+                  facing: FACING_UP
+            }, { 
+                  fromX: 11,
+                  fromY: 16,
+                  toMapId: SUBMAP_CASTLE_ROOM,
+                  toX: 10,
+                  toY: 18,
+                  toScrollX: 4,
+                  toScrollY: 9,
+                  facing: FACING_UP
+            }
+          ],
+          exit: {
                 at: "bottom",
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
                 toX: 12,
@@ -343,3 +408,6 @@ var g_mapData = {
         }
     }
 };
+
+
+
