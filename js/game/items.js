@@ -51,6 +51,8 @@ var ITEMTYPE_SHIELD = 8;
 var ITEM_POTION = 0;
 var ITEM_BOMB = 1;
 var ITEM_ETHER = 2;
+var ITEM_MAX_POTION = 3;
+var ITEM_ELIXER = 4;
 var ITEM_TIN_SWORD = 10;
 var ITEM_COPPER_SWORD = 11;
 var ITEM_BRONZE_SWORD = 12;
@@ -114,6 +116,28 @@ var g_itemData = {
             "usable": true,
             "use": function(target) {
                 var amt = 25 + Math.floor(Math.random() * 25);
+                target.gainMP(amt);
+                printText(target.getName() + " healed for " + amt + " magic points.");
+            }
+        }, 3: {
+            "id": ITEM_MAX_POTION,
+            "name": "Max Potion",
+            "type": ITEMTYPE_HEAL_ONE,
+            "cost": 1,
+            "usable": true,
+            "use": function(target) {
+                var amt = 1000 + Math.floor(Math.random() * 100);
+                target.heal(amt);
+                printText(target.getName() + " healed for " + amt + " points.");
+            }
+        }, 4: {
+            "id": ITEM_ELIXER,
+            "name": "Elixer",
+            "type": ITEMTYPE_HEAL_ONE,
+            "cost": 1,
+            "usable": true,
+            "use": function(target) {
+                var amt = 100 + Math.floor(Math.random() * 25);
                 target.gainMP(amt);
                 printText(target.getName() + " healed for " + amt + " magic points.");
             }
