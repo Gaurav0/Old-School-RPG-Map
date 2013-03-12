@@ -1,4 +1,4 @@
-require.paths.push('/usr/local/lib/node_modules');
+//require.paths.push('/usr/local/lib/node_modules');
 var fs = require('fs');
 var sys = require('sys');
 var uglify = require('uglify-js');
