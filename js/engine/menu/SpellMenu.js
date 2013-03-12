@@ -108,7 +108,7 @@ var SpellMenu = Menu.extend({
         var theSpell = g_spellData.spells[spell.id];
         if (g_player.getMP() >= theSpell.mpCost) {
             theSpell.use(g_player);
-            g_player.useMP(theSpell.mpCost);
+            g_player.useMP(parseInt(theSpell.mpCost));
         } else {
             g_textDisplay.displayText("You do not have enough mp to use " + spell.name + ".");
         }

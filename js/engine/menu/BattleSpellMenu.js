@@ -124,7 +124,7 @@ var BattleSpellMenu = Menu.extend({
                     theSpell.use();
                     break;
             }
-            g_player.useMP(spell.mpCost);
+            g_player.useMP(parseInt(theSpell.mpCost));
             g_battle.setMonsterWillAttack(true);
         } else {
             this._battle.writeMsg("You do not have enough MP");

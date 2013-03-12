@@ -101,13 +101,6 @@ var TitleScreenMenu = Menu.extend({
         this._onNewGame = callback;
     },
     
-    // Called after one of the submenus is cleared
-    returnTo: function() {
-        this._currentMenu = this;
-        this.display();
-        this.drawPointer();
-    },
-    
     displayLoadMenu: function() {
         var menu = new LoadMenu(this);
         menu.display();
@@ -151,11 +144,12 @@ var TitleScreenMenu = Menu.extend({
     // Called after one of the submenus is cleared
     returnTo: function() {
         this._mainMenu.setCurrentMenu(this);
+        this._currentMenu = this;
         this.display();
         this.drawPointer();
     },
     
     setDisplayed: function(displayed) {
         this._displayed = displayed;
-    },
+    }
  });

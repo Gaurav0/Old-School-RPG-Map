@@ -89,7 +89,6 @@ var MainMenu = Menu.extend({
     
         if (g_titlescreen) {
             this._currentMenu = new TitleScreenMenu(this);
-            this._titleScreenMenu = this._currentMenu;
         } else {
             this._currentMenu = this;            
         }
@@ -118,7 +117,7 @@ var MainMenu = Menu.extend({
     },
     
     displayTitleScreenMenu: function() {
-        var menu = this._titleScreenMenu ? this._titleScreenMenu : new TitleScreenMenu(this);
+        var menu = new TitleScreenMenu(this);
         menu.display();
         this._currentMenu = menu;
         this._displayed = true;

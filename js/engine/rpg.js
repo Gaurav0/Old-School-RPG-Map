@@ -123,7 +123,7 @@ function loadXml(xmlUrl, callback) {
 
 // Process the g_imageData JSON and start loading the images
 function loadImages() {
-    for (imgRef in g_imageData.images) {
+    for (var imgRef in g_imageData.images) {
         var ref = g_imageData.images[imgRef];
         var url = ref.url;
         var img = new Image();
@@ -146,7 +146,7 @@ function loadImages() {
 if (!Object.keys) {
     Object.keys = function(obj) {
         var keys = new Array();
-        for (k in obj) if (obj.hasOwnProperty(k)) keys.push(k);
+        for (var k in obj) if (obj.hasOwnProperty(k)) keys.push(k);
         return keys;
     };
 }
