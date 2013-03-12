@@ -72,9 +72,6 @@ var BATTLE_FREQ = 0.14;
 // How long to wait in ms between writing lines
 var MESSAGE_DELAY = 500;
 
-// How long to wait in ms before showing an error message that loading failed
-var LOAD_TIMEOUT = 10000;
-
 /* Globals */
 
 // 4 Canvases and counting
