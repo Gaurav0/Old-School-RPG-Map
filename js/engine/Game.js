@@ -94,6 +94,7 @@ var Game = Class.extend({
     
     showTitleScreen: function() {
         mapCtx.drawImage(g_imageData.images[this._titlescreenImgRef].img, 0, 0);
+        g_menu.setCurrentMenu(new TitleScreenMenu(g_menu));
     },
     
     hasSaveInfo: function(slot) {
