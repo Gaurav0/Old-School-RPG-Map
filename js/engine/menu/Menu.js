@@ -46,6 +46,7 @@ var Menu = AbstractMenu.extend({
         this._flags = args.flags;
         this._callbacks = args.callbacks;
         this._canESC = args.canESC;
+        this._onFlag = args.onFlag ? args.onFlag : function() {};
     },
     
     /* Draw the pointer at the current selection */
@@ -111,6 +112,7 @@ var Menu = AbstractMenu.extend({
         if (this._displayed) {
             if (this._flags && this._flags[this._current]) {
                 // not useable
+                this._onFlag();
             } else if (this._num > 0) {
                 this._beforeCallback();                
                 this._callbacks[this._current]();

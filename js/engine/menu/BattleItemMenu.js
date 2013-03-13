@@ -46,7 +46,7 @@ var BattleItemMenu = Menu.extend({
         this._items = [];
         var numItems = this._getItems();
         var texts = this._getTexts();
-        // var flags = this._getFlags();
+        var flags = this._getFlags();
         var callbacks = this.createCallbacks(numItems);
         var menu = this;
         this._super({
@@ -69,10 +69,11 @@ var BattleItemMenu = Menu.extend({
                 screenHeight - 38
             ],
             texts: texts,
-            // flags: flags,
+            flags: flags,
             font: "bold 16px sans-serif",
             callbacks: callbacks,
             canESC: true,
+            onFlag: function() { menu._battle.setMonsterWillAttack(false); },
             afterCallback: function() { menu._parent.returnTo(true); },
             afterClear: function() { menu._parent.returnTo(true); }
         });
@@ -88,7 +89,7 @@ var BattleItemMenu = Menu.extend({
                 item.type = g_itemData.items[itemId].type;
                 item.amt = amt;
                 item.id = itemId;
-                item.canUse = true;
+                item.canUse = g_itemData.items[itemId].usable;
                 itemMenu._items.push(item);
                 numItems++;
             }
@@ -107,13 +108,11 @@ var BattleItemMenu = Menu.extend({
         return texts;
     },
     
-    /*
     _getFlags: function() {
         return _.map(this._items, function(item, index) {
             return !item.canUse;
         });
     },
-    */
 
     callback: function(i) {
         var item = this._items[i];
