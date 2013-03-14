@@ -85,7 +85,9 @@ var MainMenu = Menu.extend({
                 function() { menu.displayLoadMenu(); },
             ],
             canESC: true
-        });    
+        });
+        
+        this._onNewGame = null;  
     
         if (g_titlescreen) {
             this._currentMenu = new TitleScreenMenu(this);
@@ -110,6 +112,19 @@ var MainMenu = Menu.extend({
         this.clear();
         this.display();
         this.drawPointer();
+    },
+    
+    // set function to call when new game is started.
+    setOnNewGame: function(callback) {
+        this._onNewGame = callback;
+    },
+    
+    // runs when a new game is started.
+    onNewGame: function() {
+        this._currentMenu.clear();
+        this._onNewGame();
+        g_titlescreen = false;
+        this.setCurrentMenu(this);
     },
     
     setDisplayed: function(displayed) {

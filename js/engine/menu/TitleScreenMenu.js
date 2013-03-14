@@ -65,14 +65,12 @@ var TitleScreenMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                function() { menu.onNewGame(); },
+                function() { menu._mainMenu.onNewGame(); },
                 function() { menu.displayLoadMenu(); }
             ],
             canESC: true,
             afterClear: function() { g_menu.clearTitleScreenMenu(); }
         });
-        
-        this._onNewGame = null;
         this._currentMenu = this;
     },
     
@@ -86,19 +84,6 @@ var TitleScreenMenu = Menu.extend({
     clear: function() {
         this._mainMenu.setDisplayed(false);
         this._super();
-    },
-    
-    // runs when a new game is started.
-    onNewGame: function() {
-        this.clear();
-        this._onNewGame();
-        g_titlescreen = false;
-        this._mainMenu.setCurrentMenu(this._mainMenu);
-    },
-    
-    // set function to call when new game is started.
-    setOnNewGame: function(callback) {
-        this._onNewGame = callback;
     },
     
     displayLoadMenu: function() {

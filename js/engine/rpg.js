@@ -318,11 +318,11 @@ $(document).ready(function() {
             html += list[i] + "<br>"
         document.getElementById("loaded").innerHTML = html;
     };
-    
+
     g_game = new Game("titlescreen");
-    
+        
     loadImages();
-    
+            
     loadMaps();
 });
 
@@ -378,10 +378,9 @@ function drawBox(ctx, x, y, width, height, radius, lineWidth) {
     ctx.shadowColor = "transparent";
 }
 
-// forward setOnNewGame to titleScreenMenu if available
+// forward setOnNewGame to main menu
 function setOnNewGame(callback) {
-    if (g_titlescreen)
-        g_menu.getCurrentMenu().setOnNewGame(callback);
+    g_menu.setOnNewGame(callback);
 }
 
 /* Input Handling */
