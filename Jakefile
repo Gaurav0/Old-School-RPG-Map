@@ -1,4 +1,4 @@
-require.paths.push('/usr/local/lib/node_modules');
+//require.paths.push('/usr/local/lib/node_modules');
 var fs = require('fs');
 var sys = require('sys');
 var uglify = require('uglify-js');
@@ -18,7 +18,24 @@ var rpgSourceFiles = [
     'js/engine/Monster.js',
     'js/engine/Tileset.js',
     'js/engine/TextDisplay.js',
-    'js/engine/MainMenu.js',
+    'js/engine/menu/AbstractMenu.js',
+    'js/engine/menu/Menu.js',
+    'js/engine/menu/HorizMenu.js',
+    'js/engine/menu/ItemMenu.js',
+    'js/engine/menu/SpellMenu.js',
+    'js/engine/menu/EquipMenu.js',
+    'js/engine/menu/SlotMenu.js',
+    'js/engine/menu/SaveMenu.js',
+    'js/engine/menu/LoadMenu.js',
+    'js/engine/menu/TitleScreenMenu.js',
+    'js/engine/menu/MainMenu.js',
+    'js/engine/menu/BuyMenu.js',
+    'js/engine/menu/SellMenu.js',
+    'js/engine/menu/ShopMenu.js',
+    'js/engine/menu/MonsterMenu.js',
+    'js/engine/menu/BattleItemMenu.js',
+    'js/engine/menu/BattleSpellMenu.js',
+    'js/engine/menu/BattleMenu.js',
     'js/engine/Shop.js',
     'js/engine/Game.js',
     'js/engine/Battle.js',

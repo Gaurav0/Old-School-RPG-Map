@@ -35,6 +35,10 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+ 
+ 
+// How long to wait in ms before showing an error message that loading failed
+var LOAD_TIMEOUT = 10000;
 
 /* Class representing progress bar information */ 
 var Progress = Class.extend({
@@ -43,8 +47,9 @@ var Progress = Class.extend({
         this._count = 0;
         this._loaded = 0;
         this._setupFinished = false;
+        var progress = this;
         this._failTimeout = window.setTimeout(function() {
-            g_progress.onFail();
+            progress.onFail();
         }, LOAD_TIMEOUT);
     },
     
@@ -89,7 +94,7 @@ var Progress = Class.extend({
         for (res in this._resources)
             if (!this._resources[res].isLoaded())
                 list.push(res);
-        return list
+        return list;
     },
     
     onComplete: function() {
