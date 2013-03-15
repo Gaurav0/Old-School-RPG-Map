@@ -79,7 +79,7 @@ var g_mapData = {
                     toY: 1,
                     toScrollX: 4,
                     toScrollY: 0,
-                    facing: FACING_UP,
+                    facing: FACING_DOWN,
                     onEnter: function() {
                         g_player.restore();
                     }
@@ -172,7 +172,7 @@ var g_mapData = {
                 locX: 8,
                 locY: 2,
                 facing: FACING_RIGHT,
-                displayText: "Welcome to the town of (Town name)",
+                displayText: "Welcome to the town of (Town name).",
                 walks: false
           },{
                 imgRef: "soldier",
