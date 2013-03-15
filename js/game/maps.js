@@ -152,7 +152,36 @@ var g_mapData = {
                 toScrollX: 6, 
                 toScrollY: 9,
                 facing: FACING_UP
-          }
+          }, 
+          npcs: [{
+                imgRef: "woman1",
+                locX: 1,
+                locY: 6,
+                facing: FACING_DOWN,
+                displayText: "Our town is small, but we manage to get \nby.",
+                walks: false
+          }, {
+                imgRef: "boy",
+                locX: 7,
+                locY: 15,
+                facing: FACING_RIGHT, 
+                displayText: "My older brother went to the forest to \nlook for my father, but they have not \nreturned yet...sniff.",
+                walks: false
+          }, {
+                imgRef: "man1",
+                locX: 8,
+                locY: 2,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the town of (Town name)",
+                walks: false
+          },{
+                imgRef: "soldier",
+                locX: 12,
+                locY: 18,
+                facing: FACING_LEFT,
+                displayText: "The king is recruiting all able men to \nvanquish the terror within the forest.",
+                walks: false
+          }]
         }, 6: {
               id: SUBMAP_CASTLE_LIBRARY,
               tileset: {
