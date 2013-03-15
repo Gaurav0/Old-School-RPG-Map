@@ -49,6 +49,8 @@ var SUBMAP_CASTLE_ROOM = 4;
 var SUBMAP_CASTLE_ARMORY = 5;
 var SUBMAP_CASTLE_LIBRARY = 6;
 var SUBMAP_CASTLE_INFIRMARY = 7;
+var SUBMAP_TOWN = 8;
+var SUBMAP_TOWN_HOUSEA = 9;
 
 var g_mapData = {
     "submaps": {
@@ -65,18 +67,18 @@ var g_mapData = {
             overWorld: true,
             load: function() {
                 g_player = new Player(23, 13, "trevor", 0, FACING_DOWN, PLAYER_TREVOR);
-                setOnNewGame(function() {
+                g_menu.setOnNewGame(function() {
                     g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
                 });
             },
             entrances: [ {
                     fromX: 23,
                     fromY: 14,
-                    toMapId: SUBMAP_CASTLE_EXTERIOR,
-                    toX: 12,
-                    toY: 18,
-                    toScrollX: 6,
-                    toScrollY: 9,
+                    toMapId: SUBMAP_TOWN,
+                    toX: 9,
+                    toY: 1,
+                    toScrollX: 4,
+                    toScrollY: 0,
                     facing: FACING_UP,
                     onEnter: function() {
                         g_player.restore();
@@ -92,6 +94,65 @@ var g_mapData = {
                     facing: FACING_UP
                 }
             ]
+        }, 
+        //Need to figure out why this part doesn't work 100%
+        9: {
+              id: SUBMAP_TOWN_HOUSEA,
+              tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+              },
+              xmlUrl: "xml/House1.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                at: "bottom",
+                toMapId: SUBMAP_TOWN,
+                toX: 2,
+                toY: 6,
+                toScrollX: 0,
+                toScrollY: 2,
+                facing: FACING_DOWN
+              }
+        }, 8: {
+              id: SUBMAP_TOWN,
+              tileset: {
+                  imgRef: "BrowserQuest",
+                  width: 320,
+                  height: 1568
+              },
+              xmlUrl: "xml/Town2.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              entrances: [{
+                fromX: 2,
+                fromY: 5,
+                toMapId: SUBMAP_TOWN_HOUSEA,
+                toX: 9,
+                toY: 19,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+       }, {
+                fromX: 2,
+                fromY: 4,
+                toMapId: SUBMAP_TOWN_HOUSEA,
+                toX: 9, 
+                toY: 19,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+       }],
+              exit: {
+                at: "bottom", 
+                toMapId: SUBMAP_CASTLE_EXTERIOR,
+                toX: 12,
+                toY: 18,
+                toScrollX: 6, 
+                toScrollY: 9,
+                facing: FACING_UP
+          }
         }, 6: {
               id: SUBMAP_CASTLE_LIBRARY,
               tileset: {
@@ -148,9 +209,9 @@ var g_mapData = {
                     toMapId: SUBMAP_CASTLE_ROOM,
                     toX: 4,
                     toY: 9,
-                    toScrollX: 3,
-                    toScrollY: 6,
-                    facing: FACING_UP
+                    toScrollX: 4,
+                    toScrollY: 9,
+                    facing: FACING_DOWN
               },
               chests: [{
                       imgRef: "chest",
@@ -251,7 +312,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_ARMORY,
                 toX: 10, 
-                toY: 14,
+                toY: 19,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -380,12 +441,13 @@ var g_mapData = {
                     facing: FACING_UP
                 }
             ],
+            //Scrolling is working now
             exit: {
                 at: "edges",
-                toMapId: SUBMAP_WORLD_MAP,
-                toX: 23,
-                toY: 14,
-                toScrollX: 17,
+                toMapId: SUBMAP_TOWN,
+                toX: 9,
+                toY: 18,
+                toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_DOWN
             },
