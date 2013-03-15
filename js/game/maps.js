@@ -51,6 +51,7 @@ var SUBMAP_CASTLE_LIBRARY = 6;
 var SUBMAP_CASTLE_INFIRMARY = 7;
 var SUBMAP_TOWN = 8;
 var SUBMAP_TOWN_HOUSEA = 9;
+var SUBMAP_TOWN_HOUSEB = 10;
 
 var g_mapData = {
     "submaps": {
@@ -103,7 +104,7 @@ var g_mapData = {
                 width: 256,
                 height: 8704
               },
-              xmlUrl: "xml/House1.tmx.xml",
+              xmlUrl: "xml/House11.tmx.xml",
               randomEncounters: false,
               overWorld: false,
               exit: {
@@ -115,7 +116,28 @@ var g_mapData = {
                 toScrollY: 2,
                 facing: FACING_DOWN
               }
-        }, 8: {
+        }, 
+        10: {
+              id: SUBMAP_TOWN_HOUSEB,
+              tileset: {
+                  imgRef: "InqIndoors",
+                  width: 256,
+                  height: 8704
+              },
+              xmlUrl: "xml/House2.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_TOWN,
+                  toX: 14,
+                  toY: 5,
+                  toScrollX: 7,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+                }
+        },
+        8: {
               id: SUBMAP_TOWN,
               tileset: {
                   imgRef: "BrowserQuest",
@@ -129,19 +151,37 @@ var g_mapData = {
                 fromX: 2,
                 fromY: 5,
                 toMapId: SUBMAP_TOWN_HOUSEA,
-                toX: 9,
-                toY: 19,
-                toScrollX: 4,
-                toScrollY: 9,
+                toX: 7,
+                toY: 13,
+                toScrollX: 2,
+                toScrollY: 4,
                 facing: FACING_UP
        }, {
                 fromX: 2,
                 fromY: 4,
                 toMapId: SUBMAP_TOWN_HOUSEA,
-                toX: 9, 
-                toY: 19,
-                toScrollX: 4,
-                toScrollY: 9,
+                toX: 8, 
+                toY: 13,
+                toScrollX: 2,
+                toScrollY: 4,
+                facing: FACING_UP
+       }, { 
+                fromX: 14,
+                fromY: 4,
+                toMapId: SUBMAP_TOWN_HOUSEB,
+                toX: 6,
+                toY: 13,
+                toScrollX: 0,
+                toScrollY: 4,
+                facing: FACING_UP
+       }, {   
+                fromX: 14,
+                fromY: 3,
+                toMapId: SUBMAP_TOWN_HOUSEB,
+                toX: 7, 
+                toY: 13,
+                toScrollX: 0,
+                toScrollY: 4,
                 facing: FACING_UP
        }],
               exit: {
