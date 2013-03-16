@@ -120,7 +120,7 @@ function loadXml(xmlUrl, callback) {
 
 // Process the g_imageData JSON and start loading the images
 function loadImages() {
-    for (imgRef in g_imageData.images) {
+    for (var imgRef in g_imageData.images) {
         var ref = g_imageData.images[imgRef];
         var url = ref.url;
         var img = new Image();
@@ -143,7 +143,7 @@ function loadImages() {
 if (!Object.keys) {
     Object.keys = function(obj) {
         var keys = new Array();
-        for (k in obj) if (obj.hasOwnProperty(k)) keys.push(k);
+        for (var k in obj) if (obj.hasOwnProperty(k)) keys.push(k);
         return keys;
     };
 }
@@ -318,11 +318,11 @@ $(document).ready(function() {
             html += list[i] + "<br>"
         document.getElementById("loaded").innerHTML = html;
     };
-    
+
     g_game = new Game("titlescreen");
-    
+        
     loadImages();
-    
+            
     loadMaps();
 });
 
@@ -378,6 +378,11 @@ function drawBox(ctx, x, y, width, height, radius, lineWidth) {
     ctx.shadowColor = "transparent";
 }
 
+// forward setOnNewGame to main menu
+function setOnNewGame(callback) {
+    g_menu.setOnNewGame(callback);
+}
+
 /* Input Handling */
 var DOWN_ARROW = 40;
 var UP_ARROW = 38;
@@ -412,45 +417,45 @@ function handleKey(key, event) {
         } else {
             switch (key) {
                 case DOWN_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, 1, FACING_DOWN);
                     event.preventDefault();
                     break;
                 case UP_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(0, -1, FACING_UP);
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(1, 0, FACING_RIGHT);
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    if (g_menu.menuDisplayed())
-                        g_menu.handleInput(key);
+                    if (g_menu.isDisplayed())
+                        g_menu.handleKey(key);
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleInput(key);
+                        g_shop.handleKey(key);
                     else if (g_battle)
-                        g_battle.handleInput(key);
+                        g_battle.handleKey(key);
                     else if (!g_titlescreen && !g_textDisplay.textDisplayed() && !g_worldmap.isAnimating())
                         g_player.move(-1, 0, FACING_LEFT);
                     event.preventDefault();
@@ -459,10 +464,8 @@ function handleKey(key, event) {
                 case ENTER:
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
-                    else if (g_menu.menuDisplayed())
+                    else if (g_menu.isDisplayed())
                         g_menu.handleEnter();
-                    else if (g_titlescreen)
-                        g_menu.displayTitleScreenMenu();
                     else if (g_shop.shopDisplayed())
                         g_shop.handleEnter();
                     else if (g_battle)
@@ -476,16 +479,14 @@ function handleKey(key, event) {
                 case ESC:
                     if (g_textDisplay.textDisplayed())
                         g_textDisplay.clearText();
-                    else if (g_menu.menuDisplayed())
-                        g_menu.handleEsc();
+                    else if (g_menu.isDisplayed())
+                        g_menu.handleESC();
                     else if (g_shop.shopDisplayed())
-                        g_shop.handleEsc();
+                        g_shop.handleESC();
                     else if (g_battle)
-                        g_battle.handleEsc();
-                    else if (g_titlescreen)
-                        g_menu.displayTitleScreenMenu();
+                        g_battle.handleESC();
                     else
-                        g_menu.displayMenu();
+                        g_menu.getCurrentMenu().display();
                     event.preventDefault();
                     break;
             }

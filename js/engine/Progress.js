@@ -47,8 +47,9 @@ var Progress = Class.extend({
         this._count = 0;
         this._loaded = 0;
         this._setupFinished = false;
+        var progress = this;
         this._failTimeout = window.setTimeout(function() {
-            g_progress.onFail();
+            progress.onFail();
         }, LOAD_TIMEOUT);
     },
     

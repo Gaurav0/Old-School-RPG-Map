@@ -33,8 +33,12 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
+ * 
  * ***** END LICENSE BLOCK ***** */
+
+ //Hello
+
+
 
 var SHOP_MENU = 0;
 var BUY_MENU = 1;
@@ -48,16 +52,6 @@ var SHOP_EXIT = 2;
 var Shop = Class.extend({
     _init: function() {
         this._shopDisplayed = false;
-        this._currentMenu = SHOP_MENU;
-        this._currentAction = SHOP_BUY;
-        this._arrow = false;
-        this._lineHeight = [ 12, 40, 68 ];
-        this._drawHeight = [ 35, 55, 75, 95, 115, 135, 155, 175, 195, 215 ];
-        this._itemList = null;
-        this._buySelection = 0;
-        this._sellSelection = 0;
-        this._numItems = 0;
-        this._itemId = [];
         this._quantity = 1;
         this._maxquantity = 99;
         this._price = 0;
@@ -66,161 +60,30 @@ var Shop = Class.extend({
     },
     
     shopDisplayed: function() {
-        return this._shopDisplayed;
+        return this._menu && this._menu.isDisplayed();
+    },
+    
+    getItemList: function() {
+        return this._itemList;
     },
     
     displayShop: function(itemList, toDisplayQty) {
-        this._toDisplayQuantity = toDisplayQty;
-    
-        drawBox(menuCtx, 0, 0, 100, 100, 15, 3);
-        
-        // Draw Text
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText("Buy", 32, this._lineHeight[0]);
-        textCtx.fillText("Sell", 32, this._lineHeight[1]);
-        textCtx.fillText("Exit", 32, this._lineHeight[2]);
-        
-        this.displayGold();
-        this.drawArrow();
-        
         this._itemList = itemList;
-        this._shopDisplayed = true;
+        this._toDisplayQuantity = toDisplayQty;
+        this._menu = new ShopMenu(this);
+        this._menu.display();
     },
     
-    clearShop: function() {
-        menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
-        textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        
-        this._itemList = null;
-        this._shopDisplayed = false;
-        g_textDisplay.displayText("Thank you for your business.\nPlease come again.");
-    },
-    
-    /* Displays the amount of gold you have in bottom while shopping */
-    displayGold: function() {
-        drawBox(menuCtx, 0, 120, 100, 40, 10, 2);
-        
-        // Draw Text
-        textCtx.font = "bold 20px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        textCtx.fillText(g_player.getGold() + "G", 16, 130);
-    },
-    
-    clearGold: function() {
-        menuCtx.clearRect(0, 120, 100, 50);
-        textCtx.clearRect(0, 120, 100, 50);
-    },
-    
-    /* Draws an arrow next to the current shop action in shop menu */
-    drawArrow: function() {
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 20px monospace";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._lineHeight[this._currentAction % 3];        
-        // textCtx.fillText(arrowChar, 15, drawHeight);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 13, drawHeight + 2);
-        this._arrow = true;
-    },
-    
-    /* Erases the arrow next to the current shop action in shop menu */
-    clearArrow: function() {
-        var drawHeight = this._lineHeight[this._currentAction % 3];
-        textCtx.clearRect(13, drawHeight + 2, 16, 11);
-        this._arrow = false;
-    },
-    
-    displayBuyMenu: function() {
-        drawBox(menuCtx, 100, 0, 300, 250, 40, 5);
-        
-        // Text properties
-        textCtx.font = "bold 16px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        
-        for (var i = 0; i < this._itemList.length; ++i) {
-            var itemId = this._itemList[i];
-            var itemName = g_itemData.items[itemId].name;
-            var itemCost = g_itemData.items[itemId].cost;
-            var displayName = itemName;
-            while (displayName.length < 15)
-                displayName += " ";
-            var displayCost = itemCost.toString();
-            while (displayCost.length < 5)
-                displayCost = " " + displayCost;
-            textCtx.fillText(displayName + " " + displayCost + "G", 144, this._drawHeight[i]);
-        }
-        
-        this._currentMenu = BUY_MENU;
-        this._buySelection = 0;
-        this.drawBuySelection();
-    },
-    
-    displaySellMenu: function() {
-        drawBox(menuCtx, 100, 0, 300, 250, 40, 5);
-        
-        // Text properties
-        textCtx.font = "bold 14px monospace";
-        textCtx.fillStyle = "white";
-        textCtx.textBaseline = "top";
-        
-        // Display items in inventory
-        this._itemId = [];
-        var numItems = 0;
-        var shop = this;
-        g_player.forEachItemInInventory(function(itemId, amt) {
-            if (amt > 0) {
-                var itemName = g_itemData.items[itemId].name;
-                var itemCost = g_itemData.items[itemId].cost;
-                var sellPrice = Math.floor(itemCost * 0.75);
-                var displayAmt = (amt >= 10) ? amt : " " + amt;
-                var displayPrice = sellPrice.toString();
-                while (displayPrice.length < 5)
-                    displayPrice = " " + displayPrice;
-                var displayName = itemName;
-                while (displayName.length < 15)
-                    displayName += " ";
-                if (numItems < 10)
-                    textCtx.fillText(
-                        displayName + " " + displayAmt + " " + displayPrice + "G",
-                        150, shop._drawHeight[numItems]);
-                shop._itemId[numItems] = itemId;
-                numItems++;
-            }
-        });
-        
-        this._numItems = numItems;
-        this._currentMenu = SELL_MENU;
-        if (numItems > 0) {
-            this._sellSelection = 0;
-            this.drawSellSelection();
-        }
-    },
-    
-    clearSubMenu: function() {
-        menuCtx.clearRect(100, 0, 300, 250);
-        textCtx.clearRect(100, 0, 300, 250);
-        
-        this._currentMenu = SHOP_MENU;
-    },
-    
-    displayQuantityDialog: function() {
+    displayQuantityDialog: function(item) {
         this._quantity = 1;
         
-        var itemId, price;
-        if (this._currentMenu == BUY_MENU) {
-            itemId = this._itemList[this._buySelection];
-            price = g_itemData.items[itemId].cost;
+        var price;
+        if (this._menu.getCurrentMenu().getType() == BUY_MENU) {
+            price = item.cost;
             this._maxQuantity = 99;
-        } else if (this._currentMenu == SELL_MENU) {
-            itemId = this._itemId[this._sellSelection];
-            price = g_itemData.items[itemId].cost;
-            price = Math.floor(price * SELL_PRICE_RATIO);
-            this._maxQuantity = g_player.numInInventory(itemId);
+        } else if (this._menu.getCurrentMenu().getType() == SELL_MENU) {
+            price = item.sellPrice;
+            this._maxQuantity = item.amt;
         }
         this._price = price;
         
@@ -233,6 +96,7 @@ var Shop = Class.extend({
         
         textCtx.fillText("Quantity: " + this._quantity + "  Cost: " + this._quantity * price + "G", 120, 266);
         
+        this._item = item;
         this._quantityDisplayed = true;
     },
     
@@ -243,42 +107,8 @@ var Shop = Class.extend({
         this._quantityDisplayed = false;
     },
     
-    /* Draws an arrow next to currently selected item to buy */
-    drawBuySelection: function() {
-        
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 16px monospace";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._drawHeight[this._buySelection];
-        // textCtx.fillText(arrowChar, 128, drawHeight);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 124, drawHeight + 2);
-    },
-    
-    /* Erases the arrow next to currently selected item to buy*/
-    clearBuySelection: function() {
-        var drawHeight = this._drawHeight[this._buySelection];
-        textCtx.clearRect(124, drawHeight + 2, 16, 11);
-    },
-    
-    /* Draws an arrow next to currently selected item to buy */
-    drawSellSelection: function() {
-        
-        // var arrowChar = "\u25ba";
-        // textCtx.font = "bold 14px monospace";
-        // textCtx.fillStyle = "white";
-        // textCtx.textBaseline = "top";
-        var drawHeight = this._drawHeight[this._sellSelection];
-        // textCtx.fillText(arrowChar, 136, drawHeight + 2);
-        var img = g_imageData.images["pointer"].img;
-        textCtx.drawImage(img, 128, drawHeight + 2);
-    },
-    
-    /* Erases the arrow next to currently selected item to buy*/
-    clearSellSelection: function() {
-        var drawHeight = this._drawHeight[this._sellSelection];
-        textCtx.clearRect(128, drawHeight + 2, 16, 11);
+    isQuantityDialogDisplayed: function() {
+        return this._quantityDisplayed;
     },
     
     /* Increase the quantity that the user will buy */
@@ -300,7 +130,7 @@ var Shop = Class.extend({
     },
     
     /* Handles arrow key input while any shop is being displayed */
-    handleInput: function(key) {
+    handleKey: function(key) {
         if (this._quantityDisplayed) {
             switch(key) {
                 case UP_ARROW:
@@ -312,172 +142,109 @@ var Shop = Class.extend({
                     this.decreaseQuantity();
                     break;
             }
-        } else if (this._currentMenu == SHOP_MENU) {
-            this.clearArrow();
-            switch(key) {
-                case DOWN_ARROW:
-                case RIGHT_ARROW:
-                    this._currentAction++;
-                    this._currentAction %= 3;
-                    break;
-                case UP_ARROW:
-                case LEFT_ARROW:
-                    this._currentAction--;
-                    if (this._currentAction < 0)
-                        this._currentAction += 3;
-                    break;
-            }
-            this.drawArrow();
-        } else if (this._currentMenu == BUY_MENU) {
-            this.clearBuySelection();
-            switch(key) {
-                case DOWN_ARROW:
-                case RIGHT_ARROW:
-                    this._buySelection++;
-                    this._buySelection %= this._itemList.length;
-                    break;
-                case UP_ARROW:
-                case LEFT_ARROW:
-                    this._buySelection--;
-                    if (this._buySelection < 0)
-                        this._buySelection += this._itemList.length;
-                    break;
-            }
-            this.drawBuySelection();
-        } else if (this._currentMenu == SELL_MENU && this._numItems > 0) {
-            this.clearSellSelection();
-            switch(key) {
-                case DOWN_ARROW:
-                case RIGHT_ARROW:
-                    this._sellSelection++;
-                    this._sellSelection %= this._numItems;
-                    break;
-                case UP_ARROW:
-                case LEFT_ARROW:
-                    this._sellSelection--;
-                    if (this._sellSelection < 0)
-                        this._sellSelection += this._numItems;
-                    break;
-            }
-            this.drawSellSelection();
+        } else if (this._menu.isDisplayed()) {
+            this._menu.handleKey(key);
         }
     },
     
     /* Handle if enter is pressed while shop is being displayed */
     handleEnter: function() {
         if (this._quantityDisplayed) {
-            if (this._currentMenu == BUY_MENU)
+            var menuType = this._menu.getCurrentMenu().getType();
+            this._menu.handleESC();
+            if (menuType == BUY_MENU)
                 this.buyItems();
-            else
+            else if (menuType == SELL_MENU)
                 this.sellItems();
-        } else if (this._currentMenu == SHOP_MENU) {
-            switch (this._currentAction) {
-                case SHOP_BUY:
-                    this.displayBuyMenu();
-                    break;
-                case SHOP_SELL:
-                    this.displaySellMenu();
-                    break;
-                case SHOP_EXIT:
-                    this.clearShop();
-                    break;
-            }
-        } else if (this._currentMenu == BUY_MENU) {
-            if (this._toDisplayQuantity)
-                this.displayQuantityDialog();
-            else
-                this.buyItem();
-        } else if (this._currentMenu == SELL_MENU && this._numItems > 0) {
-            if (g_player.numInInventory(this._itemId[this._sellSelection]) > 1)
-                this.displayQuantityDialog();
-            else
-                this.sellItem();
+        } else if (this._menu.isDisplayed()) {
+            this._menu.handleEnter();
         }
     },
     
     /* Handle ESC key pressed while shop is being displayed */
-    handleEsc: function() {
+    handleESC: function() {
         if (this._quantityDisplayed)
             this.clearQuantityDialog();
-        else if (this._currentMenu == SHOP_MENU)
-            this.clearShop();
+        else if (this._menu.isDisplayed()) {
+            this._menu.handleESC();
+        }
+    },
+    
+    /* if toDisplayQty, show Quantity Dialog, otherwise purchase one */
+    handlePurchase: function(item) {
+        if (this._toDisplayQuantity)
+            this.displayQuantityDialog(item);
         else
-            this.clearSubMenu();
+            this.buyItem(item);
+    },
+    
+    /* if toDisplayQty, show Quantity Dialog, otherwise sell one */
+    handleSale: function(item) {
+        if (item.amt > 1)
+            this.displayQuantityDialog(item);
+        else {
+            this._menu.getCurrentMenu().clear();
+            this.sellItem(item);
+        }
     },
     
     /* Called when user tries to complete purchase of single item. */
-    buyItem: function() {
-        this.clearSubMenu();
-        
-        var itemId = this._itemList[this._buySelection];
-        var itemName = g_itemData.items[itemId].name;
-        var itemCost = g_itemData.items[itemId].cost;
+    buyItem: function(item) {
+    
         var gold = g_player.getGold();
-        if (gold >= itemCost) {
-            g_player.spendGold(itemCost);
-            g_player.addToInventory(itemId, 1);
+        if (gold >= item.cost) {
+            g_player.spendGold(item.cost);
+            g_player.addToInventory(item.id, 1);
             g_textDisplay.displayText("You purchased 1 " +
-                itemName + " for " + itemCost + "G.");
-            this.clearGold();
-            this.displayGold();
+                item.name + " for " + item.cost + "G.");
+            this._menu.clearGold();
+            this._menu.displayGold();
         } else {
             g_textDisplay.displayText("You do not have enough gold\nto buy a " +
-                itemName + ".\nYou only have " + gold + "G.");
+                item.name + ".\nYou only have " + gold + "G.");
         }
     },
     
     /* Called when user tries to complete purchase of multiple items. */
     buyItems: function() {
         this.clearQuantityDialog();
-        this.clearSubMenu();
         
-        var itemId = this._itemList[this._buySelection];
-        var itemName = g_itemData.items[itemId].name;
-        var itemCost = g_itemData.items[itemId].cost;
+        var item = this._item;
         var gold = g_player.getGold();
-        var totalCost = itemCost * this._quantity;
+        var totalCost = item.cost * this._quantity;
         if (gold >= totalCost) {
-            g_player.spendGold(itemCost * this._quantity);
-            g_player.addToInventory(itemId, this._quantity);
+            g_player.spendGold(totalCost);
+            g_player.addToInventory(item.id, this._quantity);
             g_textDisplay.displayText("You purchased " + this._quantity + " " +
-                itemName + "s for " + totalCost + "G.");
-            this.clearGold();
-            this.displayGold();
+                item.name + "s for " + totalCost + "G.");
+            this._menu.clearGold();
+            this._menu.displayGold();
         } else {
             g_textDisplay.displayText("You do not have enough gold\nto buy " +
-                this._quantity + " " + itemName + "s.\nYou only have " + gold + "G.");
+                this._quantity + " " + item.name + "s.\nYou only have " + gold + "G.");
         }
     },
     
     /* Called when user tries to complete sale of single item. */
-    sellItem: function() {
-        this.clearSubMenu();
-        
-        var itemId = this._itemId[this._sellSelection];
-        var itemName = g_itemData.items[itemId].name;
-        var itemCost = g_itemData.items[itemId].cost;
-        var sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
-        g_player.removeFromInventory(itemId);
-        g_player.earnGold(sellPrice);
-        this.clearGold();
-        this.displayGold();
-        g_textDisplay.displayText("You sold 1 " + itemName + " for " + sellPrice + "G.");
+    sellItem: function(item) {
+    
+        g_player.removeFromInventory(item.id);
+        g_player.earnGold(item.sellPrice);
+        this._menu.clearGold();
+        this._menu.displayGold();
+        g_textDisplay.displayText("You sold 1 " + item.name + " for " + item.sellPrice + "G.");
     },
     
     /* Called when user tries to complete sale of multiple items. */
     sellItems: function() {
         this.clearQuantityDialog();
-        this.clearSubMenu();
+        var item = this._item;
         
-        var itemId = this._itemId[this._sellSelection];
-        var itemName = g_itemData.items[itemId].name;
-        var itemCost = g_itemData.items[itemId].cost;
-        var sellPrice = Math.floor(itemCost * SELL_PRICE_RATIO);
-        var totalCost = sellPrice * this._quantity;
-        g_player.removeFromInventory(itemId, this._quantity);
+        var totalCost = item.sellPrice * this._quantity;
+        g_player.removeFromInventory(item.id, this._quantity);
         g_player.earnGold(totalCost);
-        this.clearGold();
-        this.displayGold();
-        g_textDisplay.displayText("You sold " + this._quantity + " " + itemName + "s for " + totalCost + "G.");
+        this._menu.clearGold();
+        this._menu.displayGold();
+        g_textDisplay.displayText("You sold " + this._quantity + " " + item.name + "s for " + totalCost + "G.");
     }
 });
