@@ -119,7 +119,7 @@ var g_mapData = {
                 toScrollY: 2,
                 facing: FACING_DOWN
               }
-        }, 
+       }, 
         10: {
               id: SUBMAP_TOWN_HOUSEB,
               tileset: {
@@ -158,7 +158,16 @@ var g_mapData = {
                   toScrollX: 0,
                   toScrollY: 9,
                   facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                  imgRef: "woman1",
+                  locX: 5,
+                  locY: 4,
+                  facing: FACING_RIGHT,
+                  displayText: "My husband has not returned yet. It has \nbeen three days since he left for the \ndark forest.",
+                  walks: false
+              }]
+
         },
         12: {
               id: SUBMAP_TOWN_LIBRARY,
@@ -178,7 +187,44 @@ var g_mapData = {
                   toScrollX: 7, 
                   toScrollY: 9,
                   facing: FACING_DOWN
-            }
+            },
+            npcs: [{
+                  imgRef: "boy",
+                  locX: 11,
+                  locY: 12,
+                  facing: FACING_RIGHT,
+                  displayText: "When I am not doing chores, I enjoy a \ngood read.",
+                  walks: false
+            }, {
+                  imgRef: "woman1",
+                  locX: 2,
+                  locY: 6,
+                  facing: FACING_UP,
+                  displayText: "Do you need help finding a book?",
+                  walks: false
+            }, { 
+                  imgRef: "man1",
+                  locX: 13,
+                  locY: 7, 
+                  facing: FACING_UP,
+                  displayText: "Our town is small yet humble.",
+                  walks: false
+            },{
+                  imgRef: "woman2",
+                  locX: 2,
+                  locY: 11,
+                  facing: FACING_LEFT,
+                  displayText: "Despite being new, this library is full \nof books!",
+                  walks: false  
+            }, {
+                  imgRef: "man2",
+                  locX: 7,
+                  locY: 3,
+                  facing: FACING_UP,
+                  displayText: "Boy, the King sure did let himself go....",
+                  walks: false
+            }]
+
         },
         8: {
               id: SUBMAP_TOWN,
