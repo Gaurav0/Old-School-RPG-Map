@@ -21,6 +21,7 @@
  *   Jono Xia <jono@mozilla.com>
  *   Gaurav Munjal <Gaurav0@aol.com>
  *   Jebb Burditt <jebb.burditt@gmail.com>
+ *   David Leonard <sephirothcloud1025@yahoo.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,6 +36,7 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
+ 
 
 /* Class representing a tileset image 
  * width: width of the image
