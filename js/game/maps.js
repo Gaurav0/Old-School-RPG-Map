@@ -381,7 +381,7 @@ var g_mapData = {
                   toX: 9,
                   toY: 5,
                   toScrollX: 4,
-                  toScrollY: 2,
+                  toScrollY: 0,
                   facing: FACING_DOWN
          },
          npcs: [ {
@@ -420,9 +420,9 @@ var g_mapData = {
                     at: "bottom", 
                     toMapId: SUBMAP_CASTLE_ROOM,
                     toX: 2,
-                    toY: 6,
+                    toY: 5,
                     toScrollX: 0,
-                    toScrollY: 3,
+                    toScrollY: 0,
                     facing: FACING_DOWN
               },
               chests: [{
@@ -467,7 +467,7 @@ var g_mapData = {
                 toX: 16,
                 toY: 5,
                 toScrollX: 7,
-                toScrollY: 2,
+                toScrollY: 0,
                 facing: FACING_DOWN
           },
           npcs: [{ 
