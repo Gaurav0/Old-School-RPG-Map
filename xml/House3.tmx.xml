@@ -215,7 +215,7 @@
    <tile gid="1370"/>
    <tile gid="1370"/>
    <tile gid="1370"/>
-   <tile gid="0"/>
+   <tile gid="450"/>
    <tile gid="1370"/>
    <tile gid="1370"/>
    <tile gid="1370"/>
@@ -229,7 +229,7 @@
    <tile gid="1370"/>
    <tile gid="1370"/>
    <tile gid="1370"/>
-   <tile gid="0"/>
+   <tile gid="450"/>
   </data>
  </layer>
  <layer name="Impassable" width="15" height="15">
@@ -566,7 +566,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="1510"/>
+   <tile gid="0"/>
    <tile gid="1456"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -578,7 +578,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="134"/>
+   <tile gid="1241"/>
    <tile gid="1242"/>
    <tile gid="1243"/>
    <tile gid="135"/>
@@ -673,7 +673,6 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="450"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -687,7 +686,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="450"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
   </data>
  </layer>
 </map>
