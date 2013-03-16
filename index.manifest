@@ -6,9 +6,19 @@ http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js
 js/amplify.min.js
 js/includes.js
 js/rpg.min.js
+xml/Armory.tmx.xml
 xml/Castle1.tmx.xml
+xml/CastleRoom.tmx.xml
 xml/CastleShops.tmx.xml
 xml/Forest1.tmx.xml
+xml/House11.tmx.xml
+xml/House2.tmx.xml
+xml/House3.tmx.xml
+xml/House4.tmx.xml
+xml/Infirmary.tmx.xml
+xml/Library.tmx.xml
+xml/Town2.tmx.xml
+xml/Treasure.tmx.xml
 xml/WorldMap1.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
@@ -29,4 +39,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-# updated Thu Mar 14 2013 07:02:45 GMT-0400 (Eastern Daylight Time)
+# updated Sat Mar 16 2013 09:40:36 GMT-0400 (Eastern Daylight Time)

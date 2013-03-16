@@ -21,6 +21,7 @@
  *   Jono Xia <jono@mozilla.com>
  *   Gaurav Munjal <Gaurav0@aol.com>
  *   Jebb Burditt <jebb.burditt@gmail.com>
+ *   David Leonard <sephirothcloud1025@yahoo.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -33,11 +34,8 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
+ *
  * ***** END LICENSE BLOCK ***** */
-
- //Hello
-
 
 
 var SHOP_MENU = 0;

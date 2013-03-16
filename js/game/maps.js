@@ -80,10 +80,10 @@ var g_mapData = {
                     fromY: 14,
                     toMapId: SUBMAP_TOWN,
                     toX: 9,
-                    toY: 1,
+                    toY: 18,
                     toScrollX: 4,
-                    toScrollY: 0,
-                    facing: FACING_DOWN,
+                    toScrollY: 9,
+                    facing: FACING_UP,
                     onEnter: function() {
                         g_player.restore();
                     }
@@ -308,15 +308,33 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }],
-              exit: {
-                at: "bottom", 
+       }, {
+                fromX: 9,
+                fromY: 0,
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
                 toX: 12,
                 toY: 17,
                 toScrollX: 6, 
                 toScrollY: 9,
                 facing: FACING_UP
+       }, {
+                fromX: 10,
+                fromY: 0,
+                toMapId: SUBMAP_CASTLE_EXTERIOR,
+                toX: 12,
+                toY: 17,
+                toScrollX: 6, 
+                toScrollY: 9,
+                facing: FACING_UP
+       }],
+              exit: {
+                at: "bottom",
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 23,
+                toY: 14,
+                toScrollX: 17,
+                toScrollY: 9,
+                facing: FACING_DOWN
           }, 
           npcs: [{
                 imgRef: "woman1",
@@ -640,9 +658,9 @@ var g_mapData = {
                 at: "edges",
                 toMapId: SUBMAP_TOWN,
                 toX: 9,
-                toY: 18,
+                toY: 1,
                 toScrollX: 4,
-                toScrollY: 9,
+                toScrollY: 0,
                 facing: FACING_DOWN
             },
             npcs: [ {
