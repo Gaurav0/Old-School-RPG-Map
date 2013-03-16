@@ -53,6 +53,8 @@ var SUBMAP_TOWN = 8;
 var SUBMAP_TOWN_HOUSEA = 9;
 var SUBMAP_TOWN_HOUSEB = 10;
 var SUBMAP_TOWN_HOUSEC = 11;
+var SUBMAP_TOWN_LIBRARY = 12;
+
 
 var g_mapData = {
     "submaps": {
@@ -158,6 +160,26 @@ var g_mapData = {
                   facing: FACING_DOWN
               }
         },
+        12: {
+              id: SUBMAP_TOWN_LIBRARY,
+              tileset: {
+                  imgRef: "InqIndoors",
+                  width: 256,
+                  height: 8704
+              },
+              xmlUrl: "xml/House4.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_TOWN,
+                  toX: 16,
+                  toY: 16,
+                  toScrollX: 7, 
+                  toScrollY: 9,
+                  facing: FACING_DOWN
+            }
+        },
         8: {
               id: SUBMAP_TOWN,
               tileset: {
@@ -218,6 +240,24 @@ var g_mapData = {
                 fromY: 15,
                 toMapId: SUBMAP_TOWN_HOUSEC,
                 toX: 8, 
+                toY: 13,
+                toScrollX: 2,
+                toScrollY: 4,
+                facing: FACING_UP
+       }, {   
+                fromX: 16,
+                fromY: 15,
+                toMapId: SUBMAP_TOWN_LIBRARY,
+                toX: 6,
+                toY: 13,
+                toScrollX: 2,
+                toScrollY: 4,
+                facing: FACING_UP
+       }, {   
+                fromX: 16,
+                fromY: 14,
+                toMapId: SUBMAP_TOWN_LIBRARY,
+                toX: 7,
                 toY: 13,
                 toScrollX: 2,
                 toScrollY: 4,
