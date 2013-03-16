@@ -242,6 +242,18 @@ function loadMaps() {
                         var y = yLimit - 1;
                         for (var x = 0; x < xLimit; x++)
                             submap.getSquareAt(x, y).onEnter = doExit;
+                    } else if (mapData.exit.at == "top") {
+                        var y = 0;
+                        for (var x = 0; x < xLimit; x++)
+                            submap.getSquareAt(x, y).onEnter = doExit;
+                    } else if (mapData.exit.at == "left") {
+                        var x = 0;
+                        for (var y = 0; y < yLimit; y++)
+                            submap.getSquareAt(x, y).onEnter = doExit;
+                    } else if (mapData.exit.at == "right") {
+                        var x = xLimit - 1;
+                        for (var y = 0; y < yLimit; y++)
+                            submap.getSquareAt(x, y).onEnter = doExit;
                     }
                 }
                 
