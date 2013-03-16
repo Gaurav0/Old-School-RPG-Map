@@ -250,7 +250,7 @@ var g_mapData = {
                 toMapId: SUBMAP_TOWN_LIBRARY,
                 toX: 6,
                 toY: 13,
-                toScrollX: 2,
+                toScrollX: 1,
                 toScrollY: 4,
                 facing: FACING_UP
        }, {   
@@ -267,7 +267,7 @@ var g_mapData = {
                 at: "bottom", 
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
                 toX: 12,
-                toY: 18,
+                toY: 17,
                 toScrollX: 6, 
                 toScrollY: 9,
                 facing: FACING_UP
@@ -317,8 +317,8 @@ var g_mapData = {
                   toX: 9,
                   toY: 5,
                   toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
+                  toScrollY: 2,
+                  facing: FACING_DOWN
          },
          npcs: [ {
                   imgRef: "man1",
@@ -355,10 +355,10 @@ var g_mapData = {
               exit: {
                     at: "bottom", 
                     toMapId: SUBMAP_CASTLE_ROOM,
-                    toX: 4,
-                    toY: 9,
-                    toScrollX: 4,
-                    toScrollY: 9,
+                    toX: 2,
+                    toY: 6,
+                    toScrollX: 0,
+                    toScrollY: 3,
                     facing: FACING_DOWN
               },
               chests: [{
@@ -402,9 +402,9 @@ var g_mapData = {
                 toMapId: SUBMAP_CASTLE_ROOM,
                 toX: 16,
                 toY: 5,
-                toScrollX: 4,
-                toScrollY: 9,
-                facing: FACING_UP
+                toScrollX: 7,
+                toScrollY: 2,
+                facing: FACING_DOWN
           },
           npcs: [{ 
                 imgRef: "woman1",
@@ -451,7 +451,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_ARMORY,
                 toX: 9,
-                toY: 19,
+                toY: 18,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -460,7 +460,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_ARMORY,
                 toX: 10, 
-                toY: 19,
+                toY: 18,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -469,7 +469,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_LIBRARY,
                 toX: 10,
-                toY: 18,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -478,7 +478,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_LIBRARY,
                 toX: 10,
-                toY: 18,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -487,7 +487,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_INFIRMARY,
                 toX: 9,
-                toY: 18,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
@@ -496,7 +496,7 @@ var g_mapData = {
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_INFIRMARY,
                 toX: 10,
-                toY: 18,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
