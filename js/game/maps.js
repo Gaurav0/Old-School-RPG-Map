@@ -75,42 +75,41 @@ var g_mapData = {
                     g_worldmap.goToMap(g_player, 0, 23, 13, 17, 8, FACING_DOWN);
                 });
             },
-            entrances: [ {
-                    fromX: 23,
-                    fromY: 14,
-                    toMapId: SUBMAP_TOWN,
-                    toX: 9,
-                    toY: 18,
-                    toScrollX: 4,
-                    toScrollY: 9,
-                    facing: FACING_UP,
-                    onEnter: function() {
-                        g_player.restore();
-                    }
-                }, {
-                    fromX: 13,
-                    fromY: 9,
-                    toMapId: SUBMAP_FOREST_DUNGEON,
-                    toX: 9,
-                    toY: 28,
-                    toScrollX: 3,
-                    toScrollY: 19,
-                    facing: FACING_UP
+            entrances: [{
+                fromX: 23,
+                fromY: 14,
+                toMapId: SUBMAP_TOWN,
+                toX: 9,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP,
+                onEnter: function() {
+                    g_player.restore();
                 }
-            ]
+            }, {
+                fromX: 13,
+                fromY: 9,
+                toMapId: SUBMAP_FOREST_DUNGEON,
+                toX: 9,
+                toY: 28,
+                toScrollX: 3,
+                toScrollY: 19,
+                facing: FACING_UP
+            }]
         }, 
         //Need to figure out why this part doesn't work 100%
         9: {
-              id: SUBMAP_TOWN_HOUSEA,
-              tileset: {
+            id: SUBMAP_TOWN_HOUSEA,
+            tileset: {
                 imgRef: "InqIndoors",
                 width: 256,
                 height: 8704
-              },
-              xmlUrl: "xml/House11.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              exit: {
+            },
+            xmlUrl: "xml/House11.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
                 at: "bottom",
                 toMapId: SUBMAP_TOWN,
                 toX: 2,
@@ -118,125 +117,124 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 2,
                 facing: FACING_DOWN
-              }
-       }, 
+            }
+        }, 
         10: {
-              id: SUBMAP_TOWN_HOUSEB,
-              tileset: {
-                  imgRef: "InqIndoors",
-                  width: 256,
-                  height: 8704
-              },
-              xmlUrl: "xml/House2.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              exit: {
-                  at: "bottom",
-                  toMapId: SUBMAP_TOWN,
-                  toX: 14,
-                  toY: 5,
-                  toScrollX: 7,
-                  toScrollY: 2,
-                  facing: FACING_DOWN
-                }
+            id: SUBMAP_TOWN_HOUSEB,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/House2.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_TOWN,
+                toX: 14,
+                toY: 5,
+                toScrollX: 7,
+                toScrollY: 2,
+                facing: FACING_DOWN
+            }
         },
         11: {
-              id: SUBMAP_TOWN_HOUSEC,
-              tileset: {
-                  imgRef: "InqIndoors",
-                  width: 256,
-                  height: 8704
-              },
-              xmlUrl: "xml/House3.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              exit: {
-                  at: "bottom",
-                  toMapId: SUBMAP_TOWN,
-                  toX: 3,
-                  toY: 17,
-                  toScrollX: 0,
-                  toScrollY: 9,
-                  facing: FACING_DOWN
-              },
-              npcs: [{
-                  imgRef: "woman1",
-                  locX: 5,
-                  locY: 4,
-                  facing: FACING_RIGHT,
-                  displayText: "My husband has not returned yet. It has \nbeen three days since he left for the \ndark forest.",
-                  walks: false
-              }]
-
-        },
-        12: {
-              id: SUBMAP_TOWN_LIBRARY,
-              tileset: {
-                  imgRef: "InqIndoors",
-                  width: 256,
-                  height: 8704
-              },
-              xmlUrl: "xml/House4.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              exit: {
-                  at: "bottom",
-                  toMapId: SUBMAP_TOWN,
-                  toX: 16,
-                  toY: 16,
-                  toScrollX: 7, 
-                  toScrollY: 9,
-                  facing: FACING_DOWN
+            id: SUBMAP_TOWN_HOUSEC,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/House3.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_TOWN,
+                toX: 3,
+                toY: 17,
+                toScrollX: 0,
+                toScrollY: 9,
+                facing: FACING_DOWN
             },
             npcs: [{
-                  imgRef: "boy",
-                  locX: 11,
-                  locY: 12,
-                  facing: FACING_RIGHT,
-                  displayText: "When I am not doing chores, I enjoy a \ngood read.",
-                  walks: false
-            }, {
-                  imgRef: "woman1",
-                  locX: 2,
-                  locY: 6,
-                  facing: FACING_UP,
-                  displayText: "Do you need help finding a book?",
-                  walks: false
-            }, { 
-                  imgRef: "man1",
-                  locX: 13,
-                  locY: 7, 
-                  facing: FACING_UP,
-                  displayText: "Our town is small yet humble.",
-                  walks: false
-            },{
-                  imgRef: "woman2",
-                  locX: 2,
-                  locY: 11,
-                  facing: FACING_LEFT,
-                  displayText: "Despite being new, this library is full \nof books!",
-                  walks: false  
-            }, {
-                  imgRef: "man2",
-                  locX: 7,
-                  locY: 3,
-                  facing: FACING_UP,
-                  displayText: "Boy, the King sure did let himself go....",
-                  walks: false
+                imgRef: "woman1",
+                locX: 5,
+                locY: 4,
+                facing: FACING_RIGHT,
+                displayText: "My husband has not returned yet. It has \nbeen three days since he left for the \ndark forest.",
+                walks: false
             }]
 
         },
+        12: {
+            id: SUBMAP_TOWN_LIBRARY,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/House4.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_TOWN,
+                toX: 16,
+                toY: 16,
+                toScrollX: 7, 
+                toScrollY: 9,
+                facing: FACING_DOWN
+            },
+            npcs: [{
+                imgRef: "boy",
+                locX: 11,
+                locY: 12,
+                facing: FACING_RIGHT,
+                displayText: "When I am not doing chores, I enjoy a \ngood read.",
+                walks: false
+            }, {
+                imgRef: "woman1",
+                locX: 2,
+                locY: 6,
+                facing: FACING_UP,
+                displayText: "Do you need help finding a book?",
+                walks: false
+            }, { 
+                imgRef: "man1",
+                locX: 13,
+                locY: 7, 
+                facing: FACING_UP,
+                displayText: "Our town is small yet humble.",
+                walks: false
+            },{
+                imgRef: "woman2",
+                locX: 2,
+                locY: 11,
+                facing: FACING_LEFT,
+                displayText: "Despite being new, this library is full \nof books!",
+                walks: false  
+            }, {
+                imgRef: "man2",
+                locX: 7,
+                locY: 3,
+                facing: FACING_UP,
+                displayText: "Boy, the King sure did let himself go....",
+                walks: false
+            }]
+        },
         8: {
-              id: SUBMAP_TOWN,
-              tileset: {
-                  imgRef: "BrowserQuest",
-                  width: 320,
-                  height: 1568
-              },
-              xmlUrl: "xml/Town2.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              entrances: [{
+            id: SUBMAP_TOWN,
+            tileset: {
+              imgRef: "BrowserQuest",
+              width: 320,
+              height: 1568
+            },
+            xmlUrl: "xml/Town2.tmx.xml",
+            randomEncounters: false,
+            overWorld: true,
+            entrances: [{
                 fromX: 2,
                 fromY: 5,
                 toMapId: SUBMAP_TOWN_HOUSEA,
@@ -245,7 +243,7 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {
+            }, {
                 fromX: 2,
                 fromY: 4,
                 toMapId: SUBMAP_TOWN_HOUSEA,
@@ -254,7 +252,7 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, { 
+            }, { 
                 fromX: 14,
                 fromY: 4,
                 toMapId: SUBMAP_TOWN_HOUSEB,
@@ -263,7 +261,7 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {   
+            }, {   
                 fromX: 14,
                 fromY: 3,
                 toMapId: SUBMAP_TOWN_HOUSEB,
@@ -272,7 +270,7 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, { 
+            }, { 
                 fromX: 3,
                 fromY: 16,
                 toMapId: SUBMAP_TOWN_HOUSEC,
@@ -281,7 +279,7 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {   
+            }, {   
                 fromX: 3,
                 fromY: 15,
                 toMapId: SUBMAP_TOWN_HOUSEC,
@@ -290,7 +288,7 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {   
+            }, {   
                 fromX: 16,
                 fromY: 15,
                 toMapId: SUBMAP_TOWN_LIBRARY,
@@ -299,7 +297,7 @@ var g_mapData = {
                 toScrollX: 1,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {   
+            }, {   
                 fromX: 16,
                 fromY: 14,
                 toMapId: SUBMAP_TOWN_LIBRARY,
@@ -308,7 +306,7 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-       }, {
+            }, {
                 fromX: 9,
                 fromY: 0,
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
@@ -317,7 +315,7 @@ var g_mapData = {
                 toScrollX: 6, 
                 toScrollY: 9,
                 facing: FACING_UP
-       }, {
+            }, {
                 fromX: 10,
                 fromY: 0,
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
@@ -326,8 +324,8 @@ var g_mapData = {
                 toScrollX: 6, 
                 toScrollY: 9,
                 facing: FACING_UP
-       }],
-              exit: {
+            }],
+            exit: {
                 at: "bottom",
                 toMapId: SUBMAP_WORLD_MAP,
                 toX: 23,
@@ -335,123 +333,122 @@ var g_mapData = {
                 toScrollX: 17,
                 toScrollY: 9,
                 facing: FACING_DOWN
-          }, 
-          npcs: [{
+            }, 
+            npcs: [{
                 imgRef: "woman1",
                 locX: 1,
                 locY: 6,
                 facing: FACING_DOWN,
                 displayText: "Our town is small, but we manage to get \nby.",
                 walks: false
-          }, {
+            }, {
                 imgRef: "boy",
                 locX: 7,
                 locY: 15,
                 facing: FACING_RIGHT, 
                 displayText: "My older brother went to the forest to \nlook for my father, but they have not \nreturned yet...sniff.",
                 walks: false
-          }, {
+            }, {
                 imgRef: "man1",
                 locX: 8,
                 locY: 2,
                 facing: FACING_RIGHT,
                 displayText: "Welcome to the town of (Town name).",
                 walks: false
-          },{
+            },{
                 imgRef: "soldier",
                 locX: 12,
                 locY: 18,
                 facing: FACING_LEFT,
                 displayText: "The king is recruiting all able men to \nvanquish the terror within the forest.",
                 walks: false
-          }]
+            }]
         }, 6: {
-              id: SUBMAP_CASTLE_LIBRARY,
-              tileset: {
-                  imgRef: "InqIndoors",
-                  width: 256,
-                  height: 8704
-              },
-              xmlUrl: "xml/Library.tmx.xml",
-              randomEnounters: false,
-              overWorld: false,
-              exit: {
-                  at: "bottom",
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 9,
-                  toY: 5,
-                  toScrollX: 4,
-                  toScrollY: 2,
-                  facing: FACING_DOWN
-         },
-         npcs: [ {
-                  imgRef: "man1",
-                  locX: 3,
-                  locY: 8,
-                  facing: FACING_UP,
-                  displayText: "Knowing when to flee can be crucial to \nfighting another day.",
-                  walks: false
-         },{
-                  imgRef: "boy",
-                  locX: 6,
-                  locY: 17,
-                  facing: FACING_LEFT,
-                  displayText: "Be sure to save often and watch your \nhealth.",
-                  walks: false
-         }, {
+            id: SUBMAP_CASTLE_LIBRARY,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/Library.tmx.xml",
+            randomEnounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 9,
+                toY: 5,
+                toScrollX: 4,
+                toScrollY: 0,
+                facing: FACING_DOWN
+            },
+            npcs: [ {
+                imgRef: "man1",
+                locX: 3,
+                locY: 8,
+                facing: FACING_UP,
+                displayText: "Knowing when to flee can be crucial to \nfighting another day.",
+                walks: false
+            },{
+                imgRef: "boy",
+                locX: 6,
+                locY: 17,
+                facing: FACING_LEFT,
+                displayText: "Be sure to save often and watch your \nhealth.",
+                walks: false
+            }, {
                 imgRef: "soldier",
                 locX: 16,
                 locY: 8,
                 facing: FACING_UP,
                 displayText: "Gaining experience will make you strong \nlike me! Bwahahaha! *cough* *wheeze*",
                 walks: false
-         } ]
-       }, 5: {
-              id: SUBMAP_CASTLE_ARMORY,
-              tileset: {
-                  imgRef: "InqIndoors",
-                  width: 256,
-                  height: 8704
-              },
-              xmlUrl: "xml/Armory.tmx.xml",
-              randomEncounters: false,
-              overWorld: false,
-              exit: {
-                    at: "bottom", 
-                    toMapId: SUBMAP_CASTLE_ROOM,
-                    toX: 2,
-                    toY: 6,
-                    toScrollX: 0,
-                    toScrollY: 3,
-                    facing: FACING_DOWN
-              },
-              chests: [{
-                      imgRef: "chest",
-                      locX: 4,
-                      locY: 8,
-                      event: "fc5",
-                      action: function() {
-                        this.onOpenFindItem("You found 2 potions.", ITEM_POTION, 2);
-                      }
+            } ]
+        }, 5: {
+            id: SUBMAP_CASTLE_ARMORY,
+            tileset: {
+                imgRef: "InqIndoors",
+                width: 256,
+                height: 8704
+            },
+            xmlUrl: "xml/Armory.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom", 
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 2,
+                toY: 5,
+                toScrollX: 0,
+                toScrollY: 0,
+                facing: FACING_DOWN
+            },
+            chests: [{
+                imgRef: "chest",
+                locX: 4,
+                locY: 8,
+                event: "ac1",
+                action: function() {
+                    this.onOpenFindItem("You found 2 potions.", ITEM_POTION, 2);
+                }
             }, {
-                      imgRef: "chest",
-                      locX: 2,
-                      locY: 9,
-                      event: "fc6",
-                      action: function() {
-                      this.onOpenFindItem("You found 1 potion.", ITEM_POTION, 1);
-                      }
+                imgRef: "chest",
+                locX: 2,
+                locY: 9,
+                event: "ac2",
+                action: function() {
+                    this.onOpenFindItem("You found 1 potion.", ITEM_POTION, 1);
+                }
             }, {
-                      imgRef: "chest",
-                      locX: 12,
-                      locY: 6,
-                      event: "fc7",
-                      action: function() {
-                        this.onOpenFindItem("You found 2 bombs.", ITEM_BOMB, 2);
-                      }
-            }
-          ]
-      }, 7: {
+                imgRef: "chest",
+                locX: 12,
+                locY: 6,
+                event: "ac3",
+                action: function() {
+                    this.onOpenFindGold(30);
+                }
+            }]
+        }, 7: {
             id: SUBMAP_CASTLE_INFIRMARY,
             tileset: {
                 imgRef: "InqIndoors",
@@ -467,39 +464,47 @@ var g_mapData = {
                 toX: 16,
                 toY: 5,
                 toScrollX: 7,
-                toScrollY: 2,
+                toScrollY: 0,
                 facing: FACING_DOWN
-          },
-          npcs: [{ 
+            },
+            npcs: [{ 
                 imgRef: "woman1",
                 locX: 18,
                 locY: 17,
                 facing: FACING_LEFT,
                 displayText: "Would you like to rest here?",
                 walks: false
-          }, {
+            }, {
                 imgRef: "soldier",
                 locX: 3,
                 locY: 8,
                 facing: FACING_UP,
                 displayText: "I want to challenge the Rat King again, \nbut I still can't move...",
                 walks: false
-          }, {
+            }, {
                 imgRef: "soldier",
                 locX: 13,
                 locY: 8,
                 facing: FACING_RIGHT,
                 displayText: "The King is looking for a powerful hero to \ndefeat the treacherous Rat King.",
                 walks: false
-          }, {
+            }, {
                 imgRef: "boy",
                 locX: 3,
                 locY: 17,
                 facing: FACING_RIGHT,
-                displayText: "If I was a little older, I would join the \nknights and make a difference.",
+                displayText: "If I was a little older, I would join \nthe knights and make a difference.",
                 walks: false
-          }]
-      }, 4:{
+            }],
+            actions: [{
+                locX: 16,
+                locY: 17,
+                dir: FACING_RIGHT,
+                onAction: function() {
+                    g_mapData.submaps[SUBMAP_CASTLE_INFIRMARY].npcs[0].npc.action();
+                }
+            }]
+        }, 4:{
             id: SUBMAP_CASTLE_ROOM,
             tileset: {
                 imgRef: "InqIndoors",
@@ -564,8 +569,7 @@ var g_mapData = {
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
-            }
-          ],
+            }],
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_CASTLE_TAVERN,
@@ -574,47 +578,44 @@ var g_mapData = {
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
-        },
-        npcs: [{
-              imgRef: "soldier",
-              locX: 6,
-              locY: 16,
-              facing: FACING_DOWN,
-              displayText: "Welcome to the main floor.",
-              walks: false
-        }, {
-              imgRef: "soldier",
-              locX: 13,
-              locY: 16,
-              facing: FACING_DOWN,
-              displayText: "Feel free to have a look around.",
-              walks: false
-        }, {
-              imgRef: "soldier",
-              locX: 1,
-              locY: 5,
-              facing: FACING_DOWN,
-              displayText: "Help yourself to the items in the Armory.",
-              walks: false
-        }, {
-              imgRef: "soldier",
-              locX: 15,
-              locY: 5,
-              facing: FACING_RIGHT,
-              displayText: "The Infirmary gets more crowded day by \nday due to the monsters...",
-              walks: false
-        }, {
-              imgRef: "woman2",
-              locX: 11,
-              locY: 5,
-              facing: FACING_LEFT,
-              displayText: "There are so many books in the library,\nI could spend an eternity there!",
-              walks: false
-        }
-            
-
-        ]
-      }, 1: {
+            },
+            npcs: [{
+                imgRef: "soldier",
+                locX: 6,
+                locY: 16,
+                facing: FACING_DOWN,
+                displayText: "Welcome to the main floor.",
+                walks: false
+            }, {
+                imgRef: "soldier",
+                locX: 13,
+                locY: 16,
+                facing: FACING_DOWN,
+                displayText: "Feel free to have a look around.",
+                walks: false
+            }, {
+                imgRef: "soldier",
+                locX: 1,
+                locY: 5,
+                facing: FACING_DOWN,
+                displayText: "Help yourself to the items in the Armory.",
+                walks: false
+            }, {
+                imgRef: "soldier",
+                locX: 15,
+                locY: 5,
+                facing: FACING_RIGHT,
+                displayText: "The Infirmary gets more crowded day by \nday due to the monsters...",
+                walks: false
+            }, {
+                imgRef: "woman2",
+                locX: 11,
+                locY: 5,
+                facing: FACING_LEFT,
+                displayText: "There are so many books in the library,\nI could spend an eternity there!",
+                walks: false
+            }]
+        }, 1: {
             id: SUBMAP_CASTLE_EXTERIOR,
             tileset: {
                 imgRef: "InqCastle",
@@ -624,35 +625,34 @@ var g_mapData = {
             xmlUrl: "xml/Castle1.tmx.xml",
             randomEncounters: false,
             overWorld: false,
-            entrances: [ {
-                    fromX: 11,
-                    fromY: 12,
-                    toMapId: SUBMAP_CASTLE_TAVERN,
-                    toX: 10,
-                    toY: 18,
-                    toScrollX: 4,
-                    toScrollY: 9,
-                    facing: FACING_UP
-                }, {
-                    fromX: 12,
-                    fromY: 12,
-                    toMapId: SUBMAP_CASTLE_TAVERN,
-                    toX: 10,
-                    toY: 18,
-                    toScrollX: 4,
-                    toScrollY: 9,
-                    facing: FACING_UP
-                }, {
-                    fromX: 13,
-                    fromY: 12,
-                    toMapId: SUBMAP_CASTLE_TAVERN,
-                    toX: 10,
-                    toY: 18,
-                    toScrollX: 4,
-                    toScrollY: 9,
-                    facing: FACING_UP
-                }
-            ],
+            entrances: [{
+                fromX: 11,
+                fromY: 12,
+                toMapId: SUBMAP_CASTLE_TAVERN,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 12,
+                fromY: 12,
+                toMapId: SUBMAP_CASTLE_TAVERN,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 13,
+                fromY: 12,
+                toMapId: SUBMAP_CASTLE_TAVERN,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }],
             //Scrolling is working now
             exit: {
                 at: "edges",
@@ -663,22 +663,21 @@ var g_mapData = {
                 toScrollY: 0,
                 facing: FACING_DOWN
             },
-            npcs: [ {
-                    imgRef: "soldier",
-                    locX: 10,
-                    locY: 14,
-                    facing: FACING_DOWN,
-                    displayText: "You may enter the castle now.",
-                    walks: false
-                }, {
-                    imgRef: "soldier",
-                    locX: 14,
-                    locY: 14,
-                    facing: FACING_DOWN,
-                    displayText: "But the interior is still under\nconstruction.",
-                    walks: false
-                }
-            ]
+            npcs: [{
+                imgRef: "soldier",
+                locX: 10,
+                locY: 14,
+                facing: FACING_DOWN,
+                displayText: "You may enter the castle now.",
+                walks: false
+            }, {
+                imgRef: "soldier",
+                locX: 14,
+                locY: 14,
+                facing: FACING_DOWN,
+                displayText: "But the interior is still under\nconstruction.",
+                walks: false
+            }]
         }, 2: {
             id: SUBMAP_CASTLE_TAVERN,
             tileset: {
@@ -690,45 +689,44 @@ var g_mapData = {
             randomEncounters: false,
             overWorld: false,
             //Add entrances to SUBMAP_CASTLE_ROOM
-            entrances: [ {
-                  fromX: 9,
-                  fromY: 15,
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 10,
-                  toY: 18,
-                  toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
+            entrances: [{
+                fromX: 9,
+                fromY: 15,
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
             }, {
-                  fromX: 10,
-                  fromY: 15,
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 10,
-                  toY: 18,
-                  toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
+                fromX: 10,
+                fromY: 15,
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
             }, {
-                  fromX: 11,
-                  fromY: 15,
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 10,
-                  toY: 18,
-                  toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
+                fromX: 11,
+                fromY: 15,
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
             }, { 
-                  fromX: 8,
-                  fromY: 15,
-                  toMapId: SUBMAP_CASTLE_ROOM,
-                  toX: 10,
-                  toY: 18,
-                  toScrollX: 4,
-                  toScrollY: 9,
-                  facing: FACING_UP
-            }
-          ],
-          exit: {
+                fromX: 8,
+                fromY: 15,
+                toMapId: SUBMAP_CASTLE_ROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }],
+            exit: {
                 at: "bottom",
                 toMapId: SUBMAP_CASTLE_EXTERIOR,
                 toX: 12,
@@ -737,96 +735,94 @@ var g_mapData = {
                 toScrollY: 7,
                 facing: FACING_DOWN
             },
-            npcs: [ {
-                    imgRef: "man1",
-                    locX: 1,
-                    locY: 8,
-                    facing: FACING_RIGHT,
-                    displayText: "Welcome to the weapon shop.",
-                    callback: function() {
-                        g_shop.displayShop([
-                            ITEM_COPPER_SWORD,
-                            ITEM_BRONZE_SWORD,
-                            ITEM_IRON_SWORD,
-                            ITEM_STEEL_SWORD
-                        ], false);
-                    },
-                    walks: false
-                }, {
-                    imgRef: "man2",
-                    locX: 18,
-                    locY: 8,
-                    facing: FACING_LEFT,
-                    displayText: "Welcome to the armor shop.",
-                    callback: function() {
-                        g_shop.displayShop([
-                            ITEM_LEATHER_ARMOR,
-                            ITEM_CHAIN_MAIL,
-                            ITEM_HALF_PLATE_MAIL,
-                            ITEM_LEATHER_HELMET,
-                            ITEM_BRONZE_HELMET,
-                            ITEM_IRON_HELMET,
-                            ITEM_COPPER_SHIELD,
-                            ITEM_BRONZE_SHIELD,
-                            ITEM_IRON_SHIELD
-                        ], false);
-                    },
-                    walks: false
-                }, {
-                    imgRef: "woman2",
-                    locX: 1,
-                    locY: 12,
-                    facing: FACING_RIGHT,
-                    displayText: "Welcome to the item shop.",
-                    callback: function() {
-                        g_shop.displayShop([
-                            ITEM_POTION,
-                            ITEM_MAX_POTION,
-                            ITEM_ELIXER,
-                            ITEM_BOMB,
-                            ITEM_ETHER
-                        ], true);
-                    },
-                    walks: false
-                }, {
-                    imgRef: "woman1",
-                    locX: 10,
-                    locY: 12,
-                    facing: FACING_DOWN,
-                    displayText: "Welcome to the castle's tavern.",
-                    walks: true
-                }, {
-                    imgRef: "boy",
-                    locX: 16,
-                    locY: 17,
-                    facing: FACING_LEFT,
-                    displayText: "Whenever I return to the castle,\nI feel completely refreshed and\nrestored.",
-                    walks: true
+            npcs: [{
+                imgRef: "man1",
+                locX: 1,
+                locY: 8,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the weapon shop.",
+                callback: function() {
+                    g_shop.displayShop([
+                        ITEM_COPPER_SWORD,
+                        ITEM_BRONZE_SWORD,
+                        ITEM_IRON_SWORD,
+                        ITEM_STEEL_SWORD
+                    ], false);
+                },
+                walks: false
+            }, {
+                imgRef: "man2",
+                locX: 18,
+                locY: 8,
+                facing: FACING_LEFT,
+                displayText: "Welcome to the armor shop.",
+                callback: function() {
+                    g_shop.displayShop([
+                        ITEM_LEATHER_ARMOR,
+                        ITEM_CHAIN_MAIL,
+                        ITEM_HALF_PLATE_MAIL,
+                        ITEM_LEATHER_HELMET,
+                        ITEM_BRONZE_HELMET,
+                        ITEM_IRON_HELMET,
+                        ITEM_COPPER_SHIELD,
+                        ITEM_BRONZE_SHIELD,
+                        ITEM_IRON_SHIELD
+                    ], false);
+                },
+                walks: false
+            }, {
+                imgRef: "woman2",
+                locX: 1,
+                locY: 12,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the item shop.",
+                callback: function() {
+                    g_shop.displayShop([
+                        ITEM_POTION,
+                        ITEM_MAX_POTION,
+                        ITEM_ELIXER,
+                        ITEM_BOMB,
+                        ITEM_ETHER
+                    ], true);
+                },
+                walks: false
+            }, {
+                imgRef: "woman1",
+                locX: 10,
+                locY: 12,
+                facing: FACING_DOWN,
+                displayText: "Welcome to the castle's tavern.",
+                walks: true
+            }, {
+                imgRef: "boy",
+                locX: 16,
+                locY: 17,
+                facing: FACING_LEFT,
+                displayText: "Whenever I return to the castle,\nI feel completely refreshed and\nrestored.",
+                walks: true
+            }],
+            actions: [{
+                locX: 3,
+                locY: 8,
+                dir: FACING_LEFT,
+                onAction: function() {
+                    g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[0].npc.action();
                 }
-            ],
-            actions: [ {
-                    locX: 3,
-                    locY: 8,
-                    dir: FACING_LEFT,
-                    onAction: function() {
-                        g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[0].npc.action();
-                    }
-                }, {
-                    locX: 16,
-                    locY: 8,
-                    dir: FACING_RIGHT,
-                    onAction: function() {
-                        g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[1].npc.action();
-                    }
-                }, {
-                    locX: 3,
-                    locY: 12,
-                    dir: FACING_LEFT,
-                    onAction: function() {
-                        g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[2].npc.action();
-                    }
+            }, {
+                locX: 16,
+                locY: 8,
+                dir: FACING_RIGHT,
+                onAction: function() {
+                    g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[1].npc.action();
                 }
-            ]
+            }, {
+                locX: 3,
+                locY: 12,
+                dir: FACING_LEFT,
+                onAction: function() {
+                    g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[2].npc.action();
+                }
+            }]
         }, 3: {
             id: SUBMAP_FOREST_DUNGEON,
             tileset: {
@@ -837,7 +833,7 @@ var g_mapData = {
             xmlUrl: "xml/Forest1.tmx.xml",
             randomEncounters: true,
             zone: "forest",
-            background: "meadow",
+            background: "forestbk",
             overWorld: false,
             load: function() {
             
@@ -849,7 +845,7 @@ var g_mapData = {
                     g_textDisplay.setCallback(function() {
                         keyBuffer = 0;
                         g_battle = new Battle();
-                        g_battle.setupEncounter("A rat king", [ 10 ], "meadow");
+                        g_battle.setupEncounter("A rat king", [ 10 ], "forestbk");
                         g_battle.onWin = function() {
                             g_game.setFlag("fb");
                             boss.clear();
@@ -879,40 +875,39 @@ var g_mapData = {
                 toScrollY: 4,
                 facing: FACING_DOWN
             },
-            chests: [ {
-                    imgRef: "chest",
-                    locX: 3,
-                    locY: 27,
-                    event: "fc1",
-                    action: function() {
-                        this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
-                    }
-                }, {
-                    imgRef: "chest",
-                    locX: 17,
-                    locY: 11,
-                    event: "fc2",
-                    action: function() {
-                        this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
-                    }
-                }, {
-                    imgRef: "chest",
-                    locX: 16,
-                    locY: 2,
-                    event: "fc3",
-                    action: function() {
-                        this.onOpenLearnSpell(SPELL_HEAL);
-                    }
-                }, {
-                    imgRef: "chest",
-                    locX: 3,
-                    locY: 7,
-                    event: "fc4",
-                    action: function() {
-                        this.onOpenLearnSpell(SPELL_BOMB);
-                    }
+            chests: [{
+                imgRef: "chest",
+                locX: 3,
+                locY: 27,
+                event: "fc1",
+                action: function() {
+                    this.onOpenFindItem("You found 5 potions.", ITEM_POTION, 5);
                 }
-            ]
+            }, {
+                imgRef: "chest",
+                locX: 17,
+                locY: 11,
+                event: "fc2",
+                action: function() {
+                    this.onOpenFindItem("You found 3 bombs.", ITEM_BOMB, 3);
+                }
+            }, {
+                imgRef: "chest",
+                locX: 16,
+                locY: 2,
+                event: "fc3",
+                action: function() {
+                    this.onOpenLearnSpell(SPELL_HEAL);
+                }
+            }, {
+                imgRef: "chest",
+                locX: 3,
+                locY: 7,
+                event: "fc4",
+                action: function() {
+                    this.onOpenLearnSpell(SPELL_BOMB);
+                }
+            }]
         }
     }
 };

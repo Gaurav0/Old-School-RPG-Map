@@ -39,7 +39,7 @@
  
 
 // Current Version used for savegame compatibility checking
-var CURRENT_VERSION = "0.1pre 20110514"
+var CURRENT_VERSION = "0.1pre 20130317"
 
 // How many pixels is one square of the map
 var TILE_WIDTH = 32;
@@ -169,7 +169,7 @@ function loadMaps() {
                     g_worldmap = new WorldMap(mapXml, tileset);
                     map = g_worldmap.getSubMap(0);
                 } else {
-                    map = new SubMap(mapXml, tileset, mapData.overworld);
+                    map = new SubMap(mapXml, tileset, mapData.overWorld);
                     g_worldmap.addSubMap(mapId, map);
                 }
                 if (!!mapData.load)
