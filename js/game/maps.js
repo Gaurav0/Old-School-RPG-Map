@@ -112,7 +112,7 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_TOWN,
-                toX: 2,
+                toX: 1,
                 toY: 6,
                 toScrollX: 0,
                 toScrollY: 2,
@@ -132,8 +132,8 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_TOWN,
-                toX: 14,
-                toY: 5,
+                toX: 15,
+                toY: 7,
                 toScrollX: 7,
                 toScrollY: 2,
                 facing: FACING_DOWN
@@ -152,8 +152,8 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_TOWN,
-                toX: 3,
-                toY: 17,
+                toX: 2,
+                toY: 16,
                 toScrollX: 0,
                 toScrollY: 9,
                 facing: FACING_DOWN
@@ -181,7 +181,7 @@ var g_mapData = {
             exit: {
                 at: "bottom",
                 toMapId: SUBMAP_TOWN,
-                toX: 16,
+                toX: 17,
                 toY: 16,
                 toScrollX: 7, 
                 toScrollY: 9,
@@ -228,14 +228,14 @@ var g_mapData = {
             id: SUBMAP_TOWN,
             tileset: {
               imgRef: "BrowserQuest",
-              width: 320,
-              height: 1568
+              width: 256,
+              height: 2560
             },
-            xmlUrl: "xml/Town2.tmx.xml",
+            xmlUrl: "xml/Town3.tmx.xml",
             randomEncounters: false,
             overWorld: true,
             entrances: [{
-                fromX: 2,
+                fromX: 1,
                 fromY: 5,
                 toMapId: SUBMAP_TOWN_HOUSEA,
                 toX: 7,
@@ -243,36 +243,18 @@ var g_mapData = {
                 toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
-            }, {
-                fromX: 2,
-                fromY: 4,
-                toMapId: SUBMAP_TOWN_HOUSEA,
-                toX: 8, 
-                toY: 13,
-                toScrollX: 2,
-                toScrollY: 4,
-                facing: FACING_UP
             }, { 
-                fromX: 14,
-                fromY: 4,
+                fromX: 15,
+                fromY: 6,
                 toMapId: SUBMAP_TOWN_HOUSEB,
                 toX: 6,
                 toY: 13,
                 toScrollX: 0,
                 toScrollY: 4,
                 facing: FACING_UP
-            }, {   
-                fromX: 14,
-                fromY: 3,
-                toMapId: SUBMAP_TOWN_HOUSEB,
-                toX: 7, 
-                toY: 13,
-                toScrollX: 0,
-                toScrollY: 4,
-                facing: FACING_UP
             }, { 
-                fromX: 3,
-                fromY: 16,
+                fromX: 2,
+                fromY: 15,
                 toMapId: SUBMAP_TOWN_HOUSEC,
                 toX: 7,
                 toY: 13,
@@ -280,30 +262,12 @@ var g_mapData = {
                 toScrollY: 4,
                 facing: FACING_UP
             }, {   
-                fromX: 3,
-                fromY: 15,
-                toMapId: SUBMAP_TOWN_HOUSEC,
-                toX: 8, 
-                toY: 13,
-                toScrollX: 2,
-                toScrollY: 4,
-                facing: FACING_UP
-            }, {   
-                fromX: 16,
+                fromX: 17,
                 fromY: 15,
                 toMapId: SUBMAP_TOWN_LIBRARY,
                 toX: 6,
                 toY: 13,
                 toScrollX: 1,
-                toScrollY: 4,
-                facing: FACING_UP
-            }, {   
-                fromX: 16,
-                fromY: 14,
-                toMapId: SUBMAP_TOWN_LIBRARY,
-                toX: 7,
-                toY: 13,
-                toScrollX: 2,
                 toScrollY: 4,
                 facing: FACING_UP
             }, {
@@ -336,8 +300,8 @@ var g_mapData = {
             }, 
             npcs: [{
                 imgRef: "woman1",
-                locX: 1,
-                locY: 6,
+                locX: 2,
+                locY: 8,
                 facing: FACING_DOWN,
                 displayText: "Our town is small, but we manage to get \nby.",
                 walks: false
