@@ -497,11 +497,11 @@ var g_mapData = {
                 walks: false
             }],
             actions: [{
-                locX: 3,
-                locY: 8,
-                dir: FACING_LEFT,
+                locX: 16,
+                locY: 17,
+                dir: FACING_RIGHT,
                 onAction: function() {
-                    g_mapData.submaps[SUBMAP_CASTLE_TAVERN].npcs[0].npc.action();
+                    g_mapData.submaps[SUBMAP_CASTLE_INFIRMARY].npcs[0].npc.action();
                 }
             }]
         }, 4:{
