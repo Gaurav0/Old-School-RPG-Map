@@ -235,7 +235,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/Town2.tmx.xml",
               randomEncounters: false,
-              overWorld: false,
+              overWorld: true,
               entrances: [{
                 fromX: 2,
                 fromY: 5,

@@ -169,7 +169,7 @@ function loadMaps() {
                     g_worldmap = new WorldMap(mapXml, tileset);
                     map = g_worldmap.getSubMap(0);
                 } else {
-                    map = new SubMap(mapXml, tileset, mapData.overworld);
+                    map = new SubMap(mapXml, tileset, mapData.overWorld);
                     g_worldmap.addSubMap(mapId, map);
                 }
                 if (!!mapData.load)
