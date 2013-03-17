@@ -427,7 +427,7 @@ var g_mapData = {
                 imgRef: "chest",
                 locX: 4,
                 locY: 8,
-                event: "fc5",
+                event: "ac1",
                 action: function() {
                     this.onOpenFindItem("You found 2 potions.", ITEM_POTION, 2);
                 }
@@ -435,7 +435,7 @@ var g_mapData = {
                 imgRef: "chest",
                 locX: 2,
                 locY: 9,
-                event: "fc6",
+                event: "ac2",
                 action: function() {
                     this.onOpenFindItem("You found 1 potion.", ITEM_POTION, 1);
                 }
@@ -443,9 +443,9 @@ var g_mapData = {
                 imgRef: "chest",
                 locX: 12,
                 locY: 6,
-                event: "fc7",
+                event: "ac3",
                 action: function() {
-                    this.onOpenFindItem("You found 2 bombs.", ITEM_BOMB, 2);
+                    this.onOpenFindGold(30);
                 }
             }]
         }, 7: {

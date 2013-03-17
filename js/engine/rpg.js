@@ -39,7 +39,7 @@
  
 
 // Current Version used for savegame compatibility checking
-var CURRENT_VERSION = "0.1pre 20110514"
+var CURRENT_VERSION = "0.1pre 20130317"
 
 // How many pixels is one square of the map
 var TILE_WIDTH = 32;

@@ -80,6 +80,17 @@ var Chest = Sprite.extend({
     },
     
     /* called from action method of chests section of g_mapData,
+       used to indicate how much gold user will receive upon
+       opening the chest */
+    onOpenFindGold: function(amt) {
+        if (!this.isOpen()) {
+            this.open();
+            g_player.earnGold(amt);
+            g_textDisplay.displayText("You found " + amt + " gold.");
+        }
+    },
+    
+    /* called from action method of chests section of g_mapData,
        used to indicate what item(s) user will receive upon
        opening the chest */
     onOpenFindItem: function(msg, itemId, amt) {
