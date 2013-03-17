@@ -833,7 +833,7 @@ var g_mapData = {
             xmlUrl: "xml/Forest1.tmx.xml",
             randomEncounters: true,
             zone: "forest",
-            background: "meadow",
+            background: "forestbk",
             overWorld: false,
             load: function() {
             
@@ -845,7 +845,7 @@ var g_mapData = {
                     g_textDisplay.setCallback(function() {
                         keyBuffer = 0;
                         g_battle = new Battle();
-                        g_battle.setupEncounter("A rat king", [ 10 ], "meadow");
+                        g_battle.setupEncounter("A rat king", [ 10 ], "forestbk");
                         g_battle.onWin = function() {
                             g_game.setFlag("fb");
                             boss.clear();
