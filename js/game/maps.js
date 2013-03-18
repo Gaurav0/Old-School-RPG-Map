@@ -311,7 +311,7 @@ var g_mapData = {
                 locY: 15,
                 facing: FACING_RIGHT, 
                 displayText: "My older brother went to the forest to \nlook for my father, but they have not \nreturned yet...sniff.",
-                walks: false
+                walks: true
             }, {
                 imgRef: "man1",
                 locX: 8,

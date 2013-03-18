@@ -145,13 +145,13 @@ var SubMap = Class.extend({
         return this._mapSquares[y][x];
     },
     
-    /* Add a sprite (NPC) to the submap. */
+    /* Add a sprite to the submap. */
     addSprite: function(sprite) {
         this._spriteList.push(sprite);
         return this._spriteList.length - 1;
     },
     
-    /* Remove a sprite (NPC) from the submap */
+    /* Remove a sprite from the submap */
     removeSprite: function(sprite) {
         var index;
         for (var i = 0; i < this._spriteList.length; ++i) {
@@ -191,14 +191,20 @@ var SubMap = Class.extend({
     /* Draws all the sprites on the map */
     drawSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
-            this._spriteList[i].plot();
+            var sprite = this._spriteList[i];
+            sprite.plot();
+            if (sprite instanceof Character && sprite.doesWalk())
+                sprite.startWalking();
         }
     },
     
     /* Clear all the sprites on the map */
     clearSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
-            this._spriteList[i].clear();
+            var sprite = this._spriteList[i];
+            sprite.clear();
+            if (sprite instanceof Character && sprite.doesWalk())
+                sprite.stopWalking();
         }
     },
     
@@ -269,10 +275,14 @@ var SubMap = Class.extend({
         if (numSteps > 0) {
             
             for (var i = 0; i < this._spriteList.length; ++i) {
-                
-                // this._x and this._y already changed, so offset by a tile size
-                this._spriteList[i].clear(offsetX + deltaX * TILE_WIDTH,
-                                          offsetY + deltaY * TILE_HEIGHT);
+                var sprite = this._spriteList[i];
+                if (sprite instanceof Character && sprite.isWalking())
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._lastOffsetX,
+                                 offsetY + deltaY * TILE_HEIGHT + sprite._lastOffsetY);
+                else
+                    // this._x and this._y already changed, so offset by a tile size
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH,
+                                 offsetY + deltaY * TILE_HEIGHT);
             }
             
             // offset map in opposite direction of scroll
@@ -280,8 +290,13 @@ var SubMap = Class.extend({
             offsetY -= deltaY * SCROLL_FACTOR;
             
             for (var i = 0; i < this._spriteList.length; ++i) {
-                this._spriteList[i].plot(0, 0, offsetX + deltaX * TILE_WIDTH,
-                                               offsetY + deltaY * TILE_HEIGHT);
+                var sprite = this._spriteList[i];
+                if (sprite instanceof Character && sprite.isWalking())
+                    sprite.plot(0, 0, offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
+                                      offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                else
+                    sprite.plot(0, 0, offsetX + deltaX * TILE_WIDTH,
+                                      offsetY + deltaY * TILE_HEIGHT);
             }
             
             // Save last offsets for later

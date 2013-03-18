@@ -267,7 +267,8 @@ function loadMaps() {
                             npcData.locY,
                             npcData.imgRef,
                             mapId,
-                            npcData.facing);
+                            npcData.facing,
+                            npcData.walks);
                         npc.action = (function(npcData) {
                             return function() {
                                 this.facePlayer();

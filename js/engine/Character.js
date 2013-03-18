@@ -47,10 +47,11 @@ var FACING_LEFT = 3;
 /* Class representing either a player character or NPC
  * Characters can either stay still or move about the map. */
 var Character = Sprite.extend({
-   _init: function(x, y, imgRef, subMapId, dir) {
+    _init: function(x, y, imgRef, subMapId, dir, walks) {
         this._super(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, imgRef, subMapId);
         
         this._dir = dir;
+        this._walks = walks ? true : false;
 
         // Are we currently walking?
         this._walking = false;
@@ -61,6 +62,14 @@ var Character = Sprite.extend({
     
     getDir: function() {
         return this._dir;
+    },
+    
+    doesWalk: function() {
+        return this._walks;
+    },
+    
+    isWalking: function() {
+        return this._walking;
     },
     
     /* Get coordinates the sprite is facing */
@@ -138,7 +147,8 @@ var Character = Sprite.extend({
         // the square we're trying to enter is passable and not occupied:
         if (!g_worldmap.pointInBounds(newX, newY) ||
                 !g_worldmap.isPassable(newX, newY) ||
-                g_worldmap.isOccupied(newX, newY)) {
+                g_worldmap.isOccupied(newX, newY) ||
+                g_player.isAt(newX, newY)) {
             if (!g_worldmap.isAnimating()) {
                 this.clear();
                 this.plot();
@@ -167,7 +177,9 @@ var Character = Sprite.extend({
                     sprite.getSquareUnderfoot().onEnter();
                 sprite._entered = true;
             });
-        }      
+        } else if (this._walks) {
+            this.walkAnimation(deltaX, deltaY);
+        }        
         
         return true;
     },
@@ -183,6 +195,34 @@ var Character = Sprite.extend({
     // Returns the map square the sprite is standing on.
     getSquareUnderfoot: function() {
         return g_worldmap.getSquareAt(this._x, this._y);
+    },
+    
+    startWalking: function() {
+        this.walk();
+    },
+    
+    stopWalking: function() {
+        window.clearTimeout(this._walkTimeout);
+    },
+    
+    walk: function() {
+        var i, j;
+        var dir = Math.floor(Math.random() * 4);
+        switch(dir) {
+            case FACING_UP:
+                i = 0; j = -1; break;
+            case FACING_DOWN:
+                i = 0; j = 1; break;
+            case FACING_LEFT:
+                i = -1; j = 0; break;
+            case FACING_RIGHT:
+                i = 1; j = 0; break;
+        }
+        this.move(i, j, dir);
+        var sprite = this;
+        this._walkTimeout = window.setTimeout(function() {
+            sprite.walk();
+        }, 1000);
     },
     
     /* Show sprite as walking as background scrolls */
@@ -217,17 +257,22 @@ var Character = Sprite.extend({
     
     /* Shows the sprite walking from one square to another */
     walkAnimation: function(deltaX, deltaY) {
-        if (g_worldmap.isAnimating()) {
+        if (this == g_player && g_worldmap.isAnimating()) {
             var sprite = this;
             g_worldmap.runAfterAnimation(function() {
                 sprite.walkAnimation(deltaX, deltaY);
             });
         } else if (!g_battle) {
-            g_worldmap.startAnimating();
+            if (this == g_player)
+                g_worldmap.startAnimating();
             this._walking = true;
             var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
+            this._lastOffsetX = 0;
+            this._lastOffsetY = 0;
             var destOffsetX = -deltaX * TILE_WIDTH;
             var destOffsetY = -deltaY * TILE_HEIGHT;
+            this._destOffsetX = destOffsetX;
+            this._destOffsetY = destOffsetY;
             this.walkAnimationSub(0, deltaX, deltaY, destOffsetX, destOffsetY, numSteps);
         }
     },
@@ -244,9 +289,14 @@ var Character = Sprite.extend({
             else if (animStage == 6 || animStage == 7)
                 sourceOffsetX = SPRITE_WIDTH;
     
+            this._lastOffsetX = destOffsetX;
+            this._lastOffsetY = destOffsetY;
             destOffsetX += deltaX * SCROLL_FACTOR;
             destOffsetY += deltaY * SCROLL_FACTOR;
-            this.plot(sourceOffsetX, 0, destOffsetX, destOffsetY);
+            this._destOffsetX = destOffsetX;
+            this._destOffsetY = destOffsetY;
+            if (this == g_player || !g_worldmap.isScrolling())
+                this.plot(sourceOffsetX, 0, destOffsetX, destOffsetY);
             
             var sprite = this;
             window.setTimeout(function() {
@@ -258,7 +308,8 @@ var Character = Sprite.extend({
                 this.clear(destOffsetX, destOffsetY); // clear last image drawn
                 this.plot();
             }
-            g_worldmap.finishAnimating();
+            if (this == g_player)
+                g_worldmap.finishAnimating();
             if (!g_battle)
                 handleBufferedKey();
         }
