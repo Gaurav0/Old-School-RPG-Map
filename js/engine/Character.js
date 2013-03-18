@@ -215,19 +215,21 @@ var Character = Sprite.extend({
     },
     
     walk: function() {
-        var i, j;
-        var dir = Math.floor(Math.random() * 4);
-        switch(dir) {
-            case FACING_UP:
-                i = 0; j = -1; break;
-            case FACING_DOWN:
-                i = 0; j = 1; break;
-            case FACING_LEFT:
-                i = -1; j = 0; break;
-            case FACING_RIGHT:
-                i = 1; j = 0; break;
+        if (!this.isWalking()) {
+            var i, j;
+            var dir = Math.floor(Math.random() * 4);
+            switch(dir) {
+                case FACING_UP:
+                    i = 0; j = -1; break;
+                case FACING_DOWN:
+                    i = 0; j = 1; break;
+                case FACING_LEFT:
+                    i = -1; j = 0; break;
+                case FACING_RIGHT:
+                    i = 1; j = 0; break;
+            }
+            this.move(i, j, dir);
         }
-        this.move(i, j, dir);
         var sprite = this;
         this._walkTimeout = window.setTimeout(function() {
             sprite.walk();
