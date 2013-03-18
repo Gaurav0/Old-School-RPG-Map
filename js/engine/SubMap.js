@@ -294,8 +294,9 @@ var SubMap = Class.extend({
             for (var i = 0; i < this._spriteList.length; ++i) {
                 var sprite = this._spriteList[i];
                 if (sprite instanceof Character && sprite.isWalking()) {
-                    sprite.plot(0, 0, offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
-                                      offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                    sprite.plot(sprite._sourceOffsetX, 0,
+                        offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
+                        offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
                     sprite._wasWalking = true;
                 } else {
                     sprite.plot(0, 0, offsetX + deltaX * TILE_WIDTH,

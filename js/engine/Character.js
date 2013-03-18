@@ -229,7 +229,7 @@ var Character = Sprite.extend({
         var sprite = this;
         this._walkTimeout = window.setTimeout(function() {
             sprite.walk();
-        }, 1000);
+        }, 1600);
     },
     
     /* Show sprite as walking as background scrolls */
@@ -280,34 +280,41 @@ var Character = Sprite.extend({
             var destOffsetY = -deltaY * TILE_HEIGHT;
             this._destOffsetX = destOffsetX;
             this._destOffsetY = destOffsetY;
-            this.walkAnimationSub(0, deltaX, deltaY, destOffsetX, destOffsetY, numSteps);
+            var numStages = 32;
+            if (this == g_player)
+                numStages = 8;
+            this.walkAnimationSub(0, deltaX, deltaY, destOffsetX, destOffsetY, numSteps, numStages);
         }
     },
     
     /* Recursive part of sprite.walkAnimation */
-    walkAnimationSub: function(animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps) {
+    walkAnimationSub: function(animStage, deltaX, deltaY, destOffsetX, destOffsetY, numSteps, numStages) {
         if (numSteps > 1 && !g_battle) {
-            this.clear(destOffsetX, destOffsetY);
+            if (this == g_player || !g_worldmap.isScrolling())
+                this.clear(destOffsetX, destOffsetY);
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
-            if (animStage == 2 || animStage == 3)
+            if (Math.floor(animStage * 4 / numStages) == 1)
                 sourceOffsetX = -SPRITE_WIDTH;
-            else if (animStage == 6 || animStage == 7)
+            else if (Math.floor(animStage * 4 / numStages) == 3)
                 sourceOffsetX = SPRITE_WIDTH;
-    
+
+            this._sourceOffsetX = sourceOffsetX;
             this._lastOffsetX = destOffsetX;
             this._lastOffsetY = destOffsetY;
-            destOffsetX += deltaX * SCROLL_FACTOR;
-            destOffsetY += deltaY * SCROLL_FACTOR;
+            if ((animStage + 1) % (numStages / 8) == 0) {
+                destOffsetX += deltaX * SCROLL_FACTOR;
+                destOffsetY += deltaY * SCROLL_FACTOR;
+                --numSteps;
+            }
             this._destOffsetX = destOffsetX;
             this._destOffsetY = destOffsetY;
             if (this == g_player || !g_worldmap.isScrolling())
                 this.plot(sourceOffsetX, 0, destOffsetX, destOffsetY);
-            
             var sprite = this;
             window.setTimeout(function() {
-                sprite.walkAnimationSub((animStage + 1) % 8, deltaX, deltaY, destOffsetX, destOffsetY, --numSteps);
+                sprite.walkAnimationSub((animStage + 1) % numStages, deltaX, deltaY, destOffsetX, destOffsetY, numSteps, numStages);
             }, 1000 / FPS);
         } else {
             this._walking = false;
