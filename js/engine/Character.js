@@ -47,11 +47,12 @@ var FACING_LEFT = 3;
 /* Class representing either a player character or NPC
  * Characters can either stay still or move about the map. */
 var Character = Sprite.extend({
-    _init: function(x, y, imgRef, subMapId, dir, walks) {
+    _init: function(x, y, imgRef, subMapId, dir, walks, zone) {
         this._super(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, imgRef, subMapId);
         
         this._dir = dir;
         this._walks = walks ? true : false;
+        this._zone = zone;
 
         // Are we currently walking?
         this._walking = false;
@@ -155,7 +156,8 @@ var Character = Sprite.extend({
         if (!g_worldmap.pointInBounds(newX, newY) ||
                 !g_worldmap.isPassable(newX, newY) ||
                 g_worldmap.isOccupied(newX, newY) ||
-                g_player.isAt(newX, newY)) {
+                g_player.isAt(newX, newY) || 
+                !this.inZone(newX, newY)) {
             if (!g_worldmap.isAnimating()) {
                 this.clear();
                 this.plot();
@@ -230,6 +232,16 @@ var Character = Sprite.extend({
         this._walkTimeout = window.setTimeout(function() {
             sprite.walk();
         }, 1600);
+    },
+    
+    inZone: function(newX, newY) {
+        if (this._zone !== undefined) {
+            return newX >= this._zone.x &&
+                newX <= this._zone.x + this._zone.w &&
+                newY >= this._zone.y &&
+                newY <= this._zone.y + this._zone.h;
+        }
+        return true;
     },
     
     /* Show sprite as walking as background scrolls */
