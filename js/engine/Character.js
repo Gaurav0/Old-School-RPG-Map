@@ -55,6 +55,9 @@ var Character = Sprite.extend({
 
         // Are we currently walking?
         this._walking = false;
+        
+        // Were we walking? // used to clear last image
+        this._wasWalking = false
 
         // Have we just entered a new area? (Prevent enter chaining.)
         this._entered = false;
@@ -70,6 +73,10 @@ var Character = Sprite.extend({
     
     isWalking: function() {
         return this._walking;
+    },
+    
+    wasWalking: function() {
+        return this._wasWalking;
     },
     
     /* Get coordinates the sprite is facing */
@@ -265,10 +272,10 @@ var Character = Sprite.extend({
         } else if (!g_battle) {
             if (this == g_player)
                 g_worldmap.startAnimating();
-            this._walking = true;
-            var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
             this._lastOffsetX = 0;
             this._lastOffsetY = 0;
+            this._walking = true;
+            var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
             var destOffsetX = -deltaX * TILE_WIDTH;
             var destOffsetY = -deltaY * TILE_HEIGHT;
             this._destOffsetX = destOffsetX;
@@ -305,8 +312,10 @@ var Character = Sprite.extend({
         } else {
             this._walking = false;
             if (!g_battle) {
-                this.clear(destOffsetX, destOffsetY); // clear last image drawn
-                this.plot();
+                if (this == g_player || !g_worldmap.isScrolling()) {
+                    this.clear(destOffsetX, destOffsetY); // clear last image drawn
+                    this.plot();
+                }
             }
             if (this == g_player)
                 g_worldmap.finishAnimating();
