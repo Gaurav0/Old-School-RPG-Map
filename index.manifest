@@ -17,7 +17,7 @@ xml/House3.tmx.xml
 xml/House4.tmx.xml
 xml/Infirmary.tmx.xml
 xml/Library.tmx.xml
-xml/Town2.tmx.xml
+xml/Town3.tmx.xml
 xml/Treasure.tmx.xml
 xml/WorldMap1.tmx.xml
 images/ajax-loader.gif
@@ -27,7 +27,7 @@ images/darkforest.png
 images/Dark_Forest.png
 images/enemies-t2.png
 images/Inq_XP_Medieval_Indoors.png
-images/BrowserQuest.png
+images/BrowserQuest2.png
 images/InqCastle.png
 images/Man1.png
 images/Man2.png
@@ -40,4 +40,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-# updated Sun Mar 17 2013 13:02:32 GMT-0400 (Eastern Daylight Time)
+# updated Sun Mar 17 2013 18:45:24 GMT-0400 (Eastern Daylight Time)
