@@ -195,7 +195,7 @@ var Sprite = Class.extend({
                 var spriteAbove = map.getSpriteAt(this._x, this._y - 1);
                 if (spriteAbove != null)
                     if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
+                        if (map._lastOffsetX !== undefined)
                             spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                     } else
                         spriteAbove.plot();
@@ -204,16 +204,20 @@ var Sprite = Class.extend({
                 var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
                 if (spriteAbove != null)
                     if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
+                        if (map._lastOffsetX !== undefined)
                             spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else
+                    } else if (spriteAbove instanceof Character && spriteAbove.isWalking())
+                        spriteAbove.plot(spriteAbove._destOffsetX, spriteAbove._destOffsetY);
+                    else
                         spriteAbove.plot();
                 var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (spriteBelow != null)
                     if (g_worldmap.isScrolling()) {
                         if (map._lastOffsetX != undefined)
                             spriteBelow.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else
+                    } else if (spriteBelow instanceof Character && spriteBelow.isWalking())
+                        spriteBelow.plot(spriteBelow._destOffsetX, spriteBelow._destOffsetY);
+                    else
                         spriteBelow.plot();
                     
             } else if (!g_worldmap.isScrolling()) {

@@ -762,14 +762,26 @@ var g_mapData = {
                 locY: 12,
                 facing: FACING_DOWN,
                 displayText: "Welcome to the castle's tavern.",
-                walks: true
+                walks: true,
+                zone: {
+                    x: 3,
+                    y: 6,
+                    w: 13,
+                    h: 8
+                }
             }, {
                 imgRef: "boy",
                 locX: 16,
                 locY: 17,
                 facing: FACING_LEFT,
                 displayText: "Whenever I return to the castle,\nI feel completely refreshed and\nrestored.",
-                walks: true
+                walks: true,
+                zone: {
+                    x: 2,
+                    y: 17,
+                    w: 17,
+                    h: 3
+                }
             }],
             actions: [{
                 locX: 3,
