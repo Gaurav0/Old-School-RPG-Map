@@ -150,6 +150,10 @@ var Sprite = Class.extend({
                 // if player sprite below current location, replot it.
                 if (g_player.isAt(this._x, this._y + 1))
                     g_player.plot();
+                
+                if (this instanceof Character && this.isWalking())
+                    if (g_player.isAt(this._prevX, this._prevY + 1))
+                        g_player.plot();
             }
         }
     },
@@ -220,6 +224,18 @@ var Sprite = Class.extend({
                     else
                         spriteBelow.plot();
                     
+            } else if (this instanceof Character && this.isWalking() && !g_worldmap.isScrolling()) {
+
+                // if player sprite above or below current location, replot it.
+                if (g_player.isAt(this._x, this._y - 1))
+                    g_player.plot();
+                if (g_player.isAt(this._x, this._y + 1))
+                    g_player.plot();
+                if (g_player.isAt(this._prevX, this._prevY - 1))
+                    g_player.plot();
+                if (g_player.isAt(this._prevX, this._prevY + 1))
+                    g_player.plot();
+            
             } else if (!g_worldmap.isScrolling()) {
 
                 // if player sprite above or below current location, replot it.
