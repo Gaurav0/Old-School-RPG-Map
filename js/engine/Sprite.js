@@ -132,8 +132,8 @@ var Sprite = Class.extend({
                             else
                                 sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                         }
-                    } else if (sprite instanceof Character && sprite.isWalking())
-                        sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
+                    } //else if (sprite instanceof Character && sprite.isWalking())
+                        //sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
                     else
                         sprite.plot();
                 }
@@ -223,7 +223,7 @@ var Sprite = Class.extend({
                                 spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                         }
                     } else if (spriteAbove instanceof Character && spriteAbove.isWalking())
-                            spriteAbove.plot(0, 0, spriteAbove._destOffsetX, spriteAbove._destOffsetY);
+                        spriteAbove.plot(0, 0, spriteAbove._destOffsetX, spriteAbove._destOffsetY);
                     else
                         spriteAbove.plot();
 
@@ -236,7 +236,7 @@ var Sprite = Class.extend({
                         else
                             spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
                     } else if (spriteAbove instanceof Character && spriteAbove.isWalking())
-                        spriteAbove.plot(spriteAbove._destOffsetX, spriteAbove._destOffsetY);
+                        spriteAbove.plot(0, 0, spriteAbove._destOffsetX, spriteAbove._destOffsetY);
                     else
                         spriteAbove.plot();
                 var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
@@ -246,9 +246,9 @@ var Sprite = Class.extend({
                             spriteBelow.plot(0, 0, map._lastOffsetX + spriteBelow._destOffsetX, map._lastOffsetY + spriteBelow._destOffsetY);
                         else
                             spriteBelow.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else if (spriteBelow instanceof Character && spriteBelow.isWalking())
-                        spriteBelow.plot(spriteBelow._destOffsetX, spriteBelow._destOffsetY);
-                    else
+                    } else if (spriteBelow instanceof Character && spriteBelow.isWalking()) {
+                        spriteBelow.plot(0, 0, spriteBelow._destOffsetX, spriteBelow._destOffsetY);
+                    } else
                         spriteBelow.plot();
                     
             } else if (this instanceof Character && this.isWalking() && !g_worldmap.isScrolling()) {

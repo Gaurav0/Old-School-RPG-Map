@@ -260,6 +260,8 @@ var SubMap = Class.extend({
     animate: function(fromX, fromY, toX, toY) {
         g_worldmap.startAnimating();
         g_worldmap.startScrolling();
+        this._prevOffsetX = deltaX * TILE_WIDTH;
+        this._prevOffsetY = deltaY * TILE_HEIGHT;
         var deltaX = toX - fromX;
         var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
@@ -273,20 +275,25 @@ var SubMap = Class.extend({
         
         // Don't redraw sprites the last time, or the plot will not be cleared.
         if (numSteps > 0) {
-            
+        
             for (var i = 0; i < this._spriteList.length; ++i) {
                 var sprite = this._spriteList[i];
                 if (sprite instanceof Character && (sprite.isWalking() || sprite.wasWalking())) {
                     sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._lastOffsetX,
                                  offsetY + deltaY * TILE_HEIGHT + sprite._lastOffsetY);
-                    sprite._wasWalking = false;
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
+                                 offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                    if (!sprite.isWalking())
+                        sprite._wasWalking = false;
                 } else {
                     // this._x and this._y already changed, so offset by a tile size
                     sprite.clear(offsetX + deltaX * TILE_WIDTH,
                                  offsetY + deltaY * TILE_HEIGHT);
                 }
             }
-            
+        
+            this._prevOffsetX = offsetX + deltaX * TILE_WIDTH;
+            this._prevOffsetY = offsetY + deltaY * TILE_HEIGHT;
             // offset map in opposite direction of scroll
             offsetX -= deltaX * SCROLL_FACTOR;
             offsetY -= deltaY * SCROLL_FACTOR;
@@ -307,6 +314,10 @@ var SubMap = Class.extend({
             // Save last offsets for later
             this._lastOffsetX = offsetX + deltaX * TILE_WIDTH;
             this._lastOffsetY = offsetY + deltaY * TILE_HEIGHT;
+        } else if (sprite instanceof Character && (sprite.isWalking() || sprite.wasWalking())) {
+            sprite.clear(sprite._lastOffsetX, sprite._lastOffsetY);
+            sprite.clear(sprite._destOffsetX, sprite._destOffsetY);
+            sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
         }
         
         // Redraw submap *after* redrawing sprites to avoid shift illusion

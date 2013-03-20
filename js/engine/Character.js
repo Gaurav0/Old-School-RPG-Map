@@ -286,8 +286,8 @@ var Character = Sprite.extend({
         } else if (!g_battle) {
             if (this == g_player)
                 g_worldmap.startAnimating();
-            this._lastOffsetX = 0;
-            this._lastOffsetY = 0;
+            this._lastOffsetX = -deltaX * TILE_WIDTH;
+            this._lastOffsetY = -deltaY * TILE_HEIGHT;
             this._walking = true;
             var numSteps =  ((deltaY != 0) ? TILE_HEIGHT : TILE_WIDTH) / SCROLL_FACTOR;
             var destOffsetX = -deltaX * TILE_WIDTH;
@@ -306,6 +306,11 @@ var Character = Sprite.extend({
         if (numSteps > 1 && !g_battle) {
             if (this == g_player || !g_worldmap.isScrolling())
                 this.clear(destOffsetX, destOffsetY);
+            else {
+                var map = g_worldmap.getSubMap(this._subMap);
+                this.clear(this._lastOffsetX + map._lastOffsetX, this._lastOffsetY + map._lastOffsetY);
+                this.clear(destOffsetX + map._lastOffsetX, destOffsetY + map._lastOffsetY);
+            }
             
             // Determine source offset in sprite image based on animation stage.
             var sourceOffsetX = 0;
@@ -326,6 +331,10 @@ var Character = Sprite.extend({
             this._destOffsetY = destOffsetY;
             if (this == g_player || !g_worldmap.isScrolling())
                 this.plot(sourceOffsetX, 0, destOffsetX, destOffsetY);
+            else {
+                var map = g_worldmap.getSubMap(this._subMap);
+                this.plot(sourceOffsetX, 0, destOffsetX + map._lastOffsetX, destOffsetY + map._lastOffsetY);
+            }
             var sprite = this;
             window.setTimeout(function() {
                 sprite.walkAnimationSub((animStage + 1) % numStages, deltaX, deltaY, destOffsetX, destOffsetY, numSteps, numStages);
