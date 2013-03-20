@@ -148,8 +148,8 @@ var Sprite = Class.extend({
                             else
                                 sprite.plot(0, 0, (this._x - this._prevX) * TILE_WIDTH + sprite._destOffsetX,
                                                   (this._y - this._prevY) * TILE_HEIGHT + sprite._destOffsetY);
-                        } else
-                            sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
+                        } //else
+                            //sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
                     } else {
                         if (g_worldmap.isScrolling()) {
                             if (map._lastOffsetX != undefined)

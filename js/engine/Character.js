@@ -80,6 +80,11 @@ var Character = Sprite.extend({
         return this._wasWalking;
     },
     
+    // Was char previously at x, y?
+    prevAt: function(x, y) {
+        return this._walking && this._prevX == x && this._prevY == y;
+    },
+    
     /* Get coordinates the sprite is facing */
     getFacingCoords: function() {
         var x = this._x;

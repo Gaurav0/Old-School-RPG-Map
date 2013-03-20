@@ -132,6 +132,8 @@ var SubMap = Class.extend({
             var sprite = this._spriteList[i];
             if (sprite.isAt(x, y))
                 occupied = true;
+            if (sprite instanceof Character && sprite.prevAt(x, y))
+                occupied = true;
         }
         return occupied;
     },
