@@ -285,6 +285,7 @@ var SubMap = Class.extend({
                                  offsetY + deltaY * TILE_HEIGHT + sprite._lastOffsetY);
                     sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
                                  offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH, offsetY + deltaY * TILE_HEIGHT);
                     if (!sprite.isWalking())
                         sprite._wasWalking = false;
                 } else {
