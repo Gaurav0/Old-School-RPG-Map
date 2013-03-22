@@ -41,6 +41,7 @@
 var Animation = Class.extend({
     _init: function() {
         this._lastFrameTime = Date.now();
+        this._dirtyRects = [];
     },
     
     getDelay: function() {
@@ -54,5 +55,17 @@ var Animation = Class.extend({
     
     update: function() {
         this._lastFrameTime = Date.now();
+    },
+    
+    addDirtyRect: function(x, y, w, h) {
+        this._dirtyRects.push({x: x, y: y, w: w, h: h});
+    },
+    
+    clearDirtyRects: function() {
+        for (var i = 0; i < this._dirtyRects.length; ++i) {
+            var rect = this._dirtyRects[i];
+            spriteCtx.clearRect(rect.x, rect.y, rect.w, rect.h);
+        }
+        this._dirtyRects = [];   
     }
 });

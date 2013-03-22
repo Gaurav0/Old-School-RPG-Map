@@ -126,23 +126,40 @@ var Sprite = Class.extend({
                 var sprite = map.getSpriteAt(this._x, this._y + 1);
                 if (sprite != null) {
                     if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
-                            sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else
+                        if (map._lastOffsetX != undefined) {
+                            if (sprite instanceof Character && sprite.isWalking())
+                                sprite.plot(0, 0, map._lastOffsetX + sprite._destOffsetX, map._lastOffsetY + sprite._destOffsetY);
+                            else
+                                sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                        }
+                    } //else if (sprite instanceof Character && sprite.isWalking())
+                        //sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
+                    else
                         sprite.plot();
                 }
                 
                 // if another sprite below the player's previous location, replot it
                 var sprite = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (sprite != null) {
-                    if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
-                            sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                        else
-                            sprite.plot(0, 0, (this._x - this._prevX) * TILE_WIDTH,
-                                              (this._y - this._prevY) * TILE_HEIGHT);
-                    } else
-                        sprite.plot();
+                    if (sprite instanceof Character && sprite.isWalking()) {
+                        if (g_worldmap.isScrolling()) {
+                            if (map._lastOffsetX != undefined)
+                                sprite.plot(0, 0, map._lastOffsetX + sprite._destOffsetX, map._lastOffsetY + sprite._destOffsetY);
+                            else
+                                sprite.plot(0, 0, (this._x - this._prevX) * TILE_WIDTH + sprite._destOffsetX,
+                                                  (this._y - this._prevY) * TILE_HEIGHT + sprite._destOffsetY);
+                        } //else
+                            //sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
+                    } else {
+                        if (g_worldmap.isScrolling()) {
+                            if (map._lastOffsetX != undefined)
+                                sprite.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                            else
+                                sprite.plot(0, 0, (this._x - this._prevX) * TILE_WIDTH,
+                                                  (this._y - this._prevY) * TILE_HEIGHT);
+                        } else
+                            sprite.plot();
+                    }
                 }
                     
             } else {
@@ -150,6 +167,10 @@ var Sprite = Class.extend({
                 // if player sprite below current location, replot it.
                 if (g_player.isAt(this._x, this._y + 1))
                     g_player.plot();
+                
+                if (this instanceof Character && this.isWalking())
+                    if (g_player.isAt(this._prevX, this._prevY + 1))
+                        g_player.plot();
             }
         }
     },
@@ -159,7 +180,7 @@ var Sprite = Class.extend({
         if (g_worldmap.getCurrentSubMapId() != this._subMap) {
             return;
         }
-        if (!g_worldmap.isOnScreen(this._x, this._y)) {
+        if (!g_worldmap.isNearScreen(this._x, this._y)) {
             return;
         }
         
@@ -195,27 +216,53 @@ var Sprite = Class.extend({
                 var spriteAbove = map.getSpriteAt(this._x, this._y - 1);
                 if (spriteAbove != null)
                     if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
-                            spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else
+                        if (map._lastOffsetX !== undefined) {
+                            if (spriteAbove instanceof Character && spriteAbove.isWalking())
+                                spriteAbove.plot(0, 0, map._lastOffsetX + spriteAbove._destOffsetX, map._lastOffsetY + spriteAbove._destOffsetY);
+                            else
+                                spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                        }
+                    } else if (spriteAbove instanceof Character && spriteAbove.isWalking())
+                        spriteAbove.plot(0, 0, spriteAbove._destOffsetX, spriteAbove._destOffsetY);
+                    else
                         spriteAbove.plot();
 
                 // if sprite above or below previous location, replot it.
                 var spriteAbove = map.getSpriteAt(this._prevX, this._prevY - 1);
                 if (spriteAbove != null)
-                    if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
+                    if (g_worldmap.isScrolling() && map._lastOffsetX !== undefined) {
+                        if (spriteAbove instanceof Character && spriteAbove.isWalking())
+                            spriteAbove.plot(0, 0, map._lastOffsetX + spriteAbove._destOffsetX, map._lastOffsetY + spriteAbove._destOffsetY);
+                        else
                             spriteAbove.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
-                    } else
+                    } else if (spriteAbove instanceof Character && spriteAbove.isWalking())
+                        spriteAbove.plot(0, 0, spriteAbove._destOffsetX, spriteAbove._destOffsetY);
+                    else
                         spriteAbove.plot();
                 var spriteBelow = map.getSpriteAt(this._prevX, this._prevY + 1);
                 if (spriteBelow != null)
-                    if (g_worldmap.isScrolling()) {
-                        if (map._lastOffsetX != undefined)
+                    if (g_worldmap.isScrolling() && map._lastOffsetX != undefined) {
+                        if (spriteBelow instanceof Character && spriteBelow.isWalking())
+                            spriteBelow.plot(0, 0, map._lastOffsetX + spriteBelow._destOffsetX, map._lastOffsetY + spriteBelow._destOffsetY);
+                        else
                             spriteBelow.plot(0, 0, map._lastOffsetX, map._lastOffsetY);
+                    } else if (spriteBelow instanceof Character && spriteBelow.isWalking()) {
+                        spriteBelow.plot(0, 0, spriteBelow._destOffsetX, spriteBelow._destOffsetY);
                     } else
                         spriteBelow.plot();
                     
+            } else if (this instanceof Character && this.isWalking() && !g_worldmap.isScrolling()) {
+
+                // if player sprite above or below current location, replot it.
+                if (g_player.isAt(this._x, this._y - 1))
+                    g_player.plot();
+                if (g_player.isAt(this._x, this._y + 1))
+                    g_player.plot();
+                if (g_player.isAt(this._prevX, this._prevY - 1))
+                    g_player.plot();
+                if (g_player.isAt(this._prevX, this._prevY + 1))
+                    g_player.plot();
+            
             } else if (!g_worldmap.isScrolling()) {
 
                 // if player sprite above or below current location, replot it.

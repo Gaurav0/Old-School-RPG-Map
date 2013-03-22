@@ -132,6 +132,8 @@ var SubMap = Class.extend({
             var sprite = this._spriteList[i];
             if (sprite.isAt(x, y))
                 occupied = true;
+            if (sprite instanceof Character && sprite.prevAt(x, y))
+                occupied = true;
         }
         return occupied;
     },
@@ -145,13 +147,13 @@ var SubMap = Class.extend({
         return this._mapSquares[y][x];
     },
     
-    /* Add a sprite (NPC) to the submap. */
+    /* Add a sprite to the submap. */
     addSprite: function(sprite) {
         this._spriteList.push(sprite);
         return this._spriteList.length - 1;
     },
     
-    /* Remove a sprite (NPC) from the submap */
+    /* Remove a sprite from the submap */
     removeSprite: function(sprite) {
         var index;
         for (var i = 0; i < this._spriteList.length; ++i) {
@@ -191,14 +193,20 @@ var SubMap = Class.extend({
     /* Draws all the sprites on the map */
     drawSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
-            this._spriteList[i].plot();
+            var sprite = this._spriteList[i];
+            sprite.plot();
+            if (sprite instanceof Character && sprite.doesWalk())
+                sprite.startWalking();
         }
     },
     
     /* Clear all the sprites on the map */
     clearSprites: function() {
         for (var i = 0; i < this._spriteList.length; ++i) {
-            this._spriteList[i].clear();
+            var sprite = this._spriteList[i];
+            sprite.clear();
+            if (sprite instanceof Character && sprite.doesWalk())
+                sprite.stopWalking();
         }
     },
     
@@ -254,6 +262,8 @@ var SubMap = Class.extend({
     animate: function(fromX, fromY, toX, toY) {
         g_worldmap.startAnimating();
         g_worldmap.startScrolling();
+        this._prevOffsetX = deltaX * TILE_WIDTH;
+        this._prevOffsetY = deltaY * TILE_HEIGHT;
         var deltaX = toX - fromX;
         var deltaY = toY - fromY;
         var numSteps = ((deltaY != 0) ? TILE_HEIGHT: TILE_WIDTH ) / SCROLL_FACTOR;
@@ -267,26 +277,50 @@ var SubMap = Class.extend({
         
         // Don't redraw sprites the last time, or the plot will not be cleared.
         if (numSteps > 0) {
-            
+        
             for (var i = 0; i < this._spriteList.length; ++i) {
-                
-                // this._x and this._y already changed, so offset by a tile size
-                this._spriteList[i].clear(offsetX + deltaX * TILE_WIDTH,
-                                          offsetY + deltaY * TILE_HEIGHT);
+                var sprite = this._spriteList[i];
+                if (sprite instanceof Character && (sprite.isWalking() || sprite.wasWalking())) {
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._lastOffsetX,
+                                 offsetY + deltaY * TILE_HEIGHT + sprite._lastOffsetY);
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
+                                 offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH, offsetY + deltaY * TILE_HEIGHT);
+                    if (!sprite.isWalking())
+                        sprite._wasWalking = false;
+                } else {
+                    // this._x and this._y already changed, so offset by a tile size
+                    sprite.clear(offsetX + deltaX * TILE_WIDTH,
+                                 offsetY + deltaY * TILE_HEIGHT);
+                }
             }
-            
+        
+            this._prevOffsetX = offsetX + deltaX * TILE_WIDTH;
+            this._prevOffsetY = offsetY + deltaY * TILE_HEIGHT;
             // offset map in opposite direction of scroll
             offsetX -= deltaX * SCROLL_FACTOR;
             offsetY -= deltaY * SCROLL_FACTOR;
             
             for (var i = 0; i < this._spriteList.length; ++i) {
-                this._spriteList[i].plot(0, 0, offsetX + deltaX * TILE_WIDTH,
-                                               offsetY + deltaY * TILE_HEIGHT);
+                var sprite = this._spriteList[i];
+                if (sprite instanceof Character && sprite.isWalking()) {
+                    sprite.plot(sprite._sourceOffsetX, 0,
+                        offsetX + deltaX * TILE_WIDTH + sprite._destOffsetX,
+                        offsetY + deltaY * TILE_HEIGHT + sprite._destOffsetY);
+                    sprite._wasWalking = true;
+                } else {
+                    sprite.plot(0, 0, offsetX + deltaX * TILE_WIDTH,
+                                      offsetY + deltaY * TILE_HEIGHT);
+                }
             }
             
             // Save last offsets for later
             this._lastOffsetX = offsetX + deltaX * TILE_WIDTH;
             this._lastOffsetY = offsetY + deltaY * TILE_HEIGHT;
+        } else if (sprite instanceof Character && (sprite.isWalking() || sprite.wasWalking())) {
+            sprite.clear(sprite._lastOffsetX, sprite._lastOffsetY);
+            sprite.clear(sprite._destOffsetX, sprite._destOffsetY);
+            sprite.plot(0, 0, sprite._destOffsetX, sprite._destOffsetY);
         }
         
         // Redraw submap *after* redrawing sprites to avoid shift illusion
