@@ -66,7 +66,10 @@ var TitleScreenMenu = Menu.extend({
             // flags: flags,
             font: "bold 20px monospace",
             callbacks: [
-                function() { menu._mainMenu.onNewGame(); },
+                function() {
+                    menu._mainMenu.onNewGame();
+                    g_game.exitTitleScreen();
+                },
                 function() { menu.displayLoadMenu(); }
             ],
             canESC: true,

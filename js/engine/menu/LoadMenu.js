@@ -46,6 +46,7 @@ var LoadMenu = SlotMenu.extend({
         this._afterCallback = function() {
             if (g_titlescreen) {
                 g_titlescreen = false;
+                g_game.exitTitleScreen();
                 g_menu.setCurrentMenu(g_menu);
             } else {
                 g_menu.setCurrentMenu(mainMenu);

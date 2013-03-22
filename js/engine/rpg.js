@@ -166,10 +166,10 @@ function loadMaps() {
                 g_progress.setLoaded(xmlUrl);
                 var map = null;
                 if (mapId == 0) {
-                    g_worldmap = new WorldMap(mapXml, tileset);
+                    g_worldmap = new WorldMap(mapXml, tileset, mapData.music);
                     map = g_worldmap.getSubMap(0);
                 } else {
-                    map = new SubMap(mapXml, tileset, mapData.overWorld);
+                    map = new SubMap(mapXml, tileset, mapData.overWorld, mapData.music);
                     g_worldmap.addSubMap(mapId, map);
                 }
                 if (!!mapData.load)
