@@ -126,8 +126,18 @@ var WorldMap = Class.extend({
         var screenY = worldY - this._scrollY;
         
         // includes one less / one more for benefit of scrolling animation
-        return (screenX >= -1 && screenX <= TILES_ON_SCREEN_X
+        return (screenX >= -1 && screenX <= TILES_ON_SCREEN_X + 1
                 && screenY >= -1 && screenY <= TILES_ON_SCREEN_Y + 1);
+    },
+
+    // Returns true if the given point is near the screen
+    isNearScreen: function( worldX, worldY ) {
+        var screenX = worldX - this._scrollX;
+        var screenY = worldY - this._scrollY;
+        
+        // includes two less / two more for benefit of scrolling animation
+        return (screenX >= -2 && screenX <= TILES_ON_SCREEN_X + 2
+                && screenY >= -2 && screenY <= TILES_ON_SCREEN_Y + 2);
     },
 
     // Scrolls screen if this is too close to the edge and it's

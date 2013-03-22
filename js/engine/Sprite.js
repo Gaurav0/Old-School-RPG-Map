@@ -180,7 +180,7 @@ var Sprite = Class.extend({
         if (g_worldmap.getCurrentSubMapId() != this._subMap) {
             return;
         }
-        if (!g_worldmap.isOnScreen(this._x, this._y)) {
+        if (!g_worldmap.isNearScreen(this._x, this._y)) {
             return;
         }
         
