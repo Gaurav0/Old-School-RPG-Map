@@ -594,6 +594,7 @@ var g_mapData = {
             xmlUrl: "xml/Castle1.tmx.xml",
             randomEncounters: false,
             overWorld: false,
+            music: 'castle',
             entrances: [{
                 fromX: 11,
                 fromY: 12,
@@ -816,6 +817,7 @@ var g_mapData = {
             zone: "forest",
             background: "forestbk",
             overWorld: false,
+            music: 'dark',
             load: function() {
             
                 // Boss monster
