@@ -95,8 +95,13 @@ var Game = Class.extend({
     },
     
     showTitleScreen: function() {
+        document.getElementById(g_themeMusic).play();
         mapCtx.drawImage(g_imageData.images[this._titlescreenImgRef].img, 0, 0);
         g_menu.setCurrentMenu(new TitleScreenMenu(g_menu));
+    },
+    
+    exitTitleScreen: function() {
+        document.getElementById(g_themeMusic).pause();
     },
     
     hasSaveInfo: function(slot) {

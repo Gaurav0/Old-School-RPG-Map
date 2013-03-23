@@ -43,13 +43,13 @@
  * main world map; it's initialized by the mapXml and tileset that
  * you pass in.  You can also call addSubMap to add additional sub-maps.*/
 var WorldMap = Class.extend({
-    _init: function(mapXml, tileset) {
+    _init: function(mapXml, tileset, music) {
         this._subMapList = [];
         this._currentSubMap = 0;
         this._scrollX = 0;
         this._scrollY = 0;
 
-        var mainMap = new SubMap(mapXml, tileset, true);
+        var mainMap = new SubMap(mapXml, tileset, true, music);
         this._subMapList[0] = mainMap;
 
         // Are we busy with animations?
@@ -214,6 +214,7 @@ var WorldMap = Class.extend({
     goToMap: function(sprite, mapId, x, y, scrollX, scrollY, dir) {
         sprite.clear();
         var oldMap = this._subMapList[this._currentSubMap];
+        oldMap.pauseMusic();
         oldMap.onExit();
         oldMap.clearSprites();
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
@@ -224,6 +225,7 @@ var WorldMap = Class.extend({
         newMap.drawSprites();
         newMap.onEnter();
         sprite.plot();
+        newMap.playMusic();
     },
     
     // Moves map on screen to provided coordinates

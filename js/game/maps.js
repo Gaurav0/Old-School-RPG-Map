@@ -36,10 +36,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
- /*BrowserQuest Specs:
-    width: 320 pixels
-    height: 1568 pixels
-*/
 
 var SUBMAP_WORLD_MAP = 0;
 var SUBMAP_CASTLE_EXTERIOR = 1;
@@ -56,6 +52,8 @@ var SUBMAP_TOWN_HOUSEC = 11;
 var SUBMAP_TOWN_LIBRARY = 12;
 
 
+var g_themeMusic = "theme";
+
 var g_mapData = {
     "submaps": {
         0: {
@@ -68,6 +66,8 @@ var g_mapData = {
             xmlUrl: "xml/WorldMap1.tmx.xml",
             randomEncounters: true,
             background: "meadow",
+            music: "explore",
+            battleMusic: "danger",
             overWorld: true,
             load: function() {
                 g_player = new Player(23, 13, "trevor", 0, FACING_DOWN, PLAYER_TREVOR);
@@ -595,6 +595,7 @@ var g_mapData = {
             xmlUrl: "xml/Castle1.tmx.xml",
             randomEncounters: false,
             overWorld: false,
+            music: 'castle',
             entrances: [{
                 fromX: 11,
                 fromY: 12,
@@ -817,6 +818,8 @@ var g_mapData = {
             zone: "forest",
             background: "forestbk",
             overWorld: false,
+            music: 'dark',
+            battleMusic: 'danger',
             load: function() {
             
                 // Boss monster

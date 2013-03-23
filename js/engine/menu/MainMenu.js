@@ -126,6 +126,7 @@ var MainMenu = Menu.extend({
         this._currentMenu.clear();
         this._onNewGame();
         g_titlescreen = false;
+        g_game.exitTitleScreen();
         this.setCurrentMenu(this);
     },
     

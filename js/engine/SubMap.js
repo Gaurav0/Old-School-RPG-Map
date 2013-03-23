@@ -43,7 +43,7 @@
 var SubMap = Class.extend({
     /* Initialize a SubMap by passing in a Tiled format loaded xml
      * and a tileset instance .*/
-    _init: function(mapXml, tileset, overworld) {
+    _init: function(mapXml, tileset, overworld, music) {
         this._layer = $(mapXml).find('map layer').eq(0);
         this._xLimit = parseInt($(this._layer).attr('width'));
         this._yLimit = parseInt($(this._layer).attr('height'));
@@ -53,6 +53,7 @@ var SubMap = Class.extend({
         this._spriteList = [];
         this._mapSquares = [];
         this._animation = new Animation();
+        this._music = music;
         
         // Create mapSquares table used to cache passable / zone info.
         var waterTiles = null;
@@ -220,6 +221,16 @@ var SubMap = Class.extend({
         if (sprite != null) {
             sprite.action();
         }
+    },
+    
+    playMusic: function() {
+        if (!!this._music)
+            document.getElementById(this._music).play();
+    },
+    
+    pauseMusic: function() {
+        if (!!this._music)
+            document.getElementById(this._music).pause();
     },
     
     /* This function renders the current view of the map into this
