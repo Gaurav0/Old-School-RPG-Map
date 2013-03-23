@@ -189,7 +189,7 @@ function loadMaps() {
                                         var zone = this.getZone();
                                         if (!zone)
                                             zone = defaultZone;
-                                        g_battle.setupRandomEncounter(zone, mapData.background);
+                                        g_battle.setupRandomEncounter(zone, mapData.background, mapData.battleMusic);
                                         g_battle.draw();
                                     }
                                 };

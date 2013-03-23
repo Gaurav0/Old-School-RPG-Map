@@ -73,9 +73,14 @@ var Battle = Class.extend({
     },
     
     /* Setup random encounter */
-    setupRandomEncounter: function(zone, backgroundRef) {
+    setupRandomEncounter: function(zone, backgroundRef, battleMusic) {
         
         this._background = g_imageData.images[backgroundRef].img;
+        this._music = battleMusic;
+        if (!!battleMusic) {
+            g_worldmap.getSubMap(g_worldmap.getCurrentSubMapId()).pauseMusic();
+            document.getElementById(battleMusic).play();
+        }
         
         // Get encounter data associated with zone
         var zoneXml = null;
@@ -347,10 +352,14 @@ var Battle = Class.extend({
         menuCtx.clearRect(0, 0, menuCanvas.width, menuCanvas.height);
         spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
         textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        if (!!this._music)
+            document.getElementById(this._music).pause();
         if (!g_player.isDead()) {
             g_worldmap.redraw();
             g_worldmap.drawSprites();
             g_player.plot();
+            
+            g_worldmap.getSubMap(g_worldmap.getCurrentSubMapId()).playMusic();
         
             // Callback functions for after the battle is over.
             if (this._win)

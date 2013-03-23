@@ -67,6 +67,7 @@ var g_mapData = {
             randomEncounters: true,
             background: "meadow",
             music: "explore",
+            battleMusic: "danger",
             overWorld: true,
             load: function() {
                 g_player = new Player(23, 13, "trevor", 0, FACING_DOWN, PLAYER_TREVOR);
@@ -818,6 +819,7 @@ var g_mapData = {
             background: "forestbk",
             overWorld: false,
             music: 'dark',
+            battleMusic: 'danger',
             load: function() {
             
                 // Boss monster
