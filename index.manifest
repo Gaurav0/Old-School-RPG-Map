@@ -16,6 +16,7 @@ xml/House2.tmx.xml
 xml/House3.tmx.xml
 xml/House4.tmx.xml
 xml/Infirmary.tmx.xml
+xml/Mountain.tmx.xml
 xml/Library.tmx.xml
 xml/Town3.tmx.xml
 xml/Treasure.tmx.xml
@@ -27,6 +28,7 @@ images/darkforest.png
 images/Dark_Forest.png
 images/enemies-t2.png
 images/Inq_XP_Medieval_Indoors.png
+images/Mountain_landscape.png
 images/BrowserQuest2.png
 images/InqCastle.png
 images/Man1.png

@@ -67,6 +67,8 @@ var g_imageData = {
             "url": "images/Inq_XP_Medieval_Indoors.png"
         }, "BrowserQuest": {
             "url": "images/BrowserQuest2.png"
+        }, "MountainPass": {
+            "url": "images/Mountain_landscape.png"
         }, "man1": {
             "url": "images/Man1.png"
         }, "man2": {
