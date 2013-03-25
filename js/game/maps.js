@@ -53,6 +53,7 @@ var SUBMAP_TOWN_LIBRARY = 12;
 var SUBMAP_MOUNTAIN_PASS = 13;
 var SUBMAP_MOUNTAIN_PASS2 = 14;
 var SUBMAP_CASTLE_TOWN = 15;
+var SUBMAP_CASTLE_TOWN_MAP_RIGHT = 16;
 
 
 
@@ -131,6 +132,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        16: {
+              id: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
+              tileset: {
+                  imgRef: "BigTown",
+                  width:  960,
+                  height: 960
+              },
+              xmlUrl: "xml/BigTown.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "edges",
+                  toMapId: SUBMAP_WORLD_MAP,
+                  toX: 35,
+                  toY: 5,
+                  toScrollX: 27,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+              }
+        },
         15: {
               id: SUBMAP_CASTLE_TOWN,
               tileset: {
@@ -141,6 +162,25 @@ var g_mapData = {
               xmlUrl: "xml/CastleTown.tmx.xml",
               randomEncounters: false,
               overWorld: false,
+              entrances: [{
+                fromX: 19, 
+                fromY: 15,
+                toMapId: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
+                toX: 1,
+                toY: 15,
+                toScrollX: 0,
+                toScrollY: 9,
+                facing: FACING_RIGHT
+              }, {
+                fromX: 0,
+                fromY: 15,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 35,
+                toY: 5,
+                toScrollX: 27,
+                toScrollY: 2,
+                facing: FACING_DOWN
+              }],
               exit: {
                 at: "bottom",
                 toMapId: SUBMAP_WORLD_MAP,
