@@ -60,6 +60,7 @@ xml/Mountain.tmx.xml
 xml/Mountain2.tmx.xml
 xml/Town3.tmx.xml
 xml/Treasure.tmx.xml
+xml/CastleTown.tmx.xml
 xml/WorldMap1.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
@@ -70,6 +71,7 @@ images/enemies-t2.png
 images/Inq_XP_Medieval_Indoors.png
 images/Mountain_landscape.png
 images/BrowserQuest2.png
+images/Castle2.png
 images/InqCastle.png
 images/Man1.png
 images/Man2.png
