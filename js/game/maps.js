@@ -51,6 +51,7 @@ var SUBMAP_TOWN_HOUSEB = 10;
 var SUBMAP_TOWN_HOUSEC = 11;
 var SUBMAP_TOWN_LIBRARY = 12;
 var SUBMAP_MOUNTAIN_PASS = 13;
+var SUBMAP_MOUNTAIN_PASS2 = 14
 
 
 var g_themeMusic = "theme";
@@ -89,6 +90,7 @@ var g_mapData = {
                     g_player.restore();
                 }
             }, {
+              //Mountain entrance (left)
                 fromX: 13,
                 fromY: 2,
                 toMapId: SUBMAP_MOUNTAIN_PASS,
@@ -97,6 +99,16 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 5,
                 facing: FACING_RIGHT
+            }, {
+              //Mountain entrance (right)
+                fromX: 15,
+                fromY: 3,
+                toMapId: SUBMAP_MOUNTAIN_PASS,
+                toX: 18,
+                toY: 9,
+                toScrollX: 7,
+                toScrollY: 5,
+                facing: FACING_LEFT
             }, {
                 fromX: 13,
                 fromY: 9,
@@ -108,6 +120,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        14: {
+              id: SUBMAP_MOUNTAIN_PASS2,
+              tileset: {
+                  imgRef: "MountainPass",
+                  width: 512,
+                  height: 512
+              },
+              xmlUrl: "xml/Mountain2.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                at: "bottom",
+                toMapId: SUBMAP_MOUNTAIN_PASS,
+                toX: 9, 
+                toY: 1,
+                toScrollX: 4,
+                toScrollY: 0, 
+                facing: FACING_DOWN
+              }
+        },
         13: {
               id: SUBMAP_MOUNTAIN_PASS,
               tileset: {
@@ -118,14 +150,45 @@ var g_mapData = {
               xmlUrl: "xml/Mountain.tmx.xml",
               randomEncounters: false,
               overWorld: false,
-              exit: {
-                at: "edges",
+              entrances: [{
+              //Exit to left of Mountain Pass
+                fromX: 0,
+                fromY: 9,
                 toMapId: SUBMAP_WORLD_MAP,
                 toX: 13,
                 toY: 3,
-                toScrollX: 17,
+                toScrollX: 5,
+                toScrollY: 0,
+                facing: FACING_UP
+            }, {
+              //Exit to left of Mountain Pass
+                fromX: 0,
+                fromY: 10,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 13,
+                toY: 3,
+                toScrollX: 5,
+                toScrollY: 0,
+                facing: FACING_UP
+            }, {
+              //Exit to right of Mountain pass
+                fromX: 19,
+                fromY: 8,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 15,
+                toY: 4,
+                toScrollX: 9,
+                toScrollY: 0,
+                facing: FACING_RIGHT
+            }],
+            exit: {
+                at: "top",
+                toMapId: SUBMAP_MOUNTAIN_PASS2,
+                toX: 9,
+                toY: 17,
+                toScrollX: 4,
                 toScrollY: 9,
-                facing: FACING_DOWN
+                facing: FACING_UP
               }
         },
         9: {
