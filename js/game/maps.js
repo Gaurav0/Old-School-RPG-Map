@@ -50,6 +50,7 @@ var SUBMAP_TOWN_HOUSEA = 9;
 var SUBMAP_TOWN_HOUSEB = 10;
 var SUBMAP_TOWN_HOUSEC = 11;
 var SUBMAP_TOWN_LIBRARY = 12;
+var SUBMAP_MOUNTAIN_PASS = 13;
 
 
 var g_themeMusic = "theme";
@@ -89,6 +90,15 @@ var g_mapData = {
                 }
             }, {
                 fromX: 13,
+                fromY: 2,
+                toMapId: SUBMAP_MOUNTAIN_PASS,
+                toX: 1,
+                toY: 9,
+                toScrollX: 0,
+                toScrollY: 5,
+                facing: FACING_RIGHT
+            }, {
+                fromX: 13,
                 fromY: 9,
                 toMapId: SUBMAP_FOREST_DUNGEON,
                 toX: 9,
@@ -97,8 +107,27 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
-        }, 
-        //Need to figure out why this part doesn't work 100%
+        },
+        13: {
+              id: SUBMAP_MOUNTAIN_PASS,
+              tileset: {
+                  imgRef: "MountainPass",
+                  width: 512,
+                  height: 512
+              },
+              xmlUrl: "xml/Mountain.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                at: "edges",
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 13,
+                toY: 3,
+                toScrollX: 17,
+                toScrollY: 9,
+                facing: FACING_DOWN
+              }
+        },
         9: {
             id: SUBMAP_TOWN_HOUSEA,
             tileset: {
