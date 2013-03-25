@@ -69,6 +69,10 @@ var g_imageData = {
             "url": "images/BrowserQuest2.png"
         }, "MountainPass": {
             "url": "images/Mountain_landscape.png"
+        }, "BigCastle": {
+            "url": "images/Castle2.png"
+        }, "BigTown": {
+            "url": "images/TownTwoTileset.png"
         }, "man1": {
             "url": "images/Man1.png"
         }, "man2": {
