@@ -144,12 +144,12 @@ var g_mapData = {
               overWorld: false,
               exit: {
                   at: "edges",
-                  toMapId: SUBMAP_WORLD_MAP,
-                  toX: 35,
-                  toY: 5,
-                  toScrollX: 27,
-                  toScrollY: 2,
-                  facing: FACING_DOWN
+                  toMapId: SUBMAP_CASTLE_TOWN,
+                  toX: 18,
+                  toY: 15,
+                  toScrollX: 7,
+                  toScrollY: 9,
+                  facing: FACING_LEFT
               }
         },
         15: {
@@ -167,9 +167,9 @@ var g_mapData = {
                 fromY: 15,
                 toMapId: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
                 toX: 1,
-                toY: 15,
+                toY: 11,
                 toScrollX: 0,
-                toScrollY: 9,
+                toScrollY: 6,
                 facing: FACING_RIGHT
               }, {
                 fromX: 0,
