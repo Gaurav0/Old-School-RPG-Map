@@ -65,6 +65,9 @@ xml/WorldMap1.tmx.xml
 xml/BigTown.tmx.xml
 xml/ThroneRoom.tmx.xml
 xml/BiggerTown.tmx.xml
+xml/Storage.tmx.xml
+xml/LavishHouse.tmx.xml
+xml/PoorHouse.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png
@@ -89,4 +92,4 @@ images/Trevor.png
 images/Woman1.png
 images/Woman2.png
 images/World3.png
-#updated Fri Mar 22 2013 21:55:14 GMT-0400 (Eastern Daylight Time)
+#updated Tue Mar 26 2013 18:36:14 GMT-0400 (Eastern Daylight Time)
