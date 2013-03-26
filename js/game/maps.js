@@ -54,6 +54,7 @@ var SUBMAP_MOUNTAIN_PASS = 13;
 var SUBMAP_MOUNTAIN_PASS2 = 14;
 var SUBMAP_CASTLE_TOWN = 15;
 var SUBMAP_CASTLE_TOWN_MAP_RIGHT = 16;
+var SUBMAP_CASTLE_TOWN_THRONE_ROOM = 17;
 
 
 
@@ -132,6 +133,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        17: {
+              id: SUBMAP_CASTLE_TOWN_THRONE_ROOM,
+              tileset: {
+                  imgRef: "InqIndoors",
+                  width:  256,
+                  height: 8704
+              },
+              xmlUrl: "xml/ThroneRoom.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN,
+                  toX: 10,
+                  toY: 9,
+                  toScrollX: 4, 
+                  toScrollY: 5,
+                  facing: FACING_DOWN
+              }
+        },
         16: {
               id: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
               tileset: {
@@ -171,6 +192,15 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 6,
                 facing: FACING_RIGHT
+              }, {
+                fromX: 10,
+                fromY: 7,
+                toMapId: SUBMAP_CASTLE_TOWN_THRONE_ROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
               }, {
                 fromX: 0,
                 fromY: 15,
