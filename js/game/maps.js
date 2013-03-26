@@ -58,7 +58,7 @@ var SUBMAP_CASTLE_TOWN_THRONE_ROOM = 17;
 var SUBMAP_CASTLE_TOWN_MAP_LEFT = 18;
 var SUBMAP_CASTLE_TOWN_STORAGEROOM = 19;
 var SUBMAP_LAVISH_HOUSE = 20;
-
+var SUBMAP_POOR_HOUSE = 21;
 
 var g_themeMusic = "theme";
 
@@ -135,6 +135,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        21: {
+              id: SUBMAP_POOR_HOUSE,
+              tileset: {
+                  imgRef: "InqIndoors",
+                  width: 256,
+                  height: 8704
+              },
+              xmlUrl: "xml/PoorHouse.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+                  toX: 7,
+                  toY: 28,
+                  toScrollX: 7,
+                  toScrollY: 18,
+                  facing: FACING_DOWN
+              }
+        },
         20: {
               id: SUBMAP_LAVISH_HOUSE,
               tileset: { 
@@ -151,7 +171,7 @@ var g_mapData = {
                   toX: 4,
                   toY: 14,
                   toScrollX: 0,
-                  toScrollY: 6,
+                  toScrollY: 8,
                   facing: FACING_DOWN
               }
         },
@@ -198,18 +218,18 @@ var g_mapData = {
                 fromX: 4,
                 fromY: 12,
                 toMapId: SUBMAP_LAVISH_HOUSE,
-                toX: 8,
-                toY: 17,
-                toScrollX: 4,
+                toX: 7,
+                toY: 16,
+                toScrollX: 2,
                 toScrollY: 9,
                 facing: FACING_UP
             }, { 
                 fromX: 7,
                 fromY: 27,
-                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toMapId: SUBMAP_POOR_HOUSE,
                 toX: 10,
                 toY: 18,
-                toScrollX: 4,
+                toScrollX: 5,
                 toScrollY: 9,
                 facing: FACING_UP
             }, {
