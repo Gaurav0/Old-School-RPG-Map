@@ -56,6 +56,7 @@ var SUBMAP_CASTLE_TOWN = 15;
 var SUBMAP_CASTLE_TOWN_MAP_RIGHT = 16;
 var SUBMAP_CASTLE_TOWN_THRONE_ROOM = 17;
 var SUBMAP_CASTLE_TOWN_MAP_LEFT = 18;
+var SUBMAP_CASTLE_TOWN_STORAGEROOM = 19;
 
 
 var g_themeMusic = "theme";
@@ -133,6 +134,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        19: {
+              id: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+              tileset: {
+                  imgRef: "BiggerTown",
+                  width: 960,
+                  height: 960
+              },
+              xmlUrl: "xml/Storage.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+                  toX: 26,
+                  toY: 13,
+                  toScrollX: 17,
+                  toScrollY: 7,
+                  facing: FACING_DOWN
+              }
+        },
         18: {
               id: SUBMAP_CASTLE_TOWN_MAP_LEFT,
               tileset: {
@@ -143,7 +164,44 @@ var g_mapData = {
               xmlUrl: "xml/BiggerTown.tmx.xml",
               randomEncounters: false,
               overWorld: false,
-              exit: {
+              entrances: [{
+                fromX: 26,
+                fromY: 12,
+                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toX: 10,
+                toY: 18, 
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 4,
+                fromY: 12,
+                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, { 
+                fromX: 7,
+                fromY: 27,
+                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }, {
+                fromX: 18,
+                fromY: 18,
+                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toX: 10,
+                toY: 18,
+                toScrollX: 4,
+                toScrollY: 9,
+                facing: FACING_UP
+            }],
+            exit: {
                 at: "edges",
                 toMapId: SUBMAP_CASTLE_TOWN,
                 toX: 1,
