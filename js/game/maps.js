@@ -152,8 +152,8 @@ var g_mapData = {
                   toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
                   toX: 18,
                   toY: 19,
-                  toScrollX: 7,
-                  toScrollY: 10,
+                  toScrollX: 11,
+                  toScrollY: 16,
                   facing: FACING_DOWN
                   }
         },
