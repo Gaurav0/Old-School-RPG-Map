@@ -57,6 +57,7 @@ var SUBMAP_CASTLE_TOWN_MAP_RIGHT = 16;
 var SUBMAP_CASTLE_TOWN_THRONE_ROOM = 17;
 var SUBMAP_CASTLE_TOWN_MAP_LEFT = 18;
 var SUBMAP_CASTLE_TOWN_STORAGEROOM = 19;
+var SUBMAP_LAVISH_HOUSE = 20;
 
 
 var g_themeMusic = "theme";
@@ -134,6 +135,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        20: {
+              id: SUBMAP_LAVISH_HOUSE,
+              tileset: { 
+                  imgRef: "InqIndoors",
+                  width: 256,
+                  height: 8704
+              },
+              xmlUrl: "xml/LavishHouse.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+                  toX: 4,
+                  toY: 14,
+                  toScrollX: 0,
+                  toScrollY: 6,
+                  facing: FACING_DOWN
+              }
+        },
         19: {
               id: SUBMAP_CASTLE_TOWN_STORAGEROOM,
               tileset: {
@@ -176,9 +197,9 @@ var g_mapData = {
             }, {
                 fromX: 4,
                 fromY: 12,
-                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
-                toX: 10,
-                toY: 18,
+                toMapId: SUBMAP_LAVISH_HOUSE,
+                toX: 8,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
