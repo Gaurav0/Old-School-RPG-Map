@@ -64,6 +64,7 @@ xml/CastleTown.tmx.xml
 xml/WorldMap1.tmx.xml
 xml/BigTown.tmx.xml
 xml/ThroneRoom.tmx.xml
+xml/BiggerTown.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png
@@ -76,6 +77,7 @@ images/BrowserQuest2.png
 images/TownTwoTileset.png
 images/Castle2.png
 images/InqCastle.png
+images/AnotherTownTileset.png
 images/Man1.png
 images/Man2.png
 images/meadow.png

@@ -73,6 +73,8 @@ var g_imageData = {
             "url": "images/Castle2.png"
         }, "BigTown": {
             "url": "images/TownTwoTileset.png"
+        }, "BiggerTown": {
+            "url": "images/AnotherTownTileset.png"
         }, "man1": {
             "url": "images/Man1.png"
         }, "man2": {

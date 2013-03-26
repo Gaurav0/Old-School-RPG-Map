@@ -55,7 +55,7 @@ var SUBMAP_MOUNTAIN_PASS2 = 14;
 var SUBMAP_CASTLE_TOWN = 15;
 var SUBMAP_CASTLE_TOWN_MAP_RIGHT = 16;
 var SUBMAP_CASTLE_TOWN_THRONE_ROOM = 17;
-
+var SUBMAP_CASTLE_TOWN_MAP_LEFT = 18;
 
 
 var g_themeMusic = "theme";
@@ -133,6 +133,26 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        18: {
+              id: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+              tileset: {
+                  imgRef: "BiggerTown",
+                  width: 960,
+                  height: 960
+              },
+              xmlUrl: "xml/BiggerTown.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                at: "edges",
+                toMapId: SUBMAP_CASTLE_TOWN,
+                toX: 1,
+                toY: 15,
+                toScrollX: 0,
+                toScrollY: 9,
+                facing: FACING_RIGHT
+              }
+        },
         17: {
               id: SUBMAP_CASTLE_TOWN_THRONE_ROOM,
               tileset: {
@@ -204,11 +224,11 @@ var g_mapData = {
               }, {
                 fromX: 0,
                 fromY: 15,
-                toMapId: SUBMAP_WORLD_MAP,
-                toX: 35,
-                toY: 5,
-                toScrollX: 27,
-                toScrollY: 2,
+                toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+                toX: 29,
+                toY: 20,
+                toScrollX: 17,
+                toScrollY: 15,
                 facing: FACING_DOWN
               }],
               exit: {
