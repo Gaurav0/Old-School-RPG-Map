@@ -59,6 +59,8 @@ var SUBMAP_CASTLE_TOWN_MAP_LEFT = 18;
 var SUBMAP_CASTLE_TOWN_STORAGEROOM = 19;
 var SUBMAP_LAVISH_HOUSE = 20;
 var SUBMAP_POOR_HOUSE = 21;
+var SUBMAP_BRICK_HOUSE = 22;
+
 
 var g_themeMusic = "theme";
 
@@ -134,6 +136,26 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        22: {
+              id: SUBMAP_BRICK_HOUSE,
+              tileset: {
+                  imgRef: "InqIndoors",
+                  width: 256,
+                  height: 8704
+              },
+              xmlUrl: "xml/BrickHouse.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN_MAP_LEFT,
+                  toX: 18,
+                  toY: 19,
+                  toScrollX: 7,
+                  toScrollY: 10,
+                  facing: FACING_DOWN
+                  }
         },
         21: {
               id: SUBMAP_POOR_HOUSE,
@@ -235,9 +257,9 @@ var g_mapData = {
             }, {
                 fromX: 18,
                 fromY: 18,
-                toMapId: SUBMAP_CASTLE_TOWN_STORAGEROOM,
+                toMapId: SUBMAP_BRICK_HOUSE,
                 toX: 10,
-                toY: 18,
+                toY: 17,
                 toScrollX: 4,
                 toScrollY: 9,
                 facing: FACING_UP
