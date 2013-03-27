@@ -75,6 +75,8 @@ var g_imageData = {
             "url": "images/TownTwoTileset.png"
         }, "BiggerTown": {
             "url": "images/AnotherTownTileset.png"
+        }, "Combined": {
+            "url": "images/BigMerge.png"
         }, "man1": {
             "url": "images/Man1.png"
         }, "man2": {

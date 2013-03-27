@@ -60,6 +60,8 @@ var SUBMAP_CASTLE_TOWN_STORAGEROOM = 19;
 var SUBMAP_LAVISH_HOUSE = 20;
 var SUBMAP_POOR_HOUSE = 21;
 var SUBMAP_BRICK_HOUSE = 22;
+var SUBMAP_KINGDOM = 23;
+
 
 
 var g_themeMusic = "theme";
@@ -127,6 +129,15 @@ var g_mapData = {
                 toScrollY: 9,
                 facing: FACING_UP
             }, {
+                fromX: 21,
+                fromY: 18,
+                toMapId: SUBMAP_KINGDOM,
+                toX: 19,
+                toY: 37,
+                toScrollX: 13,
+                toScrollY: 29,
+                facing: FACING_UP
+            }, {
                 fromX: 13,
                 fromY: 9,
                 toMapId: SUBMAP_FOREST_DUNGEON,
@@ -136,6 +147,26 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        23: {
+              id: SUBMAP_KINGDOM,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/Kingdom.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_WORLD_MAP,
+                  toX: 21,
+                  toY: 19,
+                  toScrollX: 15,
+                  toScrollY: 14,
+                  facing: FACING_DOWN
+              }
         },
         22: {
               id: SUBMAP_BRICK_HOUSE,

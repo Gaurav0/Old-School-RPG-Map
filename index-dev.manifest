@@ -69,6 +69,7 @@ xml/Storage.tmx.xml
 xml/LavishHouse.tmx.xml
 xml/PoorHouse.tmx.xml
 xml/BrickHouse.tmx.xml
+xml/Kingdom.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png
@@ -82,6 +83,7 @@ images/TownTwoTileset.png
 images/Castle2.png
 images/InqCastle.png
 images/AnotherTownTileset.png
+images/BigMerge.png
 images/Man1.png
 images/Man2.png
 images/meadow.png
