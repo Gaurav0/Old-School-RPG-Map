@@ -1103,8 +1103,6 @@ var g_mapData = {
                 callback: function() {
                     g_shop.displayShop([
                         ITEM_POTION,
-                        ITEM_MAX_POTION,
-                        ITEM_ELIXER,
                         ITEM_BOMB,
                         ITEM_ETHER
                     ], true);
