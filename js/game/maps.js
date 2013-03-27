@@ -800,14 +800,22 @@ var g_mapData = {
                 locX: 3,
                 locY: 8,
                 facing: FACING_UP,
-                displayText: "I want to challenge the Rat King again, \nbut I still can't move...",
+                displayText: function() {
+                    return g_game.isFlagSet("fb") ?
+                        "My nurse says the Rat King is dead. \nShe must be lying to keep me here." :
+                        "I want to challenge the Rat King again, \nbut I still can't move...";
+                },
                 walks: false
             }, {
                 imgRef: "soldier",
                 locX: 13,
                 locY: 8,
                 facing: FACING_RIGHT,
-                displayText: "The King is looking for a powerful hero to \ndefeat the treacherous Rat King.",
+                displayText: function() {
+                    return g_game.isFlagSet("fb") ?
+                        "You defeated the Rat King.\nYou must go to see our king\nand um, collect your reward." :
+                        "The King is looking for a powerful hero\nto defeat the treacherous Rat King.";
+                    },
                 walks: false
             }, {
                 imgRef: "boy",

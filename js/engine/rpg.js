@@ -275,7 +275,10 @@ function loadMaps() {
                                 this.facePlayer();
                                 if (!!npcData.callback)
                                     g_textDisplay.setCallback(npcData.callback);
-                                g_textDisplay.displayText(npcData.displayText);
+                                if (typeof(npcData.displayText) == "function")
+                                    g_textDisplay.displayText(npcData.displayText());
+                                else
+                                    g_textDisplay.displayText(npcData.displayText);
                             };
                         })(npcData);
                         map.addSprite(npc);
