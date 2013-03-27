@@ -126,9 +126,8 @@ var g_itemData = {
             "cost": 1,
             "usable": true,
             "use": function(target) {
-                var amt = 1000 + Math.floor(Math.random() * 100);
-                target.heal(amt);
-                printText(target.getName() + " healed for " + amt + " points.");
+                target.heal(target.getMaxHP());
+                printText(target.getName() + " healed completely.");
             }
         }, 4: {
             "id": ITEM_ELIXER,
@@ -137,9 +136,8 @@ var g_itemData = {
             "cost": 1,
             "usable": true,
             "use": function(target) {
-                var amt = 100 + Math.floor(Math.random() * 25);
-                target.gainMP(amt);
-                printText(target.getName() + " healed for " + amt + " magic points.");
+                target.gainMP(target.getMaxMP());
+                printText(target.getName() + " was restored completely.");
             }
         }, 10: {
             "id": ITEM_TIN_SWORD,
