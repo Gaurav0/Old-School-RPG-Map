@@ -146,6 +146,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/BrickHouse.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -166,6 +167,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/PoorHouse.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -186,6 +188,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/LavishHouse.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -206,6 +209,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/Storage.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -226,6 +230,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/BiggerTown.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                 fromX: 26,
@@ -283,6 +288,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/ThroneRoom.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -303,6 +309,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/BigTown.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               exit: {
                   at: "edges",
@@ -323,6 +330,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/CastleTown.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                 fromX: 19, 
@@ -371,6 +379,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/Mountain2.tmx.xml",
               randomEncounters: false,
+              music: "dark",
               overWorld: false,
               exit: {
                 at: "bottom",
@@ -392,6 +401,7 @@ var g_mapData = {
               xmlUrl: "xml/Mountain.tmx.xml",
               randomEncounters: false,
               overWorld: false,
+              music: "dark",
               entrances: [{
               //Exit to left of Mountain Pass
                 fromX: 0,
@@ -442,6 +452,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/House11.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -462,6 +473,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/House2.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -482,6 +494,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/House3.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -511,6 +524,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/House4.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -567,6 +581,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/Town3.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: true,
             entrances: [{
                 fromX: 1,
@@ -676,6 +691,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/Library.tmx.xml",
             randomEnounters: false,
+            music: "castle",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -761,6 +777,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/Infirmary.tmx.xml",
             randomEncounters: false,
+            music: "castle",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -817,6 +834,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/CastleRoom.tmx.xml",
             randomEncounters: false,
+            music: "castle",
             overWorld: false,
             //Add entrances 
             entrances: [{
@@ -992,6 +1010,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/CastleShops.tmx.xml",
             randomEncounters: false,
+            music: "castle",
             overWorld: false,
             //Add entrances to SUBMAP_CASTLE_ROOM
             entrances: [{
