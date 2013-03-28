@@ -168,6 +168,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/CastleItems.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false, 
               exit: {
                   at: "bottom",
@@ -218,6 +219,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/CastleArmory.tmx.xml",
               randomEncounters: false,
+              music: "town",
               overWorld: false,
               exit: {
                   at: "bottom",
@@ -280,6 +282,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/KingdomItems.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -329,6 +332,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/KingdomArmory.tmx.xml",
             randomEncounters: false,
+            music: "town",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -390,6 +394,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/TownCaveTwo.tmx.xml",
             randomEncounters: false,
+            music: "dark",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -410,6 +415,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/TownCaveOne.tmx.xml",
             randomEncounters: false,
+            music: "dark",
             overWorld: false,
             exit: {
                 at: "bottom",
@@ -430,6 +436,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/SecondTowerSecondFloor.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                   fromX: 1,
@@ -460,6 +467,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/SecondTowerFloor.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                   fromX: 1,
@@ -517,6 +525,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/FirstTowerSecondFloor.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                   fromX: 13,
@@ -547,6 +556,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/FirstTowerFloor.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                   fromX: 13,
@@ -596,6 +606,7 @@ var g_mapData = {
               },
               xmlUrl: "xml/HugeKingdom.tmx.xml",
               randomEncounters: false,
+              music: "castle",
               overWorld: false,
               entrances: [{
                   fromX: 22,
