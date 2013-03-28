@@ -585,7 +585,35 @@ var g_mapData = {
                   toScrollX: 11,
                   toScrollY: 16,
                   facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                  imgRef: "boy",
+                  locX: 13,
+                  locY: 10,
+                  facing: FACING_LEFT,
+                  displayText: "My parents are forcing me to finish \nmy homework before I go out. Drat!",
+                  walks: true,
+                  zone: {
+                    x: 4,
+                    y: 10,
+                    w: 13,
+                    h: 3
+                  }
+              },{
+                  imgRef: "woman1",
+                  locX: 15,
+                  locY: 16,
+                  facing: FACING_RIGHT,
+                  displayText: "They say the kingdom to the west \nis mobilizing their forces.",
+                  walks: false
+              },{
+                  imgRef: "man1",
+                  locX: 18,
+                  locY: 15,
+                  facing: FACING_LEFT,
+                  displayText: "I once dreamed of becoming a knight. \nNow I'm just living a peaceful life \nas a father.",
+                  walks: false
+              }]
         },
         21: {
               id: SUBMAP_POOR_HOUSE,
@@ -606,7 +634,41 @@ var g_mapData = {
                   toScrollX: 2,
                   toScrollY: 19,
                   facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                imgRef: "man2",
+                locX: 6,
+                locY: 13,
+                facing: FACING_RIGHT,
+                displayText: "Don't mind all the bottles. I'm fine, \nreally.",
+                walks: true,
+                zone: {
+                  x: 2,
+                  y: 13,
+                  w: 6,
+                  h: 2
+                }
+            },{
+                imgRef: "woman2",
+                locX: 4,
+                locY: 16,
+                facing: FACING_DOWN,
+                displayText: "We may be poor, but we live a happy life.",
+                walks: true,
+                zone: {
+                  x: 2,
+                  y: 16,
+                  w: 4,
+                  h: 3
+                }
+            },{
+                imgRef: "boy",
+                locX: 18,
+                locY: 15,
+                facing: FACING_UP,
+                displayText: "Wh-h-at am I doing with these swords? \nNothing, I swear!",
+                walks: false
+            }]
         },
         20: {
               id: SUBMAP_LAVISH_HOUSE,
@@ -793,7 +855,61 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 9,
                 facing: FACING_RIGHT
-              }
+              },
+              npcs: [{
+                imgRef: "man2",
+                locX: 15,
+                locY: 10,
+                facing: FACING_UP,
+                displayText: "Thanks to the ocean, we never run out \nof water.",
+                walks: false
+              },{
+                imgRef: "boy",
+                locX: 13,
+                locY: 17,
+                facing: FACING_LEFT,
+                displayText: "I love playing with the leaves during \nautumn.",
+                walks: true,
+                zone: {
+                    x: 3,
+                    y: 17,
+                    w: 13,
+                    h: 2
+                }
+              },{
+                imgRef: "boy",
+                locX: 18,
+                locY: 22,
+                facing: FACING_DOWN,
+                displayText: "What lies beyond the ocean? Someday I'll \nfind out.",
+                walks: false
+              },{
+                imgRef: "man1",
+                locX: 3,
+                locY: 20,
+                facing: FACING_RIGHT,
+                displayText: "The man on the other side of town \nspeaks gibberish all the time.",
+                walks: true,
+                zone: {
+                  x: 4,
+                  y: 20,
+                  w: 3,
+                  h: 3
+                }
+              },{
+                imgRef: "woman2",
+                locX: 25,
+                locY: 17,
+                facing: FACING_DOWN,
+                displayText: "Welcome to our town! Make yourself \nat home.",
+                walks: true,
+                zone: {
+                  x: 3,
+                  y: 17,
+                  w: 25,
+                  h: 2
+                }
+              }]
         },
         17: {
               id: SUBMAP_CASTLE_TOWN_THRONE_ROOM,
