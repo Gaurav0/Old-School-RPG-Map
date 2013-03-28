@@ -172,8 +172,8 @@ var g_mapData = {
                 toMapId: SUBMAP_KINGDOM,
                 toX: 7,
                 toY: 20,
-                toScrollX: 4,
-                toScrollY: 14,
+                toScrollX: 2,
+                toScrollY: 16,
                 facing: FACING_DOWN
           },
           npcs:[{
@@ -648,7 +648,34 @@ var g_mapData = {
                   toScrollX: 17,
                   toScrollY: 7,
                   facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                  imgRef: "boy",
+                  locX: 10,
+                  locY: 8,
+                  facing: FACING_RIGHT,
+                  displayText: "Our supplies are always full due to \nthe harvest.",
+                  walks: true,
+                  zone: {
+                    x: 5,
+                    y: 8,
+                    w: 10,
+                    h: 3
+                  }
+              },{
+                  imgRef: "man1",
+                  locX: 5,
+                  locY: 16,
+                  facing: FACING_LEFT,
+                  displayText: "Lifting these boxes is grueling on \nan old man. Ack, my back!",
+                  walks: true,
+                  zone: {
+                    x: 4,
+                    y: 16,
+                    w: 5,
+                    h: 2
+                  }
+            }]
         },
         18: {
               id: SUBMAP_CASTLE_TOWN_MAP_LEFT,
@@ -797,7 +824,22 @@ var g_mapData = {
                 toScrollX: 27,
                 toScrollY: 2,
                 facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                  imgRef: "soldier",
+                  locX: 8,
+                  locY: 8,
+                  facing: FACING_DOWN,
+                  displayText: "You came from over the mountains to see \nour King?",
+                  walks: false
+              },{
+                  imgRef: "soldier",
+                  locX: 12,
+                  locY: 8,
+                  facing: FACING_DOWN,
+                  displayText: "Our kingdom is properous due to our \nrightful ruler.",
+                  walks: false
+              }]
         },
         14: {
               id: SUBMAP_MOUNTAIN_PASS2,
