@@ -239,7 +239,9 @@ var g_mapData = {
                 callback: function() {
                     g_shop.displayShop([
                         ITEM_COPPER_SWORD,
-                        ITEM_BRONZE_SWORD
+                        ITEM_BRONZE_SWORD,
+                        ITEM_COPPER_SWORD,
+                        ITEM_IRON_SWORD
                       ], false);
                 },
                 walks: false
@@ -251,8 +253,11 @@ var g_mapData = {
                 displayText: "Welcome to the armor shop.",
                 callback: function() {
                   g_shop.displayShop([
+                    ITEM_CAP,
+                    ITEM_LEATHER_HELMET,
+                    ITEM_TIN_SHIELD,
                     ITEM_LEATHER_ARMOR,
-                    ITEM_CHAIN_MAIL
+                    ITEM_CHAIN_MAIL 
                   ], false);
               }  
             }],
@@ -352,7 +357,9 @@ var g_mapData = {
                 callback: function() {
                     g_shop.displayShop([
                         ITEM_COPPER_SWORD,
-                        ITEM_BRONZE_SWORD
+                        ITEM_BRONZE_SWORD,
+                        ITEM_STEEL_SWORD,
+                        ITEM_BROAD_SWORD
                       ], false);
                 },
                 walks: false
@@ -365,7 +372,10 @@ var g_mapData = {
                 callback: function() {
                   g_shop.displayShop([
                     ITEM_LEATHER_ARMOR,
-                    ITEM_CHAIN_MAIL
+                    ITEM_CHAIN_MAIL,
+                    ITEM_IRON_HELMET,
+                    ITEM_IRON_SHIELD,
+                    ITEM_HALF_PLATE_MAI
                   ], false);
               }  
             }],
