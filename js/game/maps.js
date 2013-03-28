@@ -65,6 +65,9 @@ var SUBMAP_FIRST_TOWER_FIRST_FLOOR = 24;
 var SUBMAP_FIRST_TOWER_SECOND_FLOOR = 25;
 var SUBMAP_SECOND_TOWER_FIRST_FLOOR = 26;
 var SUBMAP_SECOND_TOWER_SECOND_FLOOR = 27;
+var SUBMAP_KINGDOM_CAVE_ONE = 28;
+var SUBMAP_KINGDOM_CAVE_TWO = 29;
+
 
 
 
@@ -151,6 +154,46 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        29: {
+              id: SUBMAP_KINGDOM_CAVE_TWO,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+            },
+            xmlUrl: "xml/TownCaveTwo.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_KINGDOM,
+                toX: 3,
+                toY: 8,
+                toScrollX: 0,
+                toScrollY: 3,
+                facing: FACING_DOWN
+            }
+        },
+        28: {
+              id: SUBMAP_KINGDOM_CAVE_ONE,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+            },
+            xmlUrl: "xml/TownCaveOne.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_KINGDOM,
+                toX: 3,
+                toY: 37,
+                toScrollX: 0,
+                toScrollY: 33,
+                facing: FACING_DOWN
+            }
         },
         27: {
               id: SUBMAP_SECOND_TOWER_SECOND_FLOOR,
@@ -342,6 +385,42 @@ var g_mapData = {
                   fromY: 29,
                   toMapId: SUBMAP_SECOND_TOWER_FIRST_FLOOR,
                   toX: 6,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 3,
+                  fromY: 36,
+                  toMapId: SUBMAP_KINGDOM_CAVE_ONE,
+                  toX: 6, 
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 4,
+                  fromY: 36,
+                  toMapId: SUBMAP_KINGDOM_CAVE_ONE,
+                  toX: 7,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 2,
+                  fromY: 7,
+                  toMapId: SUBMAP_KINGDOM_CAVE_TWO,
+                  toX: 6,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 3,
+                  fromY: 7,
+                  toMapId: SUBMAP_KINGDOM_CAVE_TWO,
+                  toX: 7,
                   toY: 13,
                   toScrollX: 1,
                   toScrollY: 4,
