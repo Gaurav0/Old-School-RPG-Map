@@ -35,7 +35,9 @@ xml/FirstTowerFloor.tmx.xml
 xml/FirstTowerSecondFloor.tmx.xml
 xml/SecondTowerFirstFloor.tmx.xml
 xml/SecondTowerSecondFloor.tmx.xml
+xml/KingdomArmory.tmx.xml
 xml/TownCaveOne.tmx.xml
+xml/TownCaveTwo.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png
