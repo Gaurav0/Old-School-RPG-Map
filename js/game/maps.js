@@ -585,7 +585,7 @@ var g_mapData = {
                   toScrollX: 11,
                   toScrollY: 16,
                   facing: FACING_DOWN
-                  }
+              }
         },
         21: {
               id: SUBMAP_POOR_HOUSE,
@@ -627,7 +627,67 @@ var g_mapData = {
                   toScrollX: 0,
                   toScrollY: 8,
                   facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                  imgRef: "woman2",
+                  locX: 15,
+                  locY: 11,
+                  facing: FACING_DOWN,
+                  displayText: "How dare a cretin like you barge \nin my home!",
+                  walks: true,
+                  zone: {
+                    x: 3,
+                    y: 11,
+                    w: 15,
+                    h: 2
+                  }
+              },{
+                  imgRef: "woman1",
+                  locX: 18,
+                  locY: 16,
+                  facing: FACING_LEFT,
+                  displayText: "Don't mind my sister, she's \nalways like that.",
+                  walks: true,
+                  zone: {
+                    x: 2,
+                    y: 16,
+                    w: 18,
+                    h: 2
+                  }
+              },{
+                  imgRef: "man2",
+                  locX: 3,
+                  locY: 8,
+                  facing: FACING_RIGHT,
+                  displayText: "What do you think of my fine abode?\nI know you're envious, but please don't \nsteal anything.",
+                  walks: true,
+                  zone: {
+                    x: 2,
+                    y: 8,
+                    w: 3,
+                    h: 5
+                  }
+              },{
+                  imgRef: "boy",
+                  locX: 16,
+                  locY: 7,
+                  facing: FACING_UP,
+                  displayText: "Having rich parents isn't as \ngood as it seems. I never get to play with other kids.",
+                  walks: true,
+                  zone: {
+                    x: 4,
+                    y: 7,
+                    w: 16,
+                    h: 4
+                  }
+              },{
+                  imgRef: "soldier",
+                  locX: 8,
+                  locY: 11,
+                  facing: FACING_DOWN,
+                  displayText: "This family is so rich that they \nhired me for protection. If you ask me, \nthey're a bunch of rich snobs.",
+                  walks: false
+              }]     
         },
         19: {
               id: SUBMAP_CASTLE_TOWN_STORAGEROOM,
