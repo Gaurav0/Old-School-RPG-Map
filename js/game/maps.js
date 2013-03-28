@@ -174,7 +174,48 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 10,
                 facing: FACING_DOWN
+            },
+            npcs: [{
+                imgRef: "man1",
+                locX: 2,
+                locY: 5,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the weapon shop.",
+                callback: function() {
+                    g_shop.displayShop([
+                        ITEM_COPPER_SWORD,
+                        ITEM_BRONZE_SWORD
+                      ], false);
+                },
+                walks: false
+            }, {
+                imgRef: "man2",
+                locX: 2,
+                locY: 7,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the armor shop.",
+                callback: function() {
+                  g_shop.displayShop([
+                    ITEM_LEATHER_ARMOR,
+                    ITEM_CHAIN_MAIL
+                  ], false);
+              }  
+            }],
+            actions: [{
+              locX: 4,
+              locY: 5,
+              dir: FACING_LEFT,
+              onAction: function() {
+                  g_mapData.submaps[SUBMAP_KINGDOM_ARMORY].npcs[0].npc.action();
+              }
+            }, {
+                locX: 4,
+                locY: 7,
+                dir: FACING_LEFT,
+                onAction: function() {
+                  g_mapData.submaps[SUBMAP_KINGDOM_ARMORY].npcs[1].npc.action();
             }
+          }]
         },
         29: {
               id: SUBMAP_KINGDOM_CAVE_TWO,
