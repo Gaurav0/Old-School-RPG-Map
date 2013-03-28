@@ -70,6 +70,8 @@ xml/LavishHouse.tmx.xml
 xml/PoorHouse.tmx.xml
 xml/BrickHouse.tmx.xml
 xml/HugeKingdom.tmx.xml
+xml/FirstTowerFloor.tmx.xml
+xml/FirstTowerSecondFloor.tmx.xml
 images/ajax-loader.gif
 images/Boy.png
 images/Chest2.png

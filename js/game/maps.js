@@ -61,6 +61,9 @@ var SUBMAP_LAVISH_HOUSE = 20;
 var SUBMAP_POOR_HOUSE = 21;
 var SUBMAP_BRICK_HOUSE = 22;
 var SUBMAP_KINGDOM = 23;
+var SUBMAP_FIRST_TOWER_FIRST_FLOOR = 24;
+var SUBMAP_FIRST_TOWER_SECOND_FLOOR = 25;
+var SUBMAP_SECOND_TOWER_FIRST_FLOOR = 26;
 
 
 
@@ -148,6 +151,66 @@ var g_mapData = {
                 facing: FACING_UP
             }]
         },
+        25: {
+              id: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/FirstTowerSecondFloor.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              entrances: [{
+                  fromX: 13,
+                  fromY: 5,
+                  toMapId: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
+                  toX: 13,
+                  toY: 5,
+                  toScrollX: 2,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+              },{
+                  fromX: 13,
+                  fromY: 4,
+                  toMapId: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
+                  toX: 13,
+                  toY: 5,
+                  toScrollX: 3,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+            }]
+        },
+        24: {
+              id: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
+              tileset: {  
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/FirstTowerFloor.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              entrances: [{
+                  fromX: 13,
+                  fromY: 4,
+                  toMapId: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
+                  toX: 13,
+                  toY: 6,
+                  toScrollX: 2,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+            }, {
+                  fromX: 13,
+                  fromY: 3,
+                  toMapId: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
+                  toX: 13,
+                  toY: 6,
+                  toScrollX: 2,
+                  toScrollY: 2,
+                  facing: FACING_DOWN
+            }]
+        },
         23: {
               id: SUBMAP_KINGDOM,
               tileset: {
@@ -158,6 +221,25 @@ var g_mapData = {
               xmlUrl: "xml/HugeKingdom.tmx.xml",
               randomEncounters: false,
               overWorld: false,
+              entrances: [{
+                  fromX: 22,
+                  fromY: 29,
+                  toMapId: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
+                  toX: 6,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 38,
+                  fromY: 29,
+                  toMapId: SUBMAP_SECOND_TOWER_FIRST_FLOOR,
+                  toX: 6,
+                  toY: 13,
+                  toScrollX: 3,
+                  toScrollY: 6,
+                  facing: FACING_UP
+              }],
               exit: {
                   at: "bottom",
                   toMapId: SUBMAP_WORLD_MAP,
