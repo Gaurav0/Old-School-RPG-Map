@@ -201,6 +201,25 @@ var g_mapData = {
                   toScrollY: 2,
                   facing: FACING_DOWN
             }, {
+                  fromX: 6,
+                  fromY: 14,
+                  toMapId: SUBMAP_KINGDOM,
+                  toX: 22,
+                  toY: 29,
+                  toScrollX: 17,
+                  toScrollY: 23,
+                  facing: FACING_DOWN
+            }, {
+                  fromX: 7,
+                  fromY: 14,
+                  toMapId: SUBMAP_KINGDOM,
+                  toX: 22,
+                  toY: 29,
+                  toScrollX: 17,
+                  toScrollY: 23,
+                  facing: FACING_DOWN
+            }, {
+
                   fromX: 13,
                   fromY: 3,
                   toMapId: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
