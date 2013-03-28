@@ -71,6 +71,8 @@ var SUBMAP_KINGDOM_ARMORY = 30;
 var SUBMAP_KINGDOM_ITEMS = 31;
 var SUBMAP_CASTLE_ARMORY = 32;
 var SUBMAP_CASTLE_ITEMS = 33;
+var SUBMAP_GRAND_THRONE = 34;
+
 
 
 
@@ -158,6 +160,27 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        34: {
+              id: SUBMAP_GRAND_THRONE,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/GrandThrone.tmx.xml",
+              randomEncounters: false,
+              music: "castle",
+              overWorld: false,
+              exit: {
+                at: "bottom",
+                toMapId: SUBMAP_KINGDOM,
+                toX: 30,
+                toY: 36,
+                toScrollX: 25,
+                toScrollY: 30,
+                facing: FACING_DOWN
+              }
         },
         33: {
               id: SUBMAP_CASTLE_ITEMS,
@@ -714,7 +737,16 @@ var g_mapData = {
                   toScrollX: 1,
                   toScrollY: 4,
                   facing: FACING_UP
-              }, {
+              },{
+                  fromX: 30,
+                  fromY: 35,
+                  toMapId: SUBMAP_GRAND_THRONE,
+                  toX: 12,
+                  toY: 23,
+                  toScrollX: 7,
+                  toScrollY: 17,
+                  facing: FACING_UP
+              },{
                   fromX: 7,
                   fromY: 19,
                   toMapId: SUBMAP_KINGDOM_ITEMS,
