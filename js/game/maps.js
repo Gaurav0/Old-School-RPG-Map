@@ -132,10 +132,10 @@ var g_mapData = {
                 fromX: 21,
                 fromY: 18,
                 toMapId: SUBMAP_KINGDOM,
-                toX: 19,
-                toY: 37,
-                toScrollX: 13,
-                toScrollY: 29,
+                toX: 30,
+                toY: 57,
+                toScrollX: 24,
+                toScrollY: 49,
                 facing: FACING_UP
             }, {
                 fromX: 13,
@@ -155,7 +155,7 @@ var g_mapData = {
                   width: 5760,
                   height: 8704
               },
-              xmlUrl: "xml/Kingdom.tmx.xml",
+              xmlUrl: "xml/HugeKingdom.tmx.xml",
               randomEncounters: false,
               overWorld: false,
               exit: {
