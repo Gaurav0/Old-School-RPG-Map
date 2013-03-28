@@ -744,7 +744,7 @@ var g_mapData = {
                   toX: 12,
                   toY: 23,
                   toScrollX: 7,
-                  toScrollY: 17,
+                  toScrollY: 14,
                   facing: FACING_UP
               },{
                   fromX: 7,
