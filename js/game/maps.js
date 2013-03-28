@@ -67,6 +67,7 @@ var SUBMAP_SECOND_TOWER_FIRST_FLOOR = 26;
 var SUBMAP_SECOND_TOWER_SECOND_FLOOR = 27;
 var SUBMAP_KINGDOM_CAVE_ONE = 28;
 var SUBMAP_KINGDOM_CAVE_TWO = 29;
+var SUBMAP_KINGDOM_ARMORY = 30;
 
 
 
@@ -154,6 +155,26 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        30: {
+              id: SUBMAP_KINGDOM_ARMORY,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+            },
+            xmlUrl: "xml/KingdomArmory.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_KINGDOM,
+                toX: 5,
+                toY: 15,
+                toScrollX: 0,
+                toScrollY: 10,
+                facing: FACING_DOWN
+            }
         },
         29: {
               id: SUBMAP_KINGDOM_CAVE_TWO,
@@ -421,6 +442,15 @@ var g_mapData = {
                   fromY: 7,
                   toMapId: SUBMAP_KINGDOM_CAVE_TWO,
                   toX: 7,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 5,
+                  fromY: 14,
+                  toMapId: SUBMAP_KINGDOM_ARMORY,
+                  toX: 6,
                   toY: 13,
                   toScrollX: 1,
                   toScrollY: 4,
