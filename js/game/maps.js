@@ -69,7 +69,7 @@ var SUBMAP_KINGDOM_CAVE_ONE = 28;
 var SUBMAP_KINGDOM_CAVE_TWO = 29;
 var SUBMAP_KINGDOM_ARMORY = 30;
 var SUBMAP_KINGDOM_ITEMS = 31;
-
+var SUBMAP_CASTLE_ARMORY = 32;
 
 
 
@@ -156,6 +156,68 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        32: {
+              id: SUBMAP_CASTLE_ARMORY,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/CastleArmory.tmx.xml",
+              randomEncounters: false,
+              overWorld: false,
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN,
+                  toX: 2,
+                  toY: 9,
+                  toScrollX: 0,
+                  toScrollY: 5,
+                  facing: FACING_DOWN
+              },
+               npcs: [{
+                imgRef: "man1",
+                locX: 5,
+                locY: 5,
+                facing: FACING_DOWN,
+                displayText: "Welcome to the weapon shop.",
+                callback: function() {
+                    g_shop.displayShop([
+                        ITEM_COPPER_SWORD,
+                        ITEM_BRONZE_SWORD
+                      ], false);
+                },
+                walks: false
+            }, {
+                imgRef: "man2",
+                locX: 10,
+                locY: 5,
+                facing: FACING_DOWN,
+                displayText: "Welcome to the armor shop.",
+                callback: function() {
+                  g_shop.displayShop([
+                    ITEM_LEATHER_ARMOR,
+                    ITEM_CHAIN_MAIL
+                  ], false);
+              }  
+            }],
+            actions: [{
+              locX: 5,
+              locY: 8,
+              dir: FACING_UP,
+              onAction: function() {
+                  g_mapData.submaps[SUBMAP_CASTLE_ARMORY].npcs[0].npc.action();
+              }
+            }, {
+                locX: 10,
+                locY: 8,
+                dir: FACING_UP,
+                onAction: function() {
+                  g_mapData.submaps[SUBMAP_CASTLE_ARMORY].npcs[1].npc.action();
+            }
+          }]
+
         },
         31: {
               id: SUBMAP_KINGDOM_ITEMS,
@@ -991,6 +1053,24 @@ var g_mapData = {
                 toScrollX: 17,
                 toScrollY: 15,
                 facing: FACING_DOWN
+              },{
+                fromX: 2,
+                fromY: 8,
+                toMapId: SUBMAP_CASTLE_ARMORY,
+                toX: 6,
+                toY: 13,
+                toScrollX: 1,
+                toScrollY: 4,
+                facing: FACING_UP
+              },{
+                fromX: 18,
+                fromY: 8,
+                toMapId: SUBMAP_CASTLE_ARMORY,
+                toX: 6,
+                toY: 13,
+                toScrollX: 1,
+                toScrollY: 4,
+                facing: FACING_UP
               }],
               exit: {
                 at: "bottom",
