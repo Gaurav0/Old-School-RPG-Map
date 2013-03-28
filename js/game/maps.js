@@ -70,6 +70,8 @@ var SUBMAP_KINGDOM_CAVE_TWO = 29;
 var SUBMAP_KINGDOM_ARMORY = 30;
 var SUBMAP_KINGDOM_ITEMS = 31;
 var SUBMAP_CASTLE_ARMORY = 32;
+var SUBMAP_CASTLE_ITEMS = 33;
+
 
 
 
@@ -156,6 +158,56 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        33: {
+              id: SUBMAP_CASTLE_ITEMS,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+              },
+              xmlUrl: "xml/CastleItems.tmx.xml",
+              randomEncounters: false,
+              overWorld: false, 
+              exit: {
+                  at: "bottom",
+                  toMapId: SUBMAP_CASTLE_TOWN,
+                  toX: 18,
+                  toY: 9,
+                  toScrollX: 16,
+                  toScrollY: 5,
+                  facing: FACING_DOWN
+              },
+              npcs:[{
+              imgRef: "boy",
+              locX: 5,
+              locY: 8,
+              facing: FACING_DOWN,
+              displayText: "I bought a super-special-awesome potion \nhere.",
+              walks: false,
+          },{
+              imgRef: "woman1",
+              locX: 14,
+              locY: 10,
+              facing: FACING_LEFT,
+              displayText: "Welcome to the item shop.",
+              callback: function() {
+                  g_shop.displayShop([
+                      ITEM_POTION,
+                      ITEM_BOMB
+                    ], true);
+                },
+                walks: false
+          }],
+          actions: [{
+              locX: 12,
+              locY: 10,
+              dir: FACING_RIGHT,
+              onAction: function() {
+                  g_mapData.submaps[SUBMAP_KINGDOM_ITEMS].npcs[1].npc.action();
+                }
+          }]
+
         },
         32: {
               id: SUBMAP_CASTLE_ARMORY,
@@ -1065,7 +1117,7 @@ var g_mapData = {
               },{
                 fromX: 18,
                 fromY: 8,
-                toMapId: SUBMAP_CASTLE_ARMORY,
+                toMapId: SUBMAP_CASTLE_ITEMS,
                 toX: 6,
                 toY: 13,
                 toScrollX: 1,
