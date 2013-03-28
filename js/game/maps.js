@@ -260,6 +260,26 @@ var g_mapData = {
                     ITEM_CHAIN_MAIL 
                   ], false);
               }  
+            },{
+                imgRef: "man1",
+                locX: 3,
+                locY: 10,
+                facing: FACING_DOWN,
+                displayText: "The weapons here may be unfamilar to \nyou.",
+                walks: true,
+                zone: {
+                  x: 3,
+                  y: 10,
+                  w: 3,
+                  h: 2
+                }
+            },{
+                imgRef: "woman2",
+                locX: 11,
+                locY: 11,
+                facing: FACING_LEFT,
+                displayText: "Weapons are so barbaric. Why do we need \nthem anyways?",
+                walks: false
             }],
             actions: [{
               locX: 5,
