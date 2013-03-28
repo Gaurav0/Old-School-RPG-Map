@@ -68,6 +68,7 @@ var SUBMAP_SECOND_TOWER_SECOND_FLOOR = 27;
 var SUBMAP_KINGDOM_CAVE_ONE = 28;
 var SUBMAP_KINGDOM_CAVE_TWO = 29;
 var SUBMAP_KINGDOM_ARMORY = 30;
+var SUBMAP_KINGDOM_ITEMS = 31;
 
 
 
@@ -155,6 +156,55 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        31: {
+              id: SUBMAP_KINGDOM_ITEMS,
+              tileset: {
+                  imgRef: "Combined",
+                  width: 5760,
+                  height: 8704
+            },
+            xmlUrl: "xml/KingdomItems.tmx.xml",
+            randomEncounters: false,
+            overWorld: false,
+            exit: {
+                at: "bottom",
+                toMapId: SUBMAP_KINGDOM,
+                toX: 7,
+                toY: 20,
+                toScrollX: 4,
+                toScrollY: 14,
+                facing: FACING_DOWN
+          },
+          npcs:[{
+              imgRef: "boy",
+              locX: 5,
+              locY: 8,
+              facing: FACING_DOWN,
+              displayText: "The items here are one of a kind.",
+              walks: false,
+          },{
+              imgRef: "woman1",
+              locX: 12,
+              locY: 10,
+              facing: FACING_LEFT,
+              displayText: "Welcome to the item shop.",
+              callback: function() {
+                  g_shop.displayShop([
+                      ITEM_POTION,
+                      ITEM_BOMB
+                    ], true);
+                },
+                walks: false
+          }],
+          actions: [{
+              locX: 10,
+              locY: 10,
+              dir: FACING_RIGHT,
+              onAction: function() {
+                  g_mapData.submaps[SUBMAP_KINGDOM_ITEMS].npcs[1].npc.action();
+                }
+          }]
         },
         30: {
               id: SUBMAP_KINGDOM_ARMORY,
@@ -491,6 +541,15 @@ var g_mapData = {
                   fromX: 5,
                   fromY: 14,
                   toMapId: SUBMAP_KINGDOM_ARMORY,
+                  toX: 6,
+                  toY: 13,
+                  toScrollX: 1,
+                  toScrollY: 4,
+                  facing: FACING_UP
+              }, {
+                  fromX: 7,
+                  fromY: 19,
+                  toMapId: SUBMAP_KINGDOM_ITEMS,
                   toX: 6,
                   toY: 13,
                   toScrollX: 1,
