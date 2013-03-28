@@ -455,7 +455,20 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 33,
                 facing: FACING_DOWN
-            }
+            },
+            npcs: [{
+              imgRef: "soldier",
+              locX: 4,
+              locY: 6,
+              displayText: "What am I doing here? What are you \ndoing here?",
+              walks: true,
+              zone: {
+                x: 3,
+                y: 6,
+                w: 4,
+                h: 2
+              }
+          }]
         },
         27: {
               id: SUBMAP_SECOND_TOWER_SECOND_FLOOR,
@@ -719,7 +732,109 @@ var g_mapData = {
                   toScrollX: 15,
                   toScrollY: 14,
                   facing: FACING_DOWN
+              },
+              npcs: [{
+                imgRef: "boy",
+                locX: 4,
+                locY: 41,
+                displayText: "This is my favorite spot.",
+                facing: FACING_RIGHT,
+                walks: true,
+                zone: {
+                  x: 4,
+                  y: 41,
+                  w: 4,
+                  h: 5
+                }
+              },{
+               imgRef: "man1",
+               locX: 26,
+               locY: 45,
+               displayText: "Welcome to our grand kingdom.",
+               facing: FACING_RIGHT,
+               walks: true,
+               zone: {
+                 x: 4,
+                 y: 45,
+                 w: 26,
+                 h: 3
+               }
+             },{
+                imgRef: "woman2",
+                locX: 49,
+                locY: 14,
+                displayText: "You will always be remembered.",
+                facing: FACING_UP,
+                walks: false
+             },{
+               imgRef: "man2",
+               locX: 51,
+               locY: 14,
+               displayText: "This is the price of war.",
+               facing: FACING_UP,
+               walks: false
+             },{
+               imgRef: "woman1",
+               locX: 58,
+               locY: 10,
+               facing: FACING_UP,
+               displayText: "The waterfront is always beautiful.",
+               walks: true,
+               zone: {
+                 x: 4,
+                 y: 10,
+                 w: 58,
+                 h: 3
+               }
+            },{
+              imgRef: "boy",
+              locX: 1,
+              locY: 9,
+              facing: FACING_DOWN,
+              displayText: "I wonder what is inside that cave, but I \nam too scared to enter.",
+              walks: true,
+              zone: {
+                x: 2,
+                y: 9,
+                w: 1,
+                h: 2
               }
+            },{
+                imgRef: "woman1",
+                locX: 9,
+                locY: 20,
+                displayText: "You can find powerful potions in this \nshop.",
+                facing: FACING_DOWN,
+                walks: false
+            },{
+                imgRef: "soldier",
+                locX: 28,
+                locY: 36,
+                displayText: "You don't look suspicious. Please proceed.",
+                facing: FACING_DOWN,
+                walks: false
+            },{
+                imgRef: "soldier",
+                locX: 32,
+                locY: 36,
+                displayText: "The King is a renowned warrior. Tread \nlightly.",
+                facing: FACING_DOWN,
+                walks: false
+            },{
+                imgRef: "man2",
+                locX: 1,
+                locY: 25,
+                displayText: "Our King build this domain over several decades.",
+                facing: FACING_DOWN,
+                walks: true,
+                zone: {
+                  x: 2,
+                  y: 25,
+                  w: 1,
+                  h: 2
+            }
+          }]
+            
         },
         22: {
               id: SUBMAP_BRICK_HOUSE,
@@ -1106,7 +1221,32 @@ var g_mapData = {
                   toScrollX: 7,
                   toScrollY: 9,
                   facing: FACING_LEFT
-              }
+              },
+              npcs: [{
+                imgRef: "boy",
+                locX: 2,
+                locY: 11,
+                displayText: "Welcome to the odd side of town.",
+                walks: true,
+                zone: {
+                  x: 3,
+                  y: 11,
+                  w: 2,
+                  h: 2
+                }
+              },{
+                imgRef: "man2",
+                locX: 14,
+                locY: 10,
+                displayText: "Can I help you?",
+                walks: true,
+                zone: {
+                  x: 2,
+                  y: 10,
+                  w: 14,
+                  h: 2
+                }
+              }]
         },
         15: {
               id: SUBMAP_CASTLE_TOWN,
