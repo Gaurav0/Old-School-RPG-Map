@@ -69,7 +69,7 @@ var SUBMAP_KINGDOM_CAVE_ONE = 28;
 var SUBMAP_KINGDOM_CAVE_TWO = 29;
 var SUBMAP_KINGDOM_ARMORY = 30;
 var SUBMAP_KINGDOM_ITEMS = 31;
-var SUBMAP_CASTLE_ARMORY = 32;
+var SUBMAP_CASTLE_TOWN_ARMORY = 32;
 var SUBMAP_CASTLE_ITEMS = 33;
 var SUBMAP_GRAND_THRONE = 34;
 var SUBMAP_WEIRD_HOUSE = 35;
@@ -138,7 +138,7 @@ var g_mapData = {
                 fromX: 35,
                 fromY: 4,
                 toMapId: SUBMAP_CASTLE_TOWN,
-                toX: 9,
+                toX: 10,
                 toY: 18,
                 toScrollX: 4,
                 toScrollY: 9,
@@ -320,8 +320,8 @@ var g_mapData = {
                   toMapId: SUBMAP_CASTLE_TOWN,
                   toX: 18,
                   toY: 9,
-                  toScrollX: 16,
-                  toScrollY: 5,
+                  toScrollX: 7,
+                  toScrollY: 6,
                   facing: FACING_DOWN
               },
               npcs:[{
@@ -356,7 +356,7 @@ var g_mapData = {
 
         },
         32: {
-              id: SUBMAP_CASTLE_ARMORY,
+              id: SUBMAP_CASTLE_TOWN_ARMORY,
               tileset: {
                   imgRef: "Combined",
                   width: 5760,
@@ -372,14 +372,14 @@ var g_mapData = {
                   toX: 2,
                   toY: 9,
                   toScrollX: 0,
-                  toScrollY: 5,
+                  toScrollY: 4,
                   facing: FACING_DOWN
               },
                npcs: [{
                 imgRef: "man1",
-                locX: 5,
+                locX: 2,
                 locY: 5,
-                facing: FACING_DOWN,
+                facing: FACING_RIGHT,
                 displayText: "Welcome to the weapon shop.",
                 callback: function() {
                     g_shop.displayShop([
@@ -392,9 +392,9 @@ var g_mapData = {
                 walks: false
             }, {
                 imgRef: "man2",
-                locX: 10,
+                locX: 12,
                 locY: 5,
-                facing: FACING_DOWN,
+                facing: FACING_LEFT,
                 displayText: "Welcome to the armor shop.",
                 callback: function() {
                   g_shop.displayShop([
@@ -427,18 +427,18 @@ var g_mapData = {
                 walks: false
             }],
             actions: [{
-              locX: 5,
-              locY: 8,
-              dir: FACING_UP,
+              locX: 4,
+              locY: 5,
+              dir: FACING_LEFT,
               onAction: function() {
-                  g_mapData.submaps[SUBMAP_CASTLE_ARMORY].npcs[0].npc.action();
+                  g_mapData.submaps[SUBMAP_CASTLE_TOWN_ARMORY].npcs[0].npc.action();
               }
             }, {
                 locX: 10,
-                locY: 8,
-                dir: FACING_UP,
+                locY: 5,
+                dir: FACING_RIGHT,
                 onAction: function() {
-                  g_mapData.submaps[SUBMAP_CASTLE_ARMORY].npcs[1].npc.action();
+                  g_mapData.submaps[SUBMAP_CASTLE_TOWN_ARMORY].npcs[1].npc.action();
             }
           }]
 
@@ -540,7 +540,7 @@ var g_mapData = {
                     ITEM_CHAIN_MAIL,
                     ITEM_IRON_HELMET,
                     ITEM_IRON_SHIELD,
-                    ITEM_HALF_PLATE_MAI
+                    ITEM_HALF_PLATE_MAIL
                   ], false);
               }  
             }],
@@ -650,7 +650,7 @@ var g_mapData = {
                   fromY: 4,
                   toMapId: SUBMAP_SECOND_TOWER_FIRST_FLOOR,
                   toX: 1,
-                  toY: 6,
+                  toY: 7,
                   toScrollX: 0,
                   toScrollY: 3,
                   facing: FACING_DOWN
@@ -659,7 +659,7 @@ var g_mapData = {
                   fromY: 3,
                   toMapId: SUBMAP_SECOND_TOWER_FIRST_FLOOR,
                   toX: 1,
-                  toY: 6,
+                  toY: 7,
                   toScrollX: 0,
                   toScrollY: 3,
                   facing: FACING_DOWN
@@ -705,7 +705,7 @@ var g_mapData = {
                   fromY: 5,
                   toMapId: SUBMAP_SECOND_TOWER_SECOND_FLOOR,
                   toX: 1,
-                  toY: 5,
+                  toY: 6,
                   toScrollX: 0,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -741,7 +741,7 @@ var g_mapData = {
                   fromY: 4,
                   toMapId: SUBMAP_SECOND_TOWER_SECOND_FLOOR,
                   toX: 1,
-                  toY: 5,
+                  toY: 6,
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -778,7 +778,7 @@ var g_mapData = {
                   fromY: 5,
                   toMapId: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
                   toX: 13,
-                  toY: 5,
+                  toY: 6,
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -787,7 +787,7 @@ var g_mapData = {
                   fromY: 4,
                   toMapId: SUBMAP_FIRST_TOWER_FIRST_FLOOR,
                   toX: 13,
-                  toY: 5,
+                  toY: 6,
                   toScrollX: 3,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -832,7 +832,7 @@ var g_mapData = {
                   fromY: 4,
                   toMapId: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
                   toX: 13,
-                  toY: 6,
+                  toY: 7,
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -860,7 +860,7 @@ var g_mapData = {
                   fromY: 3,
                   toMapId: SUBMAP_FIRST_TOWER_SECOND_FLOOR,
                   toX: 13,
-                  toY: 6,
+                  toY: 7,
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
@@ -1574,7 +1574,7 @@ var g_mapData = {
               },{
                 fromX: 2,
                 fromY: 8,
-                toMapId: SUBMAP_CASTLE_ARMORY,
+                toMapId: SUBMAP_CASTLE_TOWN_ARMORY,
                 toX: 6,
                 toY: 13,
                 toScrollX: 1,
@@ -2036,6 +2036,7 @@ var g_mapData = {
             },
             xmlUrl: "xml/Armory.tmx.xml",
             randomEncounters: false,
+            music: "castle",
             overWorld: false,
             exit: {
                 at: "bottom", 
