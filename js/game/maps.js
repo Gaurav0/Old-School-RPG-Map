@@ -627,6 +627,21 @@ var g_mapData = {
                   toScrollY: 3,
                   facing: FACING_DOWN
             }],
+            npcs: [{
+              imgRef: "boy",
+              locX: 8,
+              locY: 8,
+              facing: FACING_LEFT,
+              displayText: "This is where the knights rest.",
+              walks: true,
+              zone: 
+                {
+                  x: 5,
+                  y: 8,
+                  w: 8,
+                  h: 4
+                }
+            }],
             chests: [{
               imgRef: "chest",
               locX: 12,
@@ -693,6 +708,21 @@ var g_mapData = {
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
+          }],
+          npcs: [{
+              imgRef: "soldier",
+              locX: 8,
+              locY: 8,
+              facing: FACING_RIGHT,
+              displayText: "I'm beat. Maybe I'll retire to my \nchambers.",
+              walks: true,
+              zone: 
+              {
+                x: 4,
+                y: 8,
+                w: 8,
+                h: 4
+              }
           }]
         },
         25: {
@@ -725,7 +755,21 @@ var g_mapData = {
                   toScrollY: 2,
                   facing: FACING_DOWN
             }],
-            chests: [{
+            npcs: [{
+              imgRef: "woman1",
+              locX: 4,
+              locY: 8,
+              facing: FACING_LEFT,
+              displayText: "I'm the nurse here.",
+              walks: true,
+              zone: {
+                x: 3,
+                y: 8,
+                w: 4,
+                h: 4
+               }
+              }],
+              chests: [{
               imgRef: "chest",
               locX: 3,
               locY: 11,
@@ -783,6 +827,20 @@ var g_mapData = {
                   toScrollX: 2,
                   toScrollY: 2,
                   facing: FACING_DOWN
+            }],
+            npcs: [{
+                imgRef: "man2",
+                locX: 8,
+                locY: 8,
+                facing: FACING_DOWN,
+                displayText: "Without my armor, I feel 50 pounds \nlighter.",
+                walks: true,
+                zone: {
+                  x: 4,
+                  y: 8,
+                  w: 8,
+                  h: 4
+                }
             }]
         },
         23: {
@@ -1173,7 +1231,16 @@ var g_mapData = {
                   facing: FACING_DOWN,
                   displayText: "This family is so rich that they \nhired me for protection. If you ask me, \nthey're a bunch of rich snobs.",
                   walks: false
-              }]     
+              }],
+              chests: [{
+                imgRef: "chest",
+                locX: 0,
+                locY: 5,
+                event: "lc1",
+                action: function() {
+                  this.onOpenFindGold(570);
+                }
+              }]
         },
         19: {
               id: SUBMAP_CASTLE_TOWN_STORAGEROOM,
