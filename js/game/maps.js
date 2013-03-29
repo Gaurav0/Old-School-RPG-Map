@@ -1184,6 +1184,23 @@ var g_mapData = {
                     w: 5,
                     h: 2
                   }
+            }],
+            chests: [{
+              imgRef: "chest",
+              locX: 15,
+              locY: 4,
+              event: "sc1",
+              action: function() {
+                this.onOpenFindGold(370);
+              }
+            },{
+              imgRef: "chest",
+              locX: 6,
+              locY: 4,
+              event: "sc2",
+              action: function() {
+                this.onOpenFindItem("You found 1 Max potion.", ITEM_MAX_POTION, 1);
+              }
             }]
         },
         18: {
@@ -1480,6 +1497,23 @@ var g_mapData = {
                   w: 8,
                   h: 4
                 }
+              }],
+              chests: [{
+                imgRef: "chest",
+                locX: 10,
+                locY: 4,
+                event: "mc1",
+                action: function() {
+                  this.onOpenFindGold(150);
+                }
+              },{
+                imgRef: "chest",
+                locX: 18,
+                locY: 5,
+                event: "mc2",
+                action: function(){
+                  this.onOpenFindItem("You found 3 potions.", ITEM_POTION, 3);
+                }
               }]
         },
         13: {
@@ -1517,24 +1551,6 @@ var g_mapData = {
               //Exit to right of Mountain pass
                 fromX: 19,
                 fromY: 8,
-                toMapId: SUBMAP_WORLD_MAP,
-                toX: 15,
-                toY: 4,
-                toScrollX: 9,
-                toScrollY: 0,
-                facing: FACING_RIGHT
-            },{
-                fromX: 19,
-                fromY: 9,
-                toMapId: SUBMAP_WORLD_MAP,
-                toX: 15,
-                toY: 4,
-                toScrollX: 9,
-                toscrollY: 0,
-                facing: FACING_RIGHT
-            },{
-                fromX: 19,
-                fromY: 10,
                 toMapId: SUBMAP_WORLD_MAP,
                 toX: 15,
                 toY: 4,
