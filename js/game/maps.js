@@ -179,7 +179,7 @@ var g_mapData = {
                 toMapId: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
                 toX: 16,
                 toY: 8,
-                toScrollX: 11,
+                toScrollX: 7,
                 toScrollY: 3,
                 facing: FACING_DOWN
               },
@@ -1492,10 +1492,10 @@ var g_mapData = {
                 fromX: 16,
                 fromY: 7,
                 toMapId: SUBMAP_WEIRD_HOUSE,
-                toX: 8,
+                toX: 6,
                 toY: 13,
-                toScrollX: 3,
-                toScrollY: 8,
+                toScrollX: 1,
+                toScrollY: 4,
                 facing: FACING_UP
               }],
               exit: {
