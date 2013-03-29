@@ -542,7 +542,16 @@ var g_mapData = {
                 toScrollX: 0,
                 toScrollY: 3,
                 facing: FACING_DOWN
-            }
+            },
+            chests: [{
+              imgRef: "chest",
+              locX: 11,
+              locY: 3,
+              event: "cd1",
+              action: function() {
+                this.onOpenFindGold(1200);
+              }
+            }]
         },
         28: {
               id: SUBMAP_KINGDOM_CAVE_ONE,
@@ -576,7 +585,17 @@ var g_mapData = {
                 w: 4,
                 h: 2
               }
+          }],
+          chests: [{
+            imgRef: "chest",
+            locX: 7,
+            locY: 3,
+            event: "cc1",
+            action: function(){
+              this.onOpenFindItem("You found 2 Max potions.", ITEM_MAX_POTION, 2);
+            }
           }]
+            
         },
         27: {
               id: SUBMAP_SECOND_TOWER_SECOND_FLOOR,
@@ -607,6 +626,15 @@ var g_mapData = {
                   toScrollX: 0,
                   toScrollY: 3,
                   facing: FACING_DOWN
+            }],
+            chests: [{
+              imgRef: "chest",
+              locX: 12,
+              locY: 10,
+              event: "kc1",
+              action: function() {
+                this.onOpenFindItem("You found 5 bombs.", ITEM_BOMB, 5);
+                }
             }]
         },
         26: {
@@ -696,6 +724,15 @@ var g_mapData = {
                   toScrollX: 3,
                   toScrollY: 2,
                   facing: FACING_DOWN
+            }],
+            chests: [{
+              imgRef: "chest",
+              locX: 3,
+              locY: 11,
+              event: "tc1",
+              action: function() {
+                this.onOpenFindGold(1337);
+              }
             }]
         },
         24: {
@@ -1187,7 +1224,7 @@ var g_mapData = {
             }],
             chests: [{
               imgRef: "chest",
-              locX: 15,
+              locX: 19,
               locY: 4,
               event: "sc1",
               action: function() {
