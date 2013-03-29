@@ -1509,6 +1509,24 @@ var g_mapData = {
                 toScrollX: 9,
                 toScrollY: 0,
                 facing: FACING_RIGHT
+            },{
+                fromX: 19,
+                fromY: 9,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 15,
+                toY: 4,
+                toScrollX: 9,
+                toscrollY: 0,
+                facing: FACING_RIGHT
+            },{
+                fromX: 19,
+                fromY: 10,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 15,
+                toY: 4,
+                toScrollX: 9,
+                toScrollY: 0,
+                facing: FACING_RIGHT
             }],
             exit: {
                 at: "top",
