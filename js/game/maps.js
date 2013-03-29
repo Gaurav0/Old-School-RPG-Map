@@ -72,6 +72,8 @@ var SUBMAP_KINGDOM_ITEMS = 31;
 var SUBMAP_CASTLE_ARMORY = 32;
 var SUBMAP_CASTLE_ITEMS = 33;
 var SUBMAP_GRAND_THRONE = 34;
+var SUBMAP_WEIRD_HOUSE = 35;
+
 
 
 
@@ -160,6 +162,41 @@ var g_mapData = {
                 toScrollY: 19,
                 facing: FACING_UP
             }]
+        },
+        35: {
+              id: SUBMAP_WEIRD_HOUSE,
+              tileset: {
+                imgRef: "Combined",
+                width: 5760,
+                height: 8704
+              },
+              xmlUrl: "xml/Weirdhouse.tmx.xml",
+              randomEncounters: false,
+              music: "dark",
+              overWorld: false,
+              exit: {
+                at: "bottom",
+                toMapId: SUBMAP_CASTLE_TOWN_MAP_RIGHT,
+                toX: 16,
+                toY: 8,
+                toScrollX: 11,
+                toScrollY: 3,
+                facing: FACING_DOWN
+              },
+              npcs: [{
+                imgRef: "man1",
+                locX: 10,
+                locY: 8,
+                facing: FACING_RIGHT,
+                displayText: "Who are you? Who am I? Error, 404.",
+                walks: true,
+                zone: {
+                  x: 3,
+                  y: 8,
+                  w: 10,
+                  h: 4
+                }
+              }]
         },
         34: {
               id: SUBMAP_GRAND_THRONE,
@@ -1451,6 +1488,16 @@ var g_mapData = {
               randomEncounters: false,
               music: "castle",
               overWorld: false,
+              entrances: [{
+                fromX: 16,
+                fromY: 7,
+                toMapId: SUBMAP_WEIRD_HOUSE,
+                toX: 8,
+                toY: 13,
+                toScrollX: 3,
+                toScrollY: 8,
+                facing: FACING_UP
+              }],
               exit: {
                   at: "edges",
                   toMapId: SUBMAP_CASTLE_TOWN,
