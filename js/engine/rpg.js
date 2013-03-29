@@ -69,7 +69,7 @@ var FPS = 25;
 var SCROLL_FACTOR = 4;
 
 // How often to battle
-var BATTLE_FREQ = 0.00;
+var BATTLE_FREQ = 0.14;
 
 // How long to wait in ms between writing lines
 var MESSAGE_DELAY = 500;
