@@ -1466,7 +1466,21 @@ var g_mapData = {
                 toScrollX: 4,
                 toScrollY: 0, 
                 facing: FACING_DOWN
-              }
+              },
+              npcs:[{
+                imgRef: "man1",
+                locX: 8,
+                locY: 9,
+                facing: FACING_DOWN,
+                displayText: "I come here to relax from time to time.",
+                walks: true,
+                zone: {
+                  x: 5,
+                  y: 9,
+                  w: 8,
+                  h: 4
+                }
+              }]
         },
         13: {
               id: SUBMAP_MOUNTAIN_PASS,
