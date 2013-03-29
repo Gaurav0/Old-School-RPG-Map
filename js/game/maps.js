@@ -1536,8 +1536,17 @@ var g_mapData = {
                 toY: 3,
                 toScrollX: 5,
                 toScrollY: 0,
-                facing: FACING_UP
+                facing: FACING_DOWN
             }, {
+                fromX: 0,
+                fromY: 8,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 13,
+                toY: 3,
+                toScrollX: 5,
+                toScrollY: 0,
+                facing: FACING_DOWN
+            },{
               //Exit to left of Mountain Pass
                 fromX: 0,
                 fromY: 10,
@@ -1546,7 +1555,7 @@ var g_mapData = {
                 toY: 3,
                 toScrollX: 5,
                 toScrollY: 0,
-                facing: FACING_UP
+                facing: FACING_DOWN
             }, {
               //Exit to right of Mountain pass
                 fromX: 19,
@@ -1557,6 +1566,24 @@ var g_mapData = {
                 toScrollX: 9,
                 toScrollY: 0,
                 facing: FACING_RIGHT
+            },{
+                fromX: 19,
+                fromY: 9,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 15,
+                toY: 4,
+                toScrollX: 9,
+                toScrollY: 0,
+                facing: FACING_DOWN
+            },{
+                fromX: 19,
+                fromY: 10,
+                toMapId: SUBMAP_WORLD_MAP,
+                toX: 15,
+                toY: 4,
+                toScrollX: 9,
+                toScrollY: 0,
+                facing: FACING_DOWN
             }],
             exit: {
                 at: "top",

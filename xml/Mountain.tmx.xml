@@ -572,6 +572,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="61"/>
+   <tile gid="62"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -590,6 +592,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
+   <tile gid="77"/>
+   <tile gid="78"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -608,12 +612,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="93"/>
+   <tile gid="94"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
