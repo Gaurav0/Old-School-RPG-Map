@@ -180,7 +180,92 @@ var g_mapData = {
                 toScrollX: 25,
                 toScrollY: 30,
                 facing: FACING_DOWN
-              }
+              },
+              npcs: [{
+                imgRef: "woman2",
+                locX: 0,
+                locY: 16,
+                facing: FACING_RIGHT,
+                displayText: "What do you think the kingdom in the west \nis planning?",
+                walks: false
+              },{
+                imgRef: "man2",
+                locX: 3,
+                locY: 16,
+                facing: FACING_LEFT,
+                displayText: "Is another war on our horizon?",
+                walks: false
+              },{
+                imgRef: "man1",
+                locX: 0,
+                locY: 20,
+                facing: FACING_RIGHT,
+                displayText: "Welcome to the castle.",
+                walks: false
+              },{
+                imgRef: "woman2",
+                locX: 24,
+                locY: 15,
+                facing: FACING_LEFT,
+                displayText: "I work in the royal study.",
+                walks: false
+              },{
+                imgRef: "boy",
+                locX: 21,
+                locY: 21,
+                facing: FACING_RIGHT,
+                displayText: "I may be young, but I am the heir to \nthe throne.",
+                walks: false
+              },{
+                imgRef: "soldier",
+                locX: 10,
+                locY: 21,
+                facing: FACING_DOWN,
+                displayText: "Welcome friend.",
+                walks: false
+              },{
+                imgRef: "soldier",
+                locX: 14,
+                locY: 21,
+                facing: FACING_DOWN,
+                displayText: "We aren't needed here. The King is a \nfierce warrior.",
+                walks: false
+              },{
+                imgRef: "soldier",
+                locX: 10,
+                locY: 13,
+                facing: FACING_DOWN,
+                displayText: "You are about to be in the presence \nof our King.",
+                walks: false
+              },{
+                imgRef: "soldier",
+                locX: 14,
+                locY: 13,
+                facing: FACING_DOWN,
+                displayText: "Despite his reign, our King is modest.",
+                walks: false
+              },{
+                imgRef: "man2",
+                locX: 12,
+                locY: 6,
+                facing: FACING_DOWN,
+                displayText: "King: Welcome to my kingdom. What can I \ndo for you?",
+                walks: false
+              },{
+                imgRef: "man1",
+                locX: 12,
+                locY: 17,
+                facing: FACING_DOWN,
+                displayText: "What business do you have here?",
+                walks: true,
+                zone: {
+                  x: 1,
+                  y: 17,
+                  w: 12,
+                  h: 2
+                }
+              }]
+
         },
         33: {
               id: SUBMAP_CASTLE_ITEMS,
@@ -1976,7 +2061,6 @@ var g_mapData = {
                 toScrollY: 9,
                 facing: FACING_UP
             }],
-            //Scrolling is working now
             exit: {
                 at: "edges",
                 toMapId: SUBMAP_TOWN,
