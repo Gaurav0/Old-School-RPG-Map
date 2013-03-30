@@ -67,6 +67,7 @@ var TitleScreenMenu = Menu.extend({
             font: "bold 20px monospace",
             callbacks: [
                 function() {
+                    g_game.reset();
                     menu._mainMenu.onNewGame();
                     g_game.exitTitleScreen();
                 },
