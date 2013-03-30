@@ -75,10 +75,6 @@ var SUBMAP_GRAND_THRONE = 34;
 var SUBMAP_WEIRD_HOUSE = 35;
 
 
-
-
-
-
 var g_themeMusic = "theme";
 
 var g_mapData = {
@@ -1253,7 +1249,7 @@ var g_mapData = {
                   locX: 16,
                   locY: 7,
                   facing: FACING_UP,
-                  displayText: "Having rich parents isn't as \ngood as it seems. I never get to play with other kids.",
+                  displayText: "Having rich parents isn't as\ngood as it seems.\nI never get to play with other kids.",
                   walks: true,
                   zone: {
                     x: 4,
