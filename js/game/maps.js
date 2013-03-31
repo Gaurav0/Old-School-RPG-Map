@@ -166,7 +166,7 @@ var g_mapData = {
                 width: 5760,
                 height: 8704
               },
-              xmlUrl: "xml/Weirdhouse.tmx.xml",
+              xmlUrl: "xml/WeirdHouse.tmx.xml",
               randomEncounters: false,
               music: "dark",
               overWorld: false,
